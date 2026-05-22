@@ -1,0 +1,229 @@
+/* This file is auto-generated */
+
+const css = {
+  src: `src/Tooltip/tooltip.css`,
+  hash: `1phhukimxzs`,
+  content: `
+/* ============================================================
+ * react-tooltip-contemporary — tooltip.css
+ *
+ * Three layers:
+ *   .tooltip-anchor   - wraps the trigger, carries 'anchor-name' (set inline)
+ *   .tooltip-popover  - the top-layer element, positioned with 'anchor()'
+ *   .tooltip          - the bubble; its shape + arrow is a single clip-path
+ * ============================================================ */
+
+/* ---------- anchor (stays in normal document flow) ---------- */
+.tooltip-anchor {
+  display: inline-block;
+}
+
+/* ---------- popover (rendered in the browser top layer) ---------- */
+.tooltip-popover {
+  /* reset user-agent popover styles */
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  width: max-content;
+  height: max-content;
+
+  /* the popover is fixed and tracks its anchor */
+  position: fixed;
+
+  /* soft shadow that follows the clip-path silhouette */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+
+  /* enter / exit transition — Popover API + @starting-style */
+  opacity: 0;
+  transition:
+    opacity var(--tooltip-transition-duration, 0.16s) ease,
+    overlay var(--tooltip-transition-duration, 0.16s) ease allow-discrete,
+    display var(--tooltip-transition-duration, 0.16s) ease allow-discrete;
+}
+.tooltip-popover:popover-open {
+  opacity: 1;
+}
+@starting-style {
+  .tooltip-popover:popover-open {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tooltip-popover {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* ---------- placement: position the popover around its anchor ----------
+ * anchor() resolves against the element named by position-anchor, which is
+ * set inline, per instance.  --tooltip-offset is the gap.                */
+.tooltip-popover.placement-top {
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50% 0;
+  margin-bottom: var(--tooltip-offset, 0.25em);
+}
+.tooltip-popover.placement-bottom {
+  top: anchor(bottom);
+  left: anchor(center);
+  translate: -50% 0;
+  margin-top: var(--tooltip-offset, 0.25em);
+}
+.tooltip-popover.placement-left {
+  right: anchor(left);
+  top: anchor(center);
+  translate: 0 -50%;
+  margin-right: var(--tooltip-offset, 0.25em);
+}
+.tooltip-popover.placement-right {
+  left: anchor(right);
+  top: anchor(center);
+  translate: 0 -50%;
+  margin-left: var(--tooltip-offset, 0.25em);
+}
+
+/* ---------- the bubble: shape + arrow as one clip-path ---------- */
+.tooltip {
+  /* customizable inputs (overridable via the shapeStyle prop) */
+  --py: var(--tooltip-padding-y, 0.4em);
+  --px: var(--tooltip-padding-x, 0.7em);
+  --rad: var(--tooltip-radius, 0.4em);
+  --arrow-size: var(--tooltip-arrow-size, 0.5em);
+
+  display: inline-block;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: var(--tooltip-max-width, 16rem);
+  background: var(--tooltip-background, #1f1f1f);
+  color: var(--tooltip-color, #fff);
+  font-size: var(--tooltip-font-size, 0.875em);
+  line-height: 1.35;
+  text-align: start;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  word-break: break-word;
+
+  padding: var(--py) var(--px);
+
+  /* arrow-side insets — set per placement below */
+  --t: 0%;
+  --b: 0%;
+  --l: 0%;
+  --r: 0%;
+
+  /* rounded-corner control points (cheap bezier approximation) */
+  --crn1: calc(var(--rad) / 2);
+  --crn2: calc(var(--rad) / 7.5);
+
+  --d1xs: calc(0% + var(--rad) + var(--l)) calc(0% + var(--t));
+  --d15sX: calc(0% + var(--crn1) + var(--l)) calc(0% + var(--crn2) + var(--t));
+  --d15sY: calc(0% + var(--crn2) + var(--l)) calc(0% + var(--crn1) + var(--t));
+  --d1ys: calc(0% + var(--l)) calc(0% + var(--rad) + var(--t));
+  --d2xs: calc(100% - var(--rad) - var(--r)) calc(0% + var(--t));
+  --d25sX: calc(100% - var(--crn1) - var(--r)) calc(0% + var(--crn2) + var(--t));
+  --d25sY: calc(100% - var(--crn2) - var(--r)) calc(0% + var(--crn1) + var(--t));
+  --d2ys: calc(100% - var(--r)) calc(0% + var(--rad) + var(--t));
+  --d3xs: calc(100% - var(--rad) - var(--r)) calc(100% - var(--b));
+  --d35sX: calc(100% - var(--crn1) - var(--r)) calc(100% - var(--crn2) - var(--b));
+  --d35sY: calc(100% - var(--crn2) - var(--r)) calc(100% - var(--crn1) - var(--b));
+  --d3ys: calc(100% - var(--r)) calc(100% - var(--rad) - var(--b));
+  --d4xs: calc(0% + var(--rad) + var(--l)) calc(100% - var(--b));
+  --d45sX: calc(0% + var(--crn1) + var(--l)) calc(100% - var(--crn2) - var(--b));
+  --d45sY: calc(0% + var(--crn2) + var(--l)) calc(100% - var(--crn1) - var(--b));
+  --d4ys: calc(0% + var(--l)) calc(100% - var(--rad) - var(--b));
+
+  --corner1: var(--d1ys), var(--d15sY), var(--d15sX), var(--d1xs);
+  --corner2: var(--d2xs), var(--d25sX), var(--d25sY), var(--d2ys);
+  --corner3: var(--d3ys), var(--d35sY), var(--d35sX), var(--d3xs);
+  --corner4: var(--d4xs), var(--d45sX), var(--d45sY), var(--d4ys);
+
+  clip-path: polygon(
+    var(--corner1),
+    var(--corner2),
+    var(--corner3),
+    var(--corner4)
+  );
+}
+.tooltip:empty {
+  display: none;
+}
+
+/* placement-top: bubble above the anchor, arrow points down */
+.tooltip.placement-top {
+  --b: var(--arrow-size);
+  --cx: 50%;
+  --cy: calc(100% - var(--arrow-size));
+  --a1: calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
+  --a2: var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
+  --a3: calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
+  padding-bottom: calc(var(--b) + var(--py));
+  clip-path: polygon(
+    var(--corner1),
+    var(--corner2),
+    var(--corner3),
+    var(--a1), var(--a2), var(--a3),
+    var(--corner4)
+  );
+}
+
+/* placement-bottom: bubble below the anchor, arrow points up */
+.tooltip.placement-bottom {
+  --t: var(--arrow-size);
+  --cx: 50%;
+  --cy: calc(0% + var(--arrow-size));
+  --a1: calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
+  --a2: var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
+  --a3: calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
+  padding-top: calc(var(--t) + var(--py));
+  clip-path: polygon(
+    var(--corner1),
+    var(--a1), var(--a2), var(--a3),
+    var(--corner2),
+    var(--corner3),
+    var(--corner4)
+  );
+}
+
+/* placement-left: bubble left of the anchor, arrow points right */
+.tooltip.placement-left {
+  --r: var(--arrow-size);
+  --cx: calc(100% - var(--arrow-size));
+  --cy: 50%;
+  --a1: var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
+  --a2: calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
+  --a3: var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
+  padding-right: calc(var(--r) + var(--px));
+  clip-path: polygon(
+    var(--corner1),
+    var(--corner2),
+    var(--a1), var(--a2), var(--a3),
+    var(--corner3),
+    var(--corner4)
+  );
+}
+
+/* placement-right: bubble right of the anchor, arrow points left */
+.tooltip.placement-right {
+  --l: var(--arrow-size);
+  --cx: calc(0% + var(--arrow-size));
+  --cy: 50%;
+  --a1: var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
+  --a2: calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
+  --a3: var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
+  padding-left: calc(var(--l) + var(--px));
+  clip-path: polygon(
+    var(--a1), var(--a2), var(--a3),
+    var(--corner1),
+    var(--corner2),
+    var(--corner3),
+    var(--corner4)
+  );
+}
+`,
+};
+
+export default css;

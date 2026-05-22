@@ -1,0 +1,91 @@
+{
+  "name": "react-tooltip-contemporary",
+  "version": "0.0.1",
+  "description": "contemporary react tooltip — CSS clip-path shape, native Popover API, CSS anchor positioning",
+  "main": "./lib/index.js",
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "build": "npm-run-all clean css-to-js build-ts css-copy",
+    "build-storybook": "storybook build",
+    "build-ts": "tsc --project tsconfig.build.json",
+    "clean": "rimraf lib",
+    "css-copy": "npx cpy src/**/*.css lib && npx cpy src/**/*.css.* lib",
+    "css-to-js-watch": "node css-to-js --watch",
+    "css-to-js": "node css-to-js",
+    "dev": "npm-run-all --parallel storybook css-to-js-watch",
+    "lint": "eslint ./src/ --fix",
+    "storybook": "storybook dev -p 6006 && npm run css-to-js-watch",
+    "test:watch": "jest --watch",
+    "test": "jest --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yakunins/react-tooltip-contemporary.git"
+  },
+  "homepage": "https://github.com/yakunins/react-tooltip-contemporary",
+  "license": "MIT",
+  "author": {
+    "name": "Sergey Yakunin",
+    "email": "s@yakunins.com",
+    "url": "https://github.com/yakunins"
+  },
+  "engines": {
+    "node": ">=12.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "dependencies": {
+    "@oddbird/css-anchor-positioning": "^0.5.0",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^1.6.1",
+    "@storybook/addon-essentials": "^8.2.4",
+    "@storybook/addon-interactions": "^8.2.4",
+    "@storybook/addon-links": "^8.2.4",
+    "@storybook/addon-onboarding": "^8.2.4",
+    "@storybook/blocks": "^8.2.4",
+    "@storybook/react": "^8.2.4",
+    "@storybook/react-vite": "^8.2.4",
+    "@storybook/test": "^8.2.4",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^18.19.41",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
+    "chokidar": "^4.0.1",
+    "cpy-cli": "^5.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-storybook": "^0.8.0",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.7",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "storybook": "^8.2.4",
+    "ts-jest": "^29.2.3",
+    "typescript": "^5.5.3"
+  },
+  "keywords": [
+    "react",
+    "tooltip",
+    "popover",
+    "anchor-positioning",
+    "clip-path",
+    "component",
+    "css-anchor"
+  ],
+  "lint-staged": {
+    "*.ts": "eslint --cache --cache-location .eslintcache --fix"
+  }
+}
