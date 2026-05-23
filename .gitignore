@@ -16,3 +16,6 @@ yarn-error.log*
 
 *storybook.log
 .eslintcache
+
+# Claude Code local settings (user-specific; project settings.json may be committed)
+.claude/settings.local.json

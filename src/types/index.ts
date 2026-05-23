@@ -9,7 +9,7 @@ export type TooltipTrigger = 'hover' | 'focus' | 'click';
 /**
  * Visual customisation of the tooltip bubble.
  *
- * Every field maps to a CSS custom property consumed by `tooltip.css`;
+ * Every field maps to a CSS custom property consumed by `tooltipShape.css`;
  * any omitted field falls back to the stylesheet default.
  */
 export type TooltipShapeStyle = {

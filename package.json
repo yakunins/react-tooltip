@@ -1,6 +1,6 @@
 {
   "name": "react-tooltip-contemporary",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "contemporary react tooltip — CSS clip-path shape, native Popover API, CSS anchor positioning",
   "main": "./lib/index.js",
   "files": [
@@ -23,9 +23,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yakunins/react-tooltip-contemporary.git"
+    "url": "git+https://github.com/yakunins/react-tooltip.git"
   },
-  "homepage": "https://github.com/yakunins/react-tooltip-contemporary",
+  "homepage": "https://github.com/yakunins/react-tooltip",
   "license": "MIT",
   "author": {
     "name": "Sergey Yakunin",

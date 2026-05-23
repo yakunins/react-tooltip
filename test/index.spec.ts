@@ -1,15 +1,9 @@
-import {
-  Tooltip,
-  UnstyledTooltip,
-  TooltipShape,
-  TooltipAnchor,
-} from '../src';
+import { Tooltip, TooltipShape, TooltipAnchor } from '../src';
 
 describe('react-tooltip-contemporary', () => {
   describe('public exports', () => {
-    it('exports the styled and unstyled tooltip components', () => {
+    it('exports the Tooltip component', () => {
       expect(typeof Tooltip).toBe('function');
-      expect(typeof UnstyledTooltip).toBe('function');
     });
 
     it('exports the TooltipShape subcomponent', () => {

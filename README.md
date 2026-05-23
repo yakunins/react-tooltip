@@ -11,8 +11,8 @@ features:
   is loaded **only** in browsers without native support (currently Firefox).
 - **Pure-CSS shape** — the rounded bubble *and* its arrow are one
   `clip-path: polygon(...)` — no borders, pseudo-elements or SVG.
-- **Zero-config styling** — `tooltip.css` is injected at runtime; no CSS
-  import and no bundler CSS loader required.
+- **Zero-config styling** — each component injects its own stylesheet slice
+  at runtime; no CSS import and no bundler CSS loader required.
 
 ```tsx
 import { Tooltip } from 'react-tooltip-contemporary';
@@ -24,18 +24,20 @@ import { Tooltip } from 'react-tooltip-contemporary';
 
 ## Components
 
-| Export            | Role                                                              |
-| ----------------- | ----------------------------------------------------------------- |
-| `Tooltip`         | The component to use — behaviour **plus** the injected stylesheet. |
-| `UnstyledTooltip` | Same behaviour, no stylesheet — bring your own `tooltip.css`.      |
-| `TooltipShape`    | The bubble only: the clip-path shape + arrow.                     |
-| `TooltipAnchor`   | The "anchor" half of CSS anchor positioning.                      |
+Each component injects its own stylesheet slice at runtime, so all three
+work standalone with no CSS import.
+
+| Export          | Role                                            |
+| --------------- | ----------------------------------------------- |
+| `Tooltip`       | The tooltip — behaviour, triggers, positioning. |
+| `TooltipShape`  | The bubble: the clip-path shape + arrow.        |
+| `TooltipAnchor` | The "anchor" half of CSS anchor positioning.    |
 
 ## `Tooltip` props
 
 | Prop           | Type                                      | Default              | Notes                                              |
 | -------------- | ----------------------------------------- | -------------------- | -------------------------------------------------- |
-| `children`     | `ReactNode`                               | —                    | The trigger element.                               |
+| `children`     | `ReactNode`                               | —                    | The trigger element (wrapping mode).               |
 | `content`      | `ReactNode`                               | —                    | The bubble content.                                |
 | `placement`    | `'top' \| 'bottom' \| 'left' \| 'right'`  | `'top'`              | Preferred side of the anchor.                      |
 | `trigger`      | `('hover' \| 'focus' \| 'click')[]`       | `['hover', 'focus']` | Interactions that reveal the tooltip.              |
@@ -49,6 +51,8 @@ import { Tooltip } from 'react-tooltip-contemporary';
 | `shapeStyle`   | `TooltipShapeStyle`                       | —                    | Bubble appearance (see below).                     |
 | `className`    | `string`                                  | —                    | Applied to the popover element.                    |
 | `style`        | `CSSProperties`                           | —                    | Applied to the popover element.                    |
+| `anchorRef`    | `RefObject<HTMLElement>`                  | —                    | Attach to an existing element instead of wrapping `children`. See *External anchor* below. |
+| `anchorName`   | `string`                                  | —                    | Use this CSS anchor name verbatim. See *External anchor* below.                            |
 
 ### `shapeStyle`
 
@@ -83,6 +87,47 @@ const [open, setOpen] = useState(false);
 </Tooltip>;
 ```
 
+## External anchor (skip the wrapper)
+
+When you'd rather attach the tooltip to an element you already render —
+without `Tooltip` wrapping it in an extra `<div>` — pass `anchorRef` and
+omit `children`. `Tooltip` writes `anchor-name` onto the referenced
+element, wires the configured triggers to it, and mirrors
+`aria-describedby` on it for accessibility:
+
+```tsx
+const btnRef = useRef<HTMLButtonElement>(null);
+
+<>
+  <button ref={btnRef}>Save</button>
+  <Tooltip anchorRef={btnRef} content="Saved" />
+</>;
+```
+
+If you'd rather own the CSS anchor name yourself, use `anchorName`. In
+this mode `Tooltip` has no handle to your element, so it cannot wire
+triggers — pair with controlled `open` / `onOpenChange`:
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<>
+  <button
+    style={{ anchorName: '--save-btn' } as CSSProperties}
+    onMouseEnter={() => setOpen(true)}
+    onMouseLeave={() => setOpen(false)}
+  >
+    Save
+  </button>
+  <Tooltip
+    anchorName="--save-btn"
+    open={open}
+    onOpenChange={setOpen}
+    content="Saved"
+  />
+</>;
+```
+
 ## Browser support
 
 Native Popover API, `@starting-style` and CSS anchor positioning are used.
@@ -99,8 +144,8 @@ npm run build      # type-check, build to lib/, generate + copy CSS
 npm test
 ```
 
-`tooltip.css` is the source of truth; `css-to-js` regenerates
-`tooltip.css.generated.js`, which the runtime injects.
+Each component owns a `*.css` file; `css-to-js` regenerates the matching
+`*.css.generated.js`, which the component injects at runtime.
 
 ## License
 

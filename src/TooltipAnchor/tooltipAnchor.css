@@ -1,0 +1,10 @@
+/* ============================================================
+ * react-tooltip-contemporary - TooltipAnchor layer
+ *
+ * Wraps the trigger and exposes it as a CSS positioning anchor.
+ * The anchor-name itself is set inline, per instance.
+ * ============================================================ */
+
+.tooltip-anchor {
+  display: inline-block;
+}
