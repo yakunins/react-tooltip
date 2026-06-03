@@ -40,6 +40,7 @@ work standalone with no CSS import.
 | `children`     | `ReactNode`                               | —                    | The trigger element (wrapping mode).               |
 | `content`      | `ReactNode`                               | —                    | The bubble content.                                |
 | `placement`    | `'top' \| 'bottom' \| 'left' \| 'right'`  | `'top'`              | Preferred side of the anchor.                      |
+| `arrowPlacement` | `'start' \| 'center' \| 'end'`          | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below). |
 | `trigger`      | `('hover' \| 'focus' \| 'click')[]`       | `['hover', 'focus']` | Interactions that reveal the tooltip.              |
 | `openDelay`    | `number`                                  | `200`                | ms before showing.                                 |
 | `closeDelay`   | `number`                                  | `100`                | ms before hiding.                                  |
@@ -53,6 +54,22 @@ work standalone with no CSS import.
 | `style`        | `CSSProperties`                           | —                    | Applied to the popover element.                    |
 | `anchorRef`    | `RefObject<HTMLElement>`                  | —                    | Attach to an existing element instead of wrapping `children`. See *External anchor* below. |
 | `anchorName`   | `string`                                  | —                    | Use this CSS anchor name verbatim. See *External anchor* below.                            |
+
+### `arrowPlacement`
+
+The arrow always points at the **anchor's centre** — `arrowPlacement` only
+chooses which way the bubble body extends from it. `'center'` (default) centres
+the bubble on the anchor; `'start'` keeps the arrow near the bubble's leading
+edge so the body grows toward the trailing side; `'end'` mirrors that. Handy
+when the anchor sits near a viewport edge and you want the bubble to grow the
+other way. The axis follows `placement` — left→right for `top`/`bottom`,
+top→bottom for `left`/`right`.
+
+```tsx
+<Tooltip content="Aligned to the start" placement="top" arrowPlacement="start">
+  <button>Hover me</button>
+</Tooltip>
+```
 
 ### `bubbleStyle`
 
@@ -132,8 +149,10 @@ const [open, setOpen] = useState(false);
 
 Native Popover API, `@starting-style` and CSS anchor positioning are used.
 Popover and `@starting-style` are supported across current Chrome, Safari and
-Firefox; CSS anchor positioning is native in Chromium and Safari, and is
-polyfilled on demand elsewhere.
+Firefox; CSS anchor positioning is native in Chromium and Safari. Where it is
+missing (currently Firefox) there is no polyfill and no extra dependency — the
+styled bubble is skipped and string `content` is surfaced through the
+element's native `title` tooltip instead.
 
 ## Development
 
