@@ -193,6 +193,45 @@ export const Placements: Story = {
 
 /* ----------------------------------------------------------------------- */
 
+// Every placement forced open at once — no hover/focus needed. Each tooltip
+// is controlled with `open` pinned to `true`, and `autoFlip` is disabled so a
+// bubble never flips away from the side it is meant to demonstrate. Generous
+// horizontal gaps and padding leave room for the `left`/`right` bubbles, which
+// extend sideways past their anchors.
+const AllPlacementsDemo = () => (
+  <div
+    style={{
+      display: 'flex',
+      gap: '9rem',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '6rem',
+    }}
+  >
+    {placements.map((p, i) => (
+      <Tooltip
+        key={p}
+        placement={p}
+        open
+        autoFlip={false}
+        content={<pre>{`placement:\n"${p}"`}</pre>}
+        className={gradClasses[i]}
+      >
+        <button type="button" className="demo-btn">
+          {p}
+        </button>
+      </Tooltip>
+    ))}
+  </div>
+);
+
+export const AllPlacements: Story = {
+  render: () => <AllPlacementsDemo />,
+  parameters: { layout: 'fullscreen' },
+};
+
+/* ----------------------------------------------------------------------- */
+
 const TriggersDemo = () => (
   <div style={{ display: 'flex', gap: '2rem', padding: '5rem' }}>
     <Tooltip
