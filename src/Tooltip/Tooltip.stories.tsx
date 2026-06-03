@@ -523,3 +523,79 @@ export const Shape: Story = {
   render: () => <ShapeDemo />,
   parameters: { layout: 'fullscreen' },
 };
+
+/* ----------------------------------------------------------------------- */
+
+// autoFlip only does something when the bubble would overflow the viewport on
+// its preferred side — then it flips to the opposite side. Centered demos
+// never reach an edge, so autoFlip is a silent no-op there (which is why it
+// looks like "nothing happens").
+//
+// This story is a big scrollable canvas with the four anchors clustered in the
+// dead centre. Scroll so an anchor is pushed toward the matching viewport edge,
+// then HOVER it: the bubble flips to the opposite side. With the anchor in open
+// space it stays on its preferred side. (Scroll first, then hover — autoFlip is
+// evaluated when the tooltip OPENS, not continuously while it is already open.)
+//
+// Note: the styled bubble needs native CSS anchor positioning (Chromium /
+// Safari). In Firefox the tooltip degrades to a native `title`, so there is no
+// bubble to flip.
+
+// Faint grid so the scrolling is visible against the empty canvas.
+const gridBg =
+  'repeating-linear-gradient(0deg, #f1f5f9 0 1px, transparent 1px 64px),' +
+  'repeating-linear-gradient(90deg, #f1f5f9 0 1px, transparent 1px 64px)';
+
+const AutoFlipDemo = () => (
+  <div
+    style={{
+      minWidth: '200vw',
+      minHeight: '200vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: gridBg,
+    }}
+  >
+    {/* fixed so it stays put while you scroll the canvas underneath */}
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '0.75rem 1rem',
+        textAlign: 'center',
+        pointerEvents: 'none',
+      }}
+    >
+      Scroll the canvas so an anchor is pushed toward the matching edge (scroll
+      down for <code>top</code>, up for <code>bottom</code>, right for{' '}
+      <code>left</code>, left for <code>right</code>), then hover it — it flips
+      to the opposite side. Scroll first, then hover.
+    </div>
+
+    <div style={{ display: 'flex', gap: '20dvw' }}>
+      {placements.map((p, i) => (
+        <Tooltip
+          key={p}
+          placement={p}
+          autoFlip
+          content={
+            <pre>{`placement="${p}"\nscroll to its edge,\nthen hover`}</pre>
+          }
+          className={gradClasses[i]}
+        >
+          <button type="button" className="demo-btn">
+            {p}
+          </button>
+        </Tooltip>
+      ))}
+    </div>
+  </div>
+);
+
+export const AutoFlip: Story = {
+  render: () => <AutoFlipDemo />,
+  parameters: { layout: 'fullscreen' },
+};
