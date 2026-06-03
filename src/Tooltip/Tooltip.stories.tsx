@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { Tooltip } from './';
 import { TooltipShape } from '../TooltipShape';
-import { type Placement } from '../types';
+import { type ArrowPlacement, type Placement } from '../types';
 
 const demoCss = `
   .demo-btn {
@@ -105,6 +105,10 @@ const meta = {
     placement: {
       control: 'radio',
       options: ['top', 'bottom', 'left', 'right'],
+    },
+    arrowPlacement: {
+      control: 'radio',
+      options: ['start', 'center', 'end'],
     },
     trigger: {
       control: 'check',
@@ -227,6 +231,63 @@ const AllPlacementsDemo = () => (
 
 export const AllPlacements: Story = {
   render: () => <AllPlacementsDemo />,
+  parameters: { layout: 'fullscreen' },
+};
+
+/* ----------------------------------------------------------------------- */
+
+// arrowPlacement = start | center | end. Every variant is forced open so the
+// effect is visible without interaction. The arrow always points at the
+// anchor's center; arrowPlacement just chooses which way the bubble body
+// extends — `start` puts the arrow near the bubble's leading edge (body grows
+// toward the end), `end` mirrors it, `center` (the default) is symmetric.
+// Shown for a horizontal placement (top) and a vertical one (left) so both
+// axes are clear.
+const arrowPlacements: ArrowPlacement[] = ['start', 'center', 'end'];
+
+const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
+  <div
+    style={{
+      display: 'flex',
+      gap: '7rem',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    {arrowPlacements.map((ap, i) => (
+      <Tooltip
+        key={ap}
+        placement={placement}
+        arrowPlacement={ap}
+        open
+        autoFlip={false}
+        content={<pre>{`arrowPlacement:\n"${ap}"`}</pre>}
+        className={gradClasses[i]}
+      >
+        <button type="button" className="demo-btn">
+          {ap}
+        </button>
+      </Tooltip>
+    ))}
+  </div>
+);
+
+const ArrowPlacementsDemo = () => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8rem',
+      padding: '6rem',
+    }}
+  >
+    <ArrowPlacementRow placement="top" />
+    <ArrowPlacementRow placement="left" />
+  </div>
+);
+
+export const ArrowPlacements: Story = {
+  render: () => <ArrowPlacementsDemo />,
   parameters: { layout: 'fullscreen' },
 };
 
