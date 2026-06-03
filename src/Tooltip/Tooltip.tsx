@@ -83,6 +83,38 @@ export type TooltipProps = {
   anchorName?: string;
 };
 
+/**
+ * Default values for the props that have a concrete fallback. Typed against
+ * `TooltipProps` so renaming or removing one of these props breaks the build
+ * right here; the remaining props (`open`, `onOpenChange`, `bubbleStyle`,
+ * `className`, `style`, `anchorRef`, `anchorName`) intentionally default to
+ * `undefined` and are not listed.
+ */
+type TooltipDefaults = Required<
+  Pick<
+    TooltipProps,
+    | 'placement'
+    | 'arrowPlacement'
+    | 'trigger'
+    | 'openDelay'
+    | 'closeDelay'
+    | 'offset'
+    | 'autoFlip'
+    | 'defaultOpen'
+  >
+>;
+
+const TOOLTIP_DEFAULTS: TooltipDefaults = {
+  placement: 'top',
+  arrowPlacement: 'center',
+  trigger: ['hover', 'focus'],
+  openDelay: 200,
+  closeDelay: 100,
+  offset: '0.25em',
+  autoFlip: true,
+  defaultOpen: false,
+};
+
 const OPPOSITE: Record<Placement, Placement> = {
   top: 'bottom',
   bottom: 'top',
@@ -134,14 +166,14 @@ const useIsoLayoutEffect =
 export const Tooltip = ({
   children,
   content,
-  placement = 'top',
-  arrowPlacement = 'center',
-  trigger = ['hover', 'focus'],
-  openDelay = 200,
-  closeDelay = 100,
-  offset = '0.25em',
-  autoFlip = true,
-  defaultOpen = false,
+  placement = TOOLTIP_DEFAULTS.placement,
+  arrowPlacement = TOOLTIP_DEFAULTS.arrowPlacement,
+  trigger = TOOLTIP_DEFAULTS.trigger,
+  openDelay = TOOLTIP_DEFAULTS.openDelay,
+  closeDelay = TOOLTIP_DEFAULTS.closeDelay,
+  offset = TOOLTIP_DEFAULTS.offset,
+  autoFlip = TOOLTIP_DEFAULTS.autoFlip,
+  defaultOpen = TOOLTIP_DEFAULTS.defaultOpen,
   open,
   onOpenChange,
   bubbleStyle,
