@@ -2,7 +2,11 @@ import { type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { default as cx } from 'clsx';
 
 import { useStyleInjector } from '../hooks';
-import { type Placement, type TooltipShapeStyle } from '../types';
+import {
+  type ArrowPlacement,
+  type Placement,
+  type TooltipBubbleStyle,
+} from '../types';
 import { default as shapeCss } from './tooltipShape.css.generated.js';
 
 type DivProps = HTMLAttributes<HTMLDivElement>;
@@ -10,8 +14,14 @@ type DivProps = HTMLAttributes<HTMLDivElement>;
 export type TooltipShapeProps = DivProps & {
   /** Side of the anchor the bubble sits on; the arrow points the other way. */
   placement?: Placement;
+  /**
+   * Where the arrow sits along the bubble edge. `'center'` (default) centers
+   * it; `'start'`/`'end'` slide it toward the leading/trailing edge. Default
+   * `'center'`.
+   */
+  arrowPlacement?: ArrowPlacement;
   /** Visual customisation; each field maps to a CSS custom property. */
-  shapeStyle?: TooltipShapeStyle;
+  bubbleStyle?: TooltipBubbleStyle;
   /** Bubble content. */
   children?: ReactNode;
 };
@@ -29,7 +39,8 @@ export type TooltipShapeProps = DivProps & {
  */
 export const TooltipShape = ({
   placement = 'top',
-  shapeStyle,
+  arrowPlacement = 'center',
+  bubbleStyle,
   className,
   style,
   children,
@@ -38,21 +49,26 @@ export const TooltipShape = ({
   useStyleInjector(shapeCss.content);
 
   const vars: CSSProperties = {
-    '--tooltip-background': shapeStyle?.background,
-    '--tooltip-color': shapeStyle?.color,
-    '--tooltip-font-size': shapeStyle?.fontSize,
-    '--tooltip-radius': shapeStyle?.radius,
-    '--tooltip-arrow-size': shapeStyle?.arrowSize,
-    '--tooltip-padding-x': shapeStyle?.paddingX,
-    '--tooltip-padding-y': shapeStyle?.paddingY,
-    '--tooltip-max-width': shapeStyle?.maxWidth,
+    '--tooltip-background': bubbleStyle?.background,
+    '--tooltip-color': bubbleStyle?.color,
+    '--tooltip-font-size': bubbleStyle?.fontSize,
+    '--tooltip-radius': bubbleStyle?.radius,
+    '--tooltip-arrow-size': bubbleStyle?.arrowSize,
+    '--tooltip-padding-x': bubbleStyle?.paddingX,
+    '--tooltip-padding-y': bubbleStyle?.paddingY,
+    '--tooltip-max-width': bubbleStyle?.maxWidth,
     ...style,
   } as CSSProperties;
 
   return (
     <div
       {...rest}
-      className={cx('tooltip', `placement-${placement}`, className)}
+      className={cx(
+        'tooltip',
+        `placement-${placement}`,
+        `arrow-${arrowPlacement}`,
+        className
+      )}
       style={vars}
     >
       {children}

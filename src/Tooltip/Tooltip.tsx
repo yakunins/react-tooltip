@@ -18,7 +18,12 @@ import {
   useHasFocusable,
   useStyleInjector,
 } from '../hooks';
-import type { Placement, TooltipShapeStyle, TooltipTrigger } from '../types';
+import type {
+  ArrowPlacement,
+  Placement,
+  TooltipBubbleStyle,
+  TooltipTrigger,
+} from '../types';
 import { default as tooltipCss } from './tooltip.css.generated.js';
 
 export type TooltipProps = {
@@ -32,6 +37,14 @@ export type TooltipProps = {
   content: ReactNode;
   /** Side of the anchor the bubble prefers. Default `'top'`. */
   placement?: Placement;
+  /**
+   * Where the arrow sits along the bubble edge. The arrow always points at the
+   * anchor's center; `arrowPlacement` only chooses which way the bubble body
+   * extends. `'center'` (default) centers the bubble on the anchor; `'start'`
+   * keeps the arrow near the bubble's leading edge so the body extends toward
+   * the trailing side; `'end'` mirrors that. Default `'center'`.
+   */
+  arrowPlacement?: ArrowPlacement;
   /** Interactions that reveal the tooltip. Default `['hover', 'focus']`. */
   trigger?: TooltipTrigger[];
   /** Delay before showing, in ms. Default `200`. */
@@ -49,7 +62,7 @@ export type TooltipProps = {
   /** Called whenever the open state should change. */
   onOpenChange?: (open: boolean) => void;
   /** Visual customisation of the bubble. */
-  shapeStyle?: TooltipShapeStyle;
+  bubbleStyle?: TooltipBubbleStyle;
   /** Class name applied to the popover element. */
   className?: string;
   /** Inline style applied to the popover element. */
@@ -118,6 +131,7 @@ export const Tooltip = ({
   children,
   content,
   placement = 'top',
+  arrowPlacement = 'center',
   trigger = ['hover', 'focus'],
   openDelay = 200,
   closeDelay = 100,
@@ -126,7 +140,7 @@ export const Tooltip = ({
   defaultOpen = false,
   open,
   onOpenChange,
-  shapeStyle,
+  bubbleStyle,
   className,
   style,
   anchorRef: anchorRefProp,
@@ -364,7 +378,12 @@ export const Tooltip = ({
   const popoverStyle = {
     positionAnchor: anchorName,
     '--tooltip-offset': offset,
-    '--tooltip-transition-duration': shapeStyle?.transitionDuration,
+    '--tooltip-transition-duration': bubbleStyle?.transitionDuration,
+    // Mirrored so the popover can compute --tooltip-arrow-inset (the
+    // arrow-start / arrow-end shift) from the same radius / arrow size the
+    // bubble uses; omitted values fall back to the CSS defaults.
+    '--tooltip-radius': bubbleStyle?.radius,
+    '--tooltip-arrow-size': bubbleStyle?.arrowSize,
     ...style,
   } as CSSProperties;
 
@@ -388,11 +407,16 @@ export const Tooltip = ({
         className={cx(
           'tooltip-popover',
           `placement-${effectivePlacement}`,
+          `arrow-${arrowPlacement}`,
           className
         )}
         style={popoverStyle}
       >
-        <TooltipShape placement={effectivePlacement} shapeStyle={shapeStyle}>
+        <TooltipShape
+          placement={effectivePlacement}
+          arrowPlacement={arrowPlacement}
+          bubbleStyle={bubbleStyle}
+        >
           {content}
         </TooltipShape>
       </div>

@@ -48,13 +48,13 @@ work standalone with no CSS import.
 | `defaultOpen`  | `boolean`                                 | `false`              | Initial open state (uncontrolled).                 |
 | `open`         | `boolean`                                 | —                    | Controlled open state; pair with `onOpenChange`.   |
 | `onOpenChange` | `(open: boolean) => void`                 | —                    | Fires when the open state should change.           |
-| `shapeStyle`   | `TooltipShapeStyle`                       | —                    | Bubble appearance (see below).                     |
+| `bubbleStyle`  | `TooltipBubbleStyle`                      | —                    | Bubble appearance (see below).                     |
 | `className`    | `string`                                  | —                    | Applied to the popover element.                    |
 | `style`        | `CSSProperties`                           | —                    | Applied to the popover element.                    |
 | `anchorRef`    | `RefObject<HTMLElement>`                  | —                    | Attach to an existing element instead of wrapping `children`. See *External anchor* below. |
 | `anchorName`   | `string`                                  | —                    | Use this CSS anchor name verbatim. See *External anchor* below.                            |
 
-### `shapeStyle`
+### `bubbleStyle`
 
 Every field maps to a CSS custom property; omitted fields use the stylesheet
 default.
@@ -62,7 +62,7 @@ default.
 ```tsx
 <Tooltip
   content="Custom bubble"
-  shapeStyle={{
+  bubbleStyle={{
     background: '#2563eb',
     color: '#fff',
     radius: '0.8em',

@@ -25,7 +25,7 @@ const demoCss = `
  * Tooltip component itself is untouched.
  *
  * `background-image` (many layers) + `background-blend-mode` cannot pass
- * through the single `background` shorthand that `shapeStyle.background`
+ * through the single `background` shorthand that `bubbleStyle.background`
  * uses, so the gradients live here as classes instead.
  *
  * Each selector covers both placements of the class:
@@ -247,7 +247,7 @@ const CustomShapeDemo = () => (
       content="Roomy bubble, slow fade, vivid gradient"
       placement="top"
       className="grad-3"
-      shapeStyle={{
+      bubbleStyle={{
         radius: '0.8em',
         arrowSize: '0.7em',
         paddingX: '1em',
@@ -263,7 +263,7 @@ const CustomShapeDemo = () => (
       content="Tight corners and a hairline-thin arrow"
       placement="bottom"
       className="grad-2"
-      shapeStyle={{
+      bubbleStyle={{
         radius: '0.3em',
         arrowSize: '0.35em',
       }}
@@ -409,12 +409,12 @@ const ShapeDemo = () => (
     <TooltipShape
       placement="top"
       className="grad-1"
-      shapeStyle={{
+      bubbleStyle={{
         radius: '0.9em',
         arrowSize: '0.8em',
       }}
     >
-      Custom shapeStyle on a standalone TooltipShape
+      Custom bubbleStyle on a standalone TooltipShape
     </TooltipShape>
   </div>
 );
