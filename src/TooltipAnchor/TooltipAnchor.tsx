@@ -6,7 +6,7 @@ import {
 } from 'react';
 import { default as cx } from 'clsx';
 
-import { useAnchorPolyfill, useStyleInjector } from '../hooks';
+import { useStyleInjector } from '../hooks';
 import { default as anchorCss } from './tooltipAnchor.css.generated.js';
 
 type DivProps = HTMLAttributes<HTMLDivElement>;
@@ -30,16 +30,15 @@ export type TooltipAnchorProps = DivProps & {
  * `position-anchor` + `anchor()`, so it tracks the trigger through scroll
  * and layout changes with no JavaScript measuring.
  *
- * It injects its own stylesheet (`tooltipAnchor.css`) at runtime, and in
- * browsers without native anchor positioning (currently Firefox) it loads
- * the `@oddbird` polyfill on demand via `useAnchorPolyfill`.
+ * It injects its own stylesheet (`tooltipAnchor.css`) at runtime. Browsers
+ * without native anchor positioning are handled one level up, in `Tooltip`,
+ * which degrades to a native `title` tooltip rather than polyfilling.
  *
  * See https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor
  */
 export const TooltipAnchor = forwardRef<HTMLDivElement, TooltipAnchorProps>(
   ({ anchorName, className, style, children, ...rest }, ref) => {
     useStyleInjector(anchorCss.content);
-    useAnchorPolyfill();
 
     // `anchorName` is not yet in CSSProperties — set it through a cast.
     const vars = {

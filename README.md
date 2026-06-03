@@ -7,8 +7,8 @@ features:
   it escapes `overflow: hidden` and `z-index` stacking with no portal.
 - **CSS anchor positioning** — the bubble pins itself to its trigger with
   `anchor-name` / `position-anchor` / `anchor()`; no JS measuring on scroll.
-  The [`@oddbird`](https://github.com/oddbird/css-anchor-positioning) polyfill
-  is loaded **only** in browsers without native support (currently Firefox).
+  Browsers without native support (currently Firefox) degrade gracefully to
+  the element's native `title` tooltip — no polyfill, no extra dependency.
 - **Pure-CSS shape** — the rounded bubble *and* its arrow are one
   `clip-path: polygon(...)` — no borders, pseudo-elements or SVG.
 - **Zero-config styling** — each component injects its own stylesheet slice

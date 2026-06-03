@@ -14,9 +14,9 @@ import { default as cx } from 'clsx';
 import { TooltipAnchor } from '../TooltipAnchor';
 import { TooltipShape } from '../TooltipShape';
 import {
-  useAnchorPolyfill,
   useHasFocusable,
   useStyleInjector,
+  useSupportsAnchorPositioning,
 } from '../hooks';
 import type {
   ArrowPlacement,
@@ -126,6 +126,10 @@ const useIsoLayoutEffect =
  *
  * The component injects its own stylesheet at runtime, so no CSS import
  * or bundler CSS loader is required.
+ *
+ * Browsers without native CSS anchor positioning get a graceful fallback
+ * rather than a polyfill: the styled bubble is skipped and `content` (when it
+ * is a string) is surfaced through the element's native `title` tooltip.
  */
 export const Tooltip = ({
   children,
@@ -147,10 +151,10 @@ export const Tooltip = ({
   anchorName: anchorNameProp,
 }: TooltipProps) => {
   useStyleInjector(tooltipCss.content);
-  // Load the anchor-positioning polyfill here too: in external modes there
-  // is no <TooltipAnchor> on the page to trigger it. The polyfill is a
-  // module-level singleton, so the extra call is a no-op when already loaded.
-  useAnchorPolyfill();
+  // Native CSS anchor positioning is required for the styled bubble to track
+  // its anchor. Where it is missing we degrade to a native `title` tooltip
+  // instead of pulling in a positioning polyfill.
+  const supported = useSupportsAnchorPositioning();
 
   const internalAnchorRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -236,9 +240,11 @@ export const Tooltip = ({
   useEffect(() => clearTimer, [clearTimer]);
 
   // --- external-by-ref: write `anchor-name` onto the consumer's element ---
-  // Skipped when `anchorNameProp` is supplied — then the consumer owns it.
+  // Skipped when `anchorNameProp` is supplied — then the consumer owns it —
+  // and when native anchor positioning is missing (the title fallback runs
+  // instead of the styled bubble).
   useIsoLayoutEffect(() => {
-    if (!anchorRefProp || anchorNameProp) return;
+    if (!supported || !anchorRefProp || anchorNameProp) return;
     const el = anchorRefProp.current;
     if (!el) return;
     const prev = el.style.getPropertyValue('anchor-name');
@@ -247,12 +253,27 @@ export const Tooltip = ({
       if (prev) el.style.setProperty('anchor-name', prev);
       else el.style.removeProperty('anchor-name');
     };
-  }, [anchorRefProp, anchorName, anchorNameProp]);
+  }, [supported, anchorRefProp, anchorName, anchorNameProp]);
+
+  // --- external-by-ref fallback: mirror string content onto the consumer's
+  // element as a native `title` when anchor positioning is unsupported ---
+  useIsoLayoutEffect(() => {
+    if (supported) return;
+    const el = anchorRefProp?.current;
+    if (!el || typeof content !== 'string') return;
+    const prev = el.getAttribute('title');
+    el.setAttribute('title', content);
+    return () => {
+      if (prev !== null) el.setAttribute('title', prev);
+      else el.removeAttribute('title');
+    };
+  }, [supported, anchorRefProp, content]);
 
   // --- external-by-ref: mirror aria-describedby for accessibility ---
-  // Preserves any pre-existing tokens; restored on unmount.
+  // Preserves any pre-existing tokens; restored on unmount. Skipped without
+  // anchor positioning, where there is no popover for the id to reference.
   useIsoLayoutEffect(() => {
-    if (!anchorRefProp) return;
+    if (!supported || !anchorRefProp) return;
     const el = anchorRefProp.current;
     if (!el) return;
     const prev = el.getAttribute('aria-describedby');
@@ -272,10 +293,11 @@ export const Tooltip = ({
         el.removeAttribute('aria-describedby');
       }
     };
-  }, [anchorRefProp, tooltipId]);
+  }, [supported, anchorRefProp, tooltipId]);
 
   // --- wire trigger listeners onto the anchor and the popover ---
   useEffect(() => {
+    if (!supported) return; // no popover to reveal in the title fallback
     // external-by-ref uses the consumer's element; wrapping uses our own.
     // external-by-name (no ref of any kind) has no element to listen to.
     const anchor = anchorRefProp?.current ?? internalAnchorRef.current;
@@ -306,6 +328,7 @@ export const Tooltip = ({
     }
     return () => cleanups.forEach(fn => fn());
   }, [
+    supported,
     useHover,
     useFocus,
     useClick,
@@ -374,6 +397,19 @@ export const Tooltip = ({
       cancelAnimationFrame(raf2);
     };
   }, [autoFlip, isOpen, placement]);
+
+  // --- fallback: no native anchor positioning -> native `title` tooltip ---
+  // Wrapping mode owns an element to carry the title; external modes attach it
+  // to the consumer's element (by-ref, via the effect above) or cannot (by-name).
+  if (!supported) {
+    if (!wrapping) return null;
+    const title = typeof content === 'string' ? content : undefined;
+    return (
+      <span style={{ display: 'inline-block' }} title={title}>
+        {children}
+      </span>
+    );
+  }
 
   const popoverStyle = {
     positionAnchor: anchorName,

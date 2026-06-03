@@ -1,6 +1,6 @@
 export { default as useStyleInjector, StyleInjector } from './useStyleInjector';
 export {
-  useAnchorPolyfill,
+  useSupportsAnchorPositioning,
   supportsAnchorPositioning,
-} from './useAnchorPolyfill';
+} from './useSupportsAnchorPositioning';
 export { useHasFocusable } from './useHasFocusable';
