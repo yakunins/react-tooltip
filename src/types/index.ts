@@ -20,6 +20,38 @@ export type ArrowPlacement = 'start' | 'center' | 'end';
 export type TooltipTrigger = 'hover' | 'focus' | 'click';
 
 /**
+ * Timing (in ms) for the trigger interactions, passed to Tooltip as the single
+ * `timings` prop. Every field is optional; an omitted one falls back to the
+ * library default.
+ */
+export type TooltipTimings = {
+  /**
+   * Delay before showing on hover/focus. Applies only to the `hover` and
+   * `focus` triggers; a `click` shows instantly. Default `200`.
+   */
+  delayShow?: number;
+  /**
+   * Delay before hiding on hover-out/blur. Applies only to the `hover` and
+   * `focus` triggers; a dismissing `click` hides instantly. Default `100`.
+   */
+  delayHide?: number;
+  /**
+   * With both `hover` and `click` triggers, suppress click-to-close for this
+   * long after a hover/focus reveal — a click within the window pins the
+   * tooltip instead of closing it. Measured from the open commit. `0` disables
+   * it. Default `500`.
+   */
+  clickCloseGuard?: number;
+  /**
+   * Minimum time a hover/focus-revealed tooltip stays visible once it starts to
+   * appear; a hover-out/blur before the window elapses postpones the hide.
+   * Measured from the open commit. Explicit dismissals (click, Escape) ignore
+   * it. `0` disables it. Default `1000`.
+   */
+  minVisibleDuration?: number;
+};
+
+/**
  * Visual customisation of the tooltip bubble.
  *
  * Most fields map to a CSS custom property consumed by `tooltipShape.css`;

@@ -35,6 +35,8 @@ export interface TooltipTriggersParams {
   delayHide: number;
   /** Suppress click-to-close for this many ms after a hover/focus reveal. */
   clickCloseGuard: number;
+  /** Keep a hover/focus tooltip visible at least this many ms from opening. */
+  minVisibleDuration: number;
   /** False when degraded to the native `title` fallback (no popover to wire). */
   supported: boolean;
   /** Current open state — gates Escape / outside-click dismissal. */
@@ -71,14 +73,26 @@ export const useTooltipTriggers = ({
   delayShow,
   delayHide,
   clickCloseGuard,
+  minVisibleDuration,
   supported,
   isOpen,
   commitRef,
 }: TooltipTriggersParams): TooltipTriggersResult => {
   const timer = useRef<ReturnType<typeof setTimeout>>();
-  const delaysRef = useRef({ delayShow, delayHide, clickCloseGuard });
-  delaysRef.current = { delayShow, delayHide, clickCloseGuard };
-  // Timestamp (performance.now) of the last show, for the click-close guard.
+  const delaysRef = useRef({
+    delayShow,
+    delayHide,
+    clickCloseGuard,
+    minVisibleDuration,
+  });
+  delaysRef.current = {
+    delayShow,
+    delayHide,
+    clickCloseGuard,
+    minVisibleDuration,
+  };
+  // Timestamp (performance.now) of the last show, for the click-close guard
+  // and the minimum-visible window.
   const shownAtRef = useRef(0);
 
   // `pinned` = opened/held by a click. It suppresses the hover-out close; any
@@ -134,10 +148,14 @@ export const useTooltipTriggers = ({
     (e?: Event) => {
       if (isSyntheticFromTouch(e)) return;
       clearTimer();
-      timer.current = setTimeout(
-        () => commitRef.current(false),
-        delaysRef.current.delayHide
-      );
+      // Keep the tooltip visible for at least minVisibleDuration from when it
+      // opened: stretch the hide delay so it never fires before that window
+      // closes. Only this hover-out / focus-out path is held back; click and
+      // Escape commit the close immediately.
+      const { delayHide, minVisibleDuration } = delaysRef.current;
+      const elapsed = performance.now() - shownAtRef.current;
+      const delay = Math.max(delayHide, minVisibleDuration - elapsed);
+      timer.current = setTimeout(() => commitRef.current(false), delay);
     },
     [clearTimer, commitRef]
   );
@@ -217,17 +235,40 @@ export const useTooltipTriggers = ({
         on(popover, 'mouseleave', closeOnHover);
       }
     }
+    // Focus holds the tooltip open while focus is anywhere within the
+    // anchor + bubble scope. Tabbing or clicking from the anchor into the
+    // bubble (or back) keeps it open; focus leaving the scope entirely closes
+    // it. The bubble side runs regardless of the focus trigger, so a focusable
+    // element inside the tooltip content (a link, button, ...) is never hidden
+    // out from under the user.
+    const inScope = (node: EventTarget | null): boolean =>
+      node != null &&
+      (anchor.contains(node as Node) ||
+        Boolean(popover?.contains(node as Node)));
+    const holdOnFocus = () => {
+      focusHoldRef.current = true;
+      syncHeld();
+    };
+    const releaseOnFocusOut = (e: Event) => {
+      // Only act when focus was actually holding the tooltip, and ignore moves
+      // that stay inside the scope (anchor <-> bubble).
+      if (!focusHoldRef.current) return;
+      if (inScope((e as FocusEvent).relatedTarget)) return;
+      focusHoldRef.current = false;
+      syncHeld();
+      scheduleClose(e);
+    };
+
     if (useFocus) {
       on(anchor, 'focusin', (e: Event) => {
-        focusHoldRef.current = true;
-        syncHeld();
+        holdOnFocus();
         scheduleOpen(e);
       });
-      on(anchor, 'focusout', (e: Event) => {
-        focusHoldRef.current = false;
-        syncHeld();
-        scheduleClose(e);
-      });
+    }
+    on(anchor, 'focusout', releaseOnFocusOut);
+    if (popover) {
+      on(popover, 'focusin', holdOnFocus);
+      on(popover, 'focusout', releaseOnFocusOut);
     }
     if (useClick) {
       on(anchor, 'click', onClick);

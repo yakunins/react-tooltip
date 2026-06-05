@@ -192,8 +192,7 @@ const meta = {
     },
     autoFlip: { control: 'boolean' },
     offset: { control: 'text' },
-    delayShow: { control: { type: 'range', min: 0, max: 1000, step: 50 } },
-    delayHide: { control: { type: 'range', min: 0, max: 1000, step: 50 } },
+    timings: { control: 'object' },
   },
   decorators: [
     Story => (
@@ -251,8 +250,7 @@ export const Playground: Story = {
     placement: 'top',
     trigger: ['hover', 'focus', 'click'],
     bubbleStyle: { radius: '1rem', arrowSize: '1rem' },
-    delayShow: 200,
-    delayHide: 100,
+    timings: { delayShow: 200, delayHide: 100 },
     offset: '0.25em',
     autoFlip: true,
     className: 'grad-1',

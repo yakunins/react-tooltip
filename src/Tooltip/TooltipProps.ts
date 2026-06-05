@@ -4,6 +4,7 @@ import type {
   ArrowPlacement,
   Placement,
   TooltipBubbleStyle,
+  TooltipTimings,
   TooltipTrigger,
 } from '../types';
 
@@ -29,23 +30,12 @@ export type TooltipProps = {
   /** Interactions that reveal the tooltip. Default `['hover', 'focus']`. */
   trigger?: TooltipTrigger[];
   /**
-   * Delay before showing on hover/focus, in ms. Applies only to the `hover`
-   * and `focus` triggers; a `click` shows the tooltip instantly. Default `200`.
+   * Timing knobs (all in ms) for the trigger interactions: `delayShow`,
+   * `delayHide`, `clickCloseGuard`, and `minVisibleDuration`. Pass any subset;
+   * omitted fields keep their defaults (see `TooltipTimings` /
+   * `TOOLTIP_DEFAULTS_TIMINGS`).
    */
-  delayShow?: number;
-  /**
-   * Delay before hiding on hover-out/blur, in ms. Applies only to the `hover`
-   * and `focus` triggers; a dismissing `click` hides instantly. Default `100`.
-   */
-  delayHide?: number;
-  /**
-   * With both `hover` and `click` triggers, suppress click-to-close for this
-   * many ms after a hover/focus reveal — a click within the window pins the
-   * tooltip instead of closing it, preventing an accidental close right as it
-   * appears. Measured from when the tooltip opens (excludes `delayShow` and the
-   * fade-in). `0` disables the guard. Default `500`.
-   */
-  clickCloseGuard?: number;
+  timings?: TooltipTimings;
   /** Gap between anchor and bubble, any CSS length. Default `'0.25em'`. */
   offset?: string;
   /** Flip to the opposite side when the bubble would overflow. Default `true`. */
@@ -91,22 +81,26 @@ type TooltipDefaults = Required<
     | 'placement'
     | 'arrowPlacement'
     | 'trigger'
-    | 'delayShow'
-    | 'delayHide'
-    | 'clickCloseGuard'
+    | 'timings'
     | 'offset'
     | 'autoFlip'
     | 'defaultOpen'
   >
 >;
 
+/** Default trigger timings; a `timings` prop is layered over this. */
+export const TOOLTIP_DEFAULTS_TIMINGS: Required<TooltipTimings> = {
+  delayShow: 200,
+  delayHide: 100,
+  clickCloseGuard: 500,
+  minVisibleDuration: 1000,
+};
+
 export const TOOLTIP_DEFAULTS: TooltipDefaults = {
   placement: 'top',
   arrowPlacement: 'center',
   trigger: ['hover', 'focus'],
-  delayShow: 200,
-  delayHide: 100,
-  clickCloseGuard: 500,
+  timings: TOOLTIP_DEFAULTS_TIMINGS,
   offset: '0.25em',
   autoFlip: true,
   defaultOpen: false,

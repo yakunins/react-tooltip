@@ -8,8 +8,13 @@ import {
   useStyleInjector,
   useSupportsAnchorPositioning,
 } from '../hooks';
+import type { TooltipTimings } from '../types';
 import { default as tooltipCss } from './tooltip.css.generated.js';
-import { TOOLTIP_DEFAULTS, type TooltipProps } from './TooltipProps';
+import {
+  TOOLTIP_DEFAULTS,
+  TOOLTIP_DEFAULTS_TIMINGS,
+  type TooltipProps,
+} from './TooltipProps';
 import { useAutoFlip } from './hooks/useAutoFlip';
 import { useControllableOpen } from './hooks/useControllableOpen';
 import { useExternalAnchor } from './hooks/useExternalAnchor';
@@ -69,9 +74,7 @@ export const Tooltip = ({
   placement = TOOLTIP_DEFAULTS.placement,
   arrowPlacement = TOOLTIP_DEFAULTS.arrowPlacement,
   trigger = TOOLTIP_DEFAULTS.trigger,
-  delayShow = TOOLTIP_DEFAULTS.delayShow,
-  delayHide = TOOLTIP_DEFAULTS.delayHide,
-  clickCloseGuard = TOOLTIP_DEFAULTS.clickCloseGuard,
+  timings,
   offset = TOOLTIP_DEFAULTS.offset,
   autoFlip = TOOLTIP_DEFAULTS.autoFlip,
   defaultOpen = TOOLTIP_DEFAULTS.defaultOpen,
@@ -106,6 +109,16 @@ export const Tooltip = ({
     onOpenChange
   );
 
+  // Resolve the timing knobs against their defaults (ignoring explicit
+  // undefined), so a partial `timings` object overrides only what it sets.
+  const definedTimings = Object.fromEntries(
+    Object.entries(timings ?? {}).filter(([, v]) => v !== undefined)
+  );
+  const t: Required<TooltipTimings> = {
+    ...TOOLTIP_DEFAULTS_TIMINGS,
+    ...definedTimings,
+  };
+
   // Triggers (hover/focus/click-toggle + outside-click + Escape). `heldRef`
   // reports whether focus or a pin is holding the tooltip open.
   const { heldRef } = useTooltipTriggers({
@@ -113,9 +126,10 @@ export const Tooltip = ({
     internalAnchorRef,
     popoverRef,
     trigger,
-    delayShow,
-    delayHide,
-    clickCloseGuard,
+    delayShow: t.delayShow,
+    delayHide: t.delayHide,
+    clickCloseGuard: t.clickCloseGuard,
+    minVisibleDuration: t.minVisibleDuration,
     supported,
     isOpen,
     commitRef,
