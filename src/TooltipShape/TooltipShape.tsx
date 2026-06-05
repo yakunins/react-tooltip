@@ -8,6 +8,31 @@ import {
   type TooltipBubbleStyle,
 } from '../types';
 import { default as shapeCss } from './tooltipShape.css.generated.js';
+import { default as cornersCss } from './roundedCorners.css.generated.js';
+
+/**
+ * The bubble's default appearance — the single source of truth for every
+ * `TooltipBubbleStyle` field. A consumer's `bubbleStyle` is layered on top and
+ * each resolved field is applied as a CSS custom property (or, for
+ * `cornerSegments`, the `.corners-N` class), so `tooltipShape.css` no longer
+ * carries its own `--default-*` fallbacks. `transitionDuration` is consumed by
+ * the popover layer (see `Tooltip.tsx`), the rest by the bubble here.
+ */
+export const DEFAULT_BUBBLE_STYLE: Required<TooltipBubbleStyle> = {
+  background: '#000',
+  color: '#fff',
+  fontSize: '0.875rem',
+  radius: '0.5rem',
+  arrowSize: '0.5rem',
+  paddingX: '0.7rem',
+  paddingY: '0.4rem',
+  maxWidth: '16rem',
+  transitionDuration: '0.2s',
+  cornerSegments: 5,
+};
+
+// Supported corner-segment counts; anything else falls back to the default.
+const CORNER_SEGMENTS = [3, 4, 5, 6, 7] as const;
 
 type DivProps = HTMLAttributes<HTMLDivElement>;
 
@@ -47,16 +72,31 @@ export const TooltipShape = ({
   ...rest
 }: TooltipShapeProps) => {
   useStyleInjector(shapeCss.content);
+  useStyleInjector(cornersCss.content);
+
+  // Resolve every field against the defaults (ignoring explicit `undefined`),
+  // so the merged style is the single source of truth and tooltipShape.css
+  // needs no fallbacks of its own.
+  const definedStyle = Object.fromEntries(
+    Object.entries(bubbleStyle ?? {}).filter(([, v]) => v !== undefined)
+  );
+  const bs: Required<TooltipBubbleStyle> = {
+    ...DEFAULT_BUBBLE_STYLE,
+    ...definedStyle,
+  };
+  const segments = CORNER_SEGMENTS.includes(bs.cornerSegments)
+    ? bs.cornerSegments
+    : DEFAULT_BUBBLE_STYLE.cornerSegments;
 
   const vars: CSSProperties = {
-    '--tooltip-background': bubbleStyle?.background,
-    '--tooltip-color': bubbleStyle?.color,
-    '--tooltip-font-size': bubbleStyle?.fontSize,
-    '--tooltip-radius': bubbleStyle?.radius,
-    '--tooltip-arrow-size': bubbleStyle?.arrowSize,
-    '--tooltip-padding-x': bubbleStyle?.paddingX,
-    '--tooltip-padding-y': bubbleStyle?.paddingY,
-    '--tooltip-max-width': bubbleStyle?.maxWidth,
+    '--tooltip-background': bs.background,
+    '--tooltip-color': bs.color,
+    '--tooltip-font-size': bs.fontSize,
+    '--tooltip-radius': bs.radius,
+    '--tooltip-arrow-size': bs.arrowSize,
+    '--tooltip-padding-x': bs.paddingX,
+    '--tooltip-padding-y': bs.paddingY,
+    '--tooltip-max-width': bs.maxWidth,
     ...style,
   } as CSSProperties;
 
@@ -67,6 +107,7 @@ export const TooltipShape = ({
         'tooltip',
         `placement-${placement}`,
         `arrow-${arrowPlacement}`,
+        `corners-${segments}`,
         className
       )}
       style={vars}

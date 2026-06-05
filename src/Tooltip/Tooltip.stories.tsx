@@ -42,6 +42,7 @@ const demoCss = `
     text-decoration-thickness: 1px;
   }
   .help-anchor-icon { flex: none; opacity: 0.7; }
+  .tooltip pre { margin: 0; }
 `;
 
 /*
@@ -231,10 +232,25 @@ const LoremIpsum = () => (
 
 export const Playground: Story = {
   args: {
-    content:
-      'Contemporary tooltip component: Popover API, anchor positioning, clip-path shape',
+    content: (
+      <span>
+        Contemporary tooltip component: based on based on{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Popover_API">
+          Popover API
+        </a>
+        ,{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Anchor_positioning">
+          anchor positioning
+        </a>
+        ,{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/clip-path">
+          clip-path shape
+        </a>
+      </span>
+    ),
     placement: 'top',
     trigger: ['hover', 'focus', 'click'],
+    bubbleStyle: { radius: '1rem', arrowSize: '1rem' },
     delayShow: 200,
     delayHide: 100,
     offset: '0.25em',

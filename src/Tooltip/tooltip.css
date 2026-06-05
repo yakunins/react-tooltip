@@ -31,20 +31,19 @@
   width: max-content;
   height: max-content;
 
+  /* --tooltip-radius / --tooltip-arrow-size / --tooltip-transition-duration are
+   * set on the popover by Tooltip.tsx, resolved against DEFAULT_BUBBLE_STYLE
+   * (the single source of defaults), so this sheet needs no fallbacks. */
   --tooltip-arrow-inset: calc(
-    var(--tooltip-radius, 0.4em) + var(--tooltip-arrow-size, 0.5em) * 0.707
+    var(--tooltip-radius) + var(--tooltip-arrow-size) * 0.707
   );
-
-  /* Default fade / flip duration. Overridden per instance via
-   * bubbleStyle.transitionDuration (set inline). Defined here so it is always a
-   * concrete value for calc()s that reference it (e.g. the flip animation). */
-  --tooltip-transition-duration: 0.2s;
 
   /* the popover is fixed and tracks its anchor */
   position: fixed;
 
   /* soft shadow that follows the clip-path silhouette */
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))
+    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
 
   /* enter / exit transition - Popover API + @starting-style */
   opacity: 0;
@@ -53,6 +52,7 @@
     overlay var(--tooltip-transition-duration) ease allow-discrete,
     display var(--tooltip-transition-duration) ease allow-discrete;
 }
+
 .tooltip-popover:popover-open {
   opacity: 1;
 }

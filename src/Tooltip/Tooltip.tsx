@@ -2,7 +2,7 @@ import { useId, useRef, type CSSProperties } from 'react';
 import { default as cx } from 'clsx';
 
 import { TooltipAnchor } from '../TooltipAnchor';
-import { TooltipShape } from '../TooltipShape';
+import { TooltipShape, DEFAULT_BUBBLE_STYLE } from '../TooltipShape';
 import {
   useHasFocusable,
   useStyleInjector,
@@ -168,12 +168,15 @@ export const Tooltip = ({
   const popoverStyle = {
     positionAnchor: anchorName,
     '--tooltip-offset': offset,
-    '--tooltip-transition-duration': bubbleStyle?.transitionDuration,
+    '--tooltip-transition-duration':
+      bubbleStyle?.transitionDuration ?? DEFAULT_BUBBLE_STYLE.transitionDuration,
     // Mirrored so the popover can compute --tooltip-arrow-inset (the
     // arrow-start / arrow-end shift) from the same radius / arrow size the
-    // bubble uses; omitted values fall back to the CSS defaults.
-    '--tooltip-radius': bubbleStyle?.radius,
-    '--tooltip-arrow-size': bubbleStyle?.arrowSize,
+    // bubble uses. Resolved against DEFAULT_BUBBLE_STYLE (the single source of
+    // defaults) so the value is always concrete — tooltip.css has no fallback.
+    '--tooltip-radius': bubbleStyle?.radius ?? DEFAULT_BUBBLE_STYLE.radius,
+    '--tooltip-arrow-size':
+      bubbleStyle?.arrowSize ?? DEFAULT_BUBBLE_STYLE.arrowSize,
     ...style,
   } as CSSProperties;
 

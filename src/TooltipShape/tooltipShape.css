@@ -7,23 +7,13 @@
  * ============================================================ */
 
 .tooltip {
-  /* default tokens (private - the library baseline). Edit a value here to
-   * change the default; override per instance via the bubbleStyle prop, i.e.
-   * the public --tooltip-* custom properties. */
-  --default-padding-y: 0.4em;
-  --default-padding-x: 0.7em;
-  --default-radius: 0.4em;
-  --default-arrow-size: 0.5em;
-  --default-background: #000;
-  --default-color: #fff;
-  --default-font-size: 0.875em;
-  --default-max-width: 16rem;
-
-  /* customizable inputs: the public --tooltip-* var wins, else the default */
-  --py: var(--tooltip-padding-y, var(--default-padding-y));
-  --px: var(--tooltip-padding-x, var(--default-padding-x));
-  --rad: var(--tooltip-radius, var(--default-radius));
-  --arrow-size: var(--tooltip-arrow-size, var(--default-arrow-size));
+  /* Inputs: the public --tooltip-* custom properties. The component always
+   * sets them (DEFAULT_BUBBLE_STYLE in TooltipShape.tsx is the single source of
+   * defaults), so this sheet carries no --default-* fallbacks. */
+  --py: var(--tooltip-padding-y);
+  --px: var(--tooltip-padding-x);
+  --rad: var(--tooltip-radius);
+  --arrow-size: var(--tooltip-arrow-size);
 
   /* Distance from a bubble edge to the arrow tip, for arrow-start / arrow-end:
    * far enough that the arrow's near foot clears the rounded corner. Inside a
@@ -36,11 +26,16 @@
   display: inline-block;
   box-sizing: border-box;
   width: max-content;
-  max-width: var(--tooltip-max-width, var(--default-max-width));
-  background: var(--tooltip-background, var(--default-background));
-  color: var(--tooltip-color, var(--default-color));
-  font-size: var(--tooltip-font-size, var(--default-font-size));
-  line-height: 1.35;
+  max-width: var(--tooltip-max-width);
+
+  background: var(--tooltip-background);
+  color: var(--tooltip-color);
+
+  * {
+    color: var(--tooltip-color);
+  }
+
+  font-size: var(--tooltip-font-size);
   text-align: start;
   text-wrap: pretty;
   overflow-wrap: break-word;
@@ -48,39 +43,16 @@
 
   padding: var(--py) var(--px);
 
-  /* arrow-side insets - set per placement below */
+  /* arrow-side insets - set per placement below. Consumed (with --rad) by
+   * roundedCorners.css, which builds the four rounded corners. */
   --t: 0%;
   --b: 0%;
   --l: 0%;
   --r: 0%;
 
-  /* rounded-corner control points (cheap bezier approximation) */
-  --crn1: calc(var(--rad) / 2);
-  --crn2: calc(var(--rad) / 7.5);
-
-  --d1xs: calc(0% + var(--rad) + var(--l)) calc(0% + var(--t));
-  --d15sX: calc(0% + var(--crn1) + var(--l)) calc(0% + var(--crn2) + var(--t));
-  --d15sY: calc(0% + var(--crn2) + var(--l)) calc(0% + var(--crn1) + var(--t));
-  --d1ys: calc(0% + var(--l)) calc(0% + var(--rad) + var(--t));
-  --d2xs: calc(100% - var(--rad) - var(--r)) calc(0% + var(--t));
-  --d25sX: calc(100% - var(--crn1) - var(--r)) calc(0% + var(--crn2) + var(--t));
-  --d25sY: calc(100% - var(--crn2) - var(--r)) calc(0% + var(--crn1) + var(--t));
-  --d2ys: calc(100% - var(--r)) calc(0% + var(--rad) + var(--t));
-  --d3xs: calc(100% - var(--rad) - var(--r)) calc(100% - var(--b));
-  --d35sX: calc(100% - var(--crn1) - var(--r))
-    calc(100% - var(--crn2) - var(--b));
-  --d35sY: calc(100% - var(--crn2) - var(--r))
-    calc(100% - var(--crn1) - var(--b));
-  --d3ys: calc(100% - var(--r)) calc(100% - var(--rad) - var(--b));
-  --d4xs: calc(0% + var(--rad) + var(--l)) calc(100% - var(--b));
-  --d45sX: calc(0% + var(--crn1) + var(--l)) calc(100% - var(--crn2) - var(--b));
-  --d45sY: calc(0% + var(--crn2) + var(--l)) calc(100% - var(--crn1) - var(--b));
-  --d4ys: calc(0% + var(--l)) calc(100% - var(--rad) - var(--b));
-
-  --corner1: var(--d1ys), var(--d15sY), var(--d15sX), var(--d1xs);
-  --corner2: var(--d2xs), var(--d25sX), var(--d25sY), var(--d2ys);
-  --corner3: var(--d3ys), var(--d35sY), var(--d35sX), var(--d3xs);
-  --corner4: var(--d4xs), var(--d45sX), var(--d45sY), var(--d4ys);
+  /* The rounded corners --corner1..4 are defined in roundedCorners.css, as a
+   * true quarter-circle approximated by N segments (the .corners-N class). The
+   * placement rules below splice the arrow points between them. */
 
   clip-path: polygon(
     var(--corner1),

@@ -22,26 +22,34 @@ export type TooltipTrigger = 'hover' | 'focus' | 'click';
 /**
  * Visual customisation of the tooltip bubble.
  *
- * Every field maps to a CSS custom property consumed by `tooltipShape.css`;
- * any omitted field falls back to the stylesheet default.
+ * Most fields map to a CSS custom property consumed by `tooltipShape.css`;
+ * any omitted field falls back to the stylesheet default. The exception is
+ * `cornerSegments`, which selects a `.corners-N` class.
  */
 export type TooltipBubbleStyle = {
   /** Bubble background. Default `#000`. */
   background?: CSSProperties['background'];
   /** Text color. Default `#fff`. */
   color?: CSSProperties['color'];
-  /** Bubble font size. Default `0.875em`. */
+  /** Bubble font size. Default `0.875rem`. */
   fontSize?: CSSProperties['fontSize'];
-  /** Corner radius, any CSS length. Default `0.4em`. */
+  /** Corner radius, any CSS length. Default `0.5rem`. */
   radius?: CSSProperties['borderRadius'];
-  /** Arrow size (half-diagonal), any CSS length. Default `0.5em`. */
+  /** Arrow size (half-diagonal), any CSS length. Default `0.5rem`. */
   arrowSize?: string;
-  /** Horizontal padding, any CSS length. Default `0.7em`. */
+  /** Horizontal padding, any CSS length. Default `0.7rem`. */
   paddingX?: string;
-  /** Vertical padding, any CSS length. Default `0.4em`. */
+  /** Vertical padding, any CSS length. Default `0.4rem`. */
   paddingY?: string;
   /** Maximum bubble width. Default `16rem`. */
   maxWidth?: CSSProperties['maxWidth'];
-  /** Fade in/out duration. Default `0.16s`. */
+  /** Fade in/out duration. Default `0.2s`. */
   transitionDuration?: CSSProperties['transitionDuration'];
+  /**
+   * Straight segments approximating each rounded corner, `3`–`7`. More
+   * segments give a smoother corner at the cost of a few more polygon points;
+   * `5` is the default (`3` matches the original 4-point look). Unlike the
+   * other fields this selects a `.corners-N` class rather than a custom property.
+   */
+  cornerSegments?: 3 | 4 | 5 | 6 | 7;
 };
