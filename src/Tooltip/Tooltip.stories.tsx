@@ -1,4 +1,10 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useState,
+  type CSSProperties,
+  type HTMLAttributes,
+} from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { Tooltip } from './';
@@ -6,6 +12,7 @@ import { TooltipShape } from '../TooltipShape';
 import { type ArrowPlacement, type Placement } from '../types';
 
 const demoCss = `
+  body { font-family: sans-serif; }
   .demo-btn {
     font: inherit;
     padding: 0.5em 1em;
@@ -17,6 +24,24 @@ const demoCss = `
   }
   .demo-btn:hover { background: #f1f5f9; }
   .demo-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+  /* dashed-underlined "help term" that serves as the tooltip anchor */
+  .help-anchor {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font: inherit;
+    color: #0f172a;
+    border-radius: 0.25em;
+  }
+  .help-anchor:hover { color: #2563eb; }
+  .help-anchor:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .help-anchor-label {
+    text-decoration: underline dashed;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  .help-anchor-icon { flex: none; opacity: 0.7; }
 `;
 
 /*
@@ -94,6 +119,56 @@ const gradientCss = `
 // Cycled across the demos so every tooltip gets a gradient.
 const gradClasses = ['grad-1', 'grad-2', 'grad-3', 'grad-4'];
 
+// A question-mark-in-circle, sized to the current font (1em) and inheriting
+// `currentColor`.
+const HelpIcon = () => (
+  <svg
+    className="help-anchor-icon"
+    aria-hidden="true"
+    focusable="false"
+    width="1em"
+    height="1em"
+    viewBox="0 0 16 16"
+  >
+    <circle
+      cx="8"
+      cy="8"
+      r="7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    />
+    <path
+      d="M6.1 6.3c0-1.05.86-1.8 1.95-1.8s1.9.7 1.9 1.7c0 .8-.45 1.2-1.1 1.65-.62.43-.95.78-.95 1.55v.15"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+    <circle cx="8" cy="11.5" r="0.95" fill="currentColor" />
+  </svg>
+);
+
+// The dashed-underlined "help term" used as the tooltip anchor in place of a
+// button: keeps its text label, appends the help icon, and is keyboard
+// focusable (tabIndex=0) so focus/keyboard triggers still work. `forwardRef`
+// and `...rest` let the external-anchor demos attach a ref / inline styles /
+// handlers.
+const HelpAnchor = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ children, className, ...rest }, ref) => (
+    <span
+      ref={ref}
+      tabIndex={0}
+      className={['help-anchor', className].filter(Boolean).join(' ')}
+      {...rest}
+    >
+      <span className="help-anchor-label">{children}</span>
+      <HelpIcon />
+    </span>
+  )
+);
+HelpAnchor.displayName = 'HelpAnchor';
+
 const meta = {
   title: 'Example/Tooltip',
   component: Tooltip,
@@ -116,8 +191,8 @@ const meta = {
     },
     autoFlip: { control: 'boolean' },
     offset: { control: 'text' },
-    openDelay: { control: { type: 'range', min: 0, max: 1000, step: 50 } },
-    closeDelay: { control: { type: 'range', min: 0, max: 1000, step: 50 } },
+    delayShow: { control: { type: 'range', min: 0, max: 1000, step: 50 } },
+    delayHide: { control: { type: 'range', min: 0, max: 1000, step: 50 } },
   },
   decorators: [
     Story => (
@@ -130,11 +205,7 @@ const meta = {
   args: {
     content: 'A contemporary tooltip.',
     className: 'grad-1',
-    children: (
-      <button type="button" className="demo-btn">
-        anchor
-      </button>
-    ),
+    children: <HelpAnchor>anchor</HelpAnchor>,
   },
 } satisfies Meta<typeof Tooltip>;
 
@@ -143,24 +214,43 @@ type Story = StoryObj<typeof meta>;
 
 const placements: Placement[] = ['top', 'bottom', 'left', 'right'];
 
+const LoremIpsum = () => (
+  <p>
+    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+    Lorem Ipsum has been the industry's standard dummy text ever since 1966,
+    when designers at Letraset and James Mosley, the librarian at St Bride
+    Printing Library, took a 1914 Cicero translation and scrambled it to make
+    dummy text for Letraset's Body Type sheets. It has survived not only many
+    decades, but also the leap into electronic typesetting, remaining
+    essentially unchanged. It was popularised thanks to these sheets and more
+    recently with desktop publishing software including versions of Lorem Ipsum.
+  </p>
+);
+
 /* ----------------------------------------------------------------------- */
 
 export const Playground: Story = {
   args: {
-    content: 'A contemporary tooltip — Popover API + CSS anchor positioning.',
+    content:
+      'Contemporary tooltip component: Popover API, anchor positioning, clip-path shape',
     placement: 'top',
-    trigger: ['hover', 'focus'],
-    openDelay: 200,
-    closeDelay: 100,
+    trigger: ['hover', 'focus', 'click'],
+    delayShow: 200,
+    delayHide: 100,
     offset: '0.25em',
     autoFlip: true,
     className: 'grad-1',
-    children: (
-      <button type="button" className="demo-btn">
-        Hover or focus me
-      </button>
-    ),
+    children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
   },
+  render: args => (
+    <div style={{ maxWidth: '36rem' }}>
+      <LoremIpsum />
+      <Tooltip {...args} />
+      <LoremIpsum />
+      <LoremIpsum />
+      <LoremIpsum />
+    </div>
+  ),
 };
 
 /* ----------------------------------------------------------------------- */
@@ -182,9 +272,7 @@ const PlacementsDemo = () => (
         content={`placement = "${p}"`}
         className={gradClasses[i]}
       >
-        <button type="button" className="demo-btn">
-          {p}
-        </button>
+        <HelpAnchor>{p}</HelpAnchor>
       </Tooltip>
     ))}
   </div>
@@ -221,9 +309,7 @@ const AllPlacementsDemo = () => (
         content={<pre>{`placement:\n"${p}"`}</pre>}
         className={gradClasses[i]}
       >
-        <button type="button" className="demo-btn">
-          {p}
-        </button>
+        <HelpAnchor>{p}</HelpAnchor>
       </Tooltip>
     ))}
   </div>
@@ -264,9 +350,7 @@ const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
         content={<pre>{`arrowPlacement:\n"${ap}"`}</pre>}
         className={gradClasses[i]}
       >
-        <button type="button" className="demo-btn">
-          {ap}
-        </button>
+        <HelpAnchor>{ap}</HelpAnchor>
       </Tooltip>
     ))}
   </div>
@@ -300,36 +384,28 @@ const TriggersDemo = () => (
       content="Shown on hover only"
       className="grad-1"
     >
-      <button type="button" className="demo-btn">
-        hover
-      </button>
+      <HelpAnchor>hover</HelpAnchor>
     </Tooltip>
     <Tooltip
       trigger={['focus']}
       content="Shown on keyboard / focus only"
       className="grad-2"
     >
-      <button type="button" className="demo-btn">
-        focus
-      </button>
+      <HelpAnchor>focus</HelpAnchor>
     </Tooltip>
     <Tooltip
       trigger={['click']}
       content="Click to toggle — Esc to close"
       className="grad-3"
     >
-      <button type="button" className="demo-btn">
-        click
-      </button>
+      <HelpAnchor>click</HelpAnchor>
     </Tooltip>
     <Tooltip
       trigger={['hover', 'focus', 'click']}
       content="All triggers"
       className="grad-4"
     >
-      <button type="button" className="demo-btn">
-        all
-      </button>
+      <HelpAnchor>all</HelpAnchor>
     </Tooltip>
   </div>
 );
@@ -355,9 +431,7 @@ const CustomShapeDemo = () => (
         transitionDuration: '0.3s',
       }}
     >
-      <button type="button" className="demo-btn">
-        custom bubble
-      </button>
+      <HelpAnchor>custom bubble</HelpAnchor>
     </Tooltip>
     <Tooltip
       content="Tight corners and a hairline-thin arrow"
@@ -368,9 +442,7 @@ const CustomShapeDemo = () => (
         arrowSize: '0.35em',
       }}
     >
-      <button type="button" className="demo-btn">
-        thin arrow
-      </button>
+      <HelpAnchor>thin arrow</HelpAnchor>
     </Tooltip>
   </div>
 );
@@ -407,9 +479,7 @@ const ControlledDemo = () => {
         content="open is owned by the parent — hover still works too"
         className="grad-4"
       >
-        <button type="button" className="demo-btn">
-          anchored button
-        </button>
+        <HelpAnchor>anchored button</HelpAnchor>
       </Tooltip>
     </div>
   );
@@ -423,7 +493,7 @@ export const Controlled: Story = {
 /* ----------------------------------------------------------------------- */
 
 const ExternalAnchorRefDemo = () => {
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const termRef = useRef<HTMLSpanElement>(null);
   return (
     <div
       style={{
@@ -433,12 +503,10 @@ const ExternalAnchorRefDemo = () => {
         alignItems: 'center',
       }}
     >
-      <button ref={btnRef} type="button" className="demo-btn">
-        external trigger (anchorRef)
-      </button>
+      <HelpAnchor ref={termRef}>external trigger (anchorRef)</HelpAnchor>
       <Tooltip
-        anchorRef={btnRef}
-        content="anchorRef — no wrapping div; Tooltip writes anchor-name onto the button"
+        anchorRef={termRef}
+        content="anchorRef — no wrapping div; Tooltip writes anchor-name onto the element"
         className="grad-1"
       />
     </div>
@@ -456,9 +524,7 @@ const ExternalAnchorNameDemo = () => {
         alignItems: 'center',
       }}
     >
-      <button
-        type="button"
-        className="demo-btn"
+      <HelpAnchor
         style={{ anchorName: '--external-by-name' } as CSSProperties}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
@@ -466,7 +532,7 @@ const ExternalAnchorNameDemo = () => {
         onBlur={() => setOpen(false)}
       >
         external trigger (anchorName, controlled)
-      </button>
+      </HelpAnchor>
       <Tooltip
         anchorName="--external-by-name"
         open={open}
@@ -532,10 +598,10 @@ export const Shape: Story = {
 // looks like "nothing happens").
 //
 // This story is a big scrollable canvas with the four anchors clustered in the
-// dead centre. Scroll so an anchor is pushed toward the matching viewport edge,
-// then HOVER it: the bubble flips to the opposite side. With the anchor in open
-// space it stays on its preferred side. (Scroll first, then hover — autoFlip is
-// evaluated when the tooltip OPENS, not continuously while it is already open.)
+// dead centre. HOVER an anchor to open its tooltip, then scroll: an
+// IntersectionObserver tracks the bubble and flips it live (throttled, ~0.5s)
+// as it nears the matching viewport edge, flipping back when there's room
+// again. It also evaluates on open, so scrolling first then hovering works too.
 //
 // Note: the styled bubble needs native CSS anchor positioning (Chromium /
 // Safari). In Firefox the tooltip degrades to a native `title`, so there is no
@@ -562,17 +628,16 @@ const AutoFlipDemo = () => (
       style={{
         position: 'fixed',
         top: 0,
-        left: 0,
-        right: 0,
+        left: 'calc(50% - 18rem)',
         padding: '0.75rem 1rem',
-        textAlign: 'center',
         pointerEvents: 'none',
+        maxWidth: '36rem',
       }}
     >
-      Scroll the canvas so an anchor is pushed toward the matching edge (scroll
-      down for <code>top</code>, up for <code>bottom</code>, right for{' '}
-      <code>left</code>, left for <code>right</code>), then hover it — it flips
-      to the opposite side. Scroll first, then hover.
+      Hover an anchor to open it, then scroll the canvas toward the matching
+      edge (down for <code>top</code>, up for <code>bottom</code>, right for{' '}
+      <code>left</code>, left for <code>right</code>) — it flips to the opposite
+      side live as it nears the edge, and flips back when there's room again.
     </div>
 
     <div style={{ display: 'flex', gap: '20dvw' }}>
@@ -581,14 +646,13 @@ const AutoFlipDemo = () => (
           key={p}
           placement={p}
           autoFlip
+          open
           content={
             <pre>{`placement="${p}"\nscroll to its edge,\nthen hover`}</pre>
           }
           className={gradClasses[i]}
         >
-          <button type="button" className="demo-btn">
-            {p}
-          </button>
+          <HelpAnchor>{p}</HelpAnchor>
         </Tooltip>
       ))}
     </div>

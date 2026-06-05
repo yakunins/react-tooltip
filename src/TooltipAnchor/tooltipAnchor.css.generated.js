@@ -2,7 +2,7 @@
 
 const css = {
   src: `src/TooltipAnchor/tooltipAnchor.css`,
-  hash: `26ns4bmrhjm`,
+  hash: `1jj1ukgc34z`,
   content: `
 /* ============================================================
  * react-tooltip-contemporary - TooltipAnchor layer

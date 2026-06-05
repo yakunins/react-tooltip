@@ -4,3 +4,4 @@ export {
   supportsAnchorPositioning,
 } from './useSupportsAnchorPositioning';
 export { useHasFocusable } from './useHasFocusable';
+export { useIsoLayoutEffect } from './useIsoLayoutEffect';

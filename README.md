@@ -42,8 +42,8 @@ work standalone with no CSS import.
 | `placement`    | `'top' \| 'bottom' \| 'left' \| 'right'`  | `'top'`              | Preferred side of the anchor.                      |
 | `arrowPlacement` | `'start' \| 'center' \| 'end'`          | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below). |
 | `trigger`      | `('hover' \| 'focus' \| 'click')[]`       | `['hover', 'focus']` | Interactions that reveal the tooltip.              |
-| `openDelay`    | `number`                                  | `200`                | ms before showing.                                 |
-| `closeDelay`   | `number`                                  | `100`                | ms before hiding.                                  |
+| `delayShow`    | `number`                                  | `200`                | ms before showing (hover/focus only; click is instant). |
+| `delayHide`    | `number`                                  | `100`                | ms before hiding (hover/focus only; click is instant).  |
 | `offset`       | `string`                                  | `'0.25em'`           | Gap between anchor and bubble (any CSS length).    |
 | `autoFlip`     | `boolean`                                 | `true`               | Flip to the opposite side when it would overflow.  |
 | `defaultOpen`  | `boolean`                                 | `false`              | Initial open state (uncontrolled).                 |

@@ -2,7 +2,7 @@
 
 const css = {
   src: `src/Tooltip/tooltip.css`,
-  hash: `yvk3dcdc55`,
+  hash: `1z9gn30kxv3`,
   content: `
 /* ============================================================
  * react-tooltip-contemporary - Tooltip popover layer
@@ -41,6 +41,11 @@ const css = {
     var(--tooltip-radius, 0.4em) + var(--tooltip-arrow-size, 0.5em) * 0.707
   );
 
+  /* Default fade / flip duration. Overridden per instance via
+   * bubbleStyle.transitionDuration (set inline). Defined here so it is always a
+   * concrete value for calc()s that reference it (e.g. the flip animation). */
+  --tooltip-transition-duration: 0.2s;
+
   /* the popover is fixed and tracks its anchor */
   position: fixed;
 
@@ -50,9 +55,9 @@ const css = {
   /* enter / exit transition - Popover API + @starting-style */
   opacity: 0;
   transition:
-    opacity var(--tooltip-transition-duration, 0.16s) ease,
-    overlay var(--tooltip-transition-duration, 0.16s) ease allow-discrete,
-    display var(--tooltip-transition-duration, 0.16s) ease allow-discrete;
+    opacity var(--tooltip-transition-duration) ease,
+    overlay var(--tooltip-transition-duration) ease allow-discrete,
+    display var(--tooltip-transition-duration) ease allow-discrete;
 }
 .tooltip-popover:popover-open {
   opacity: 1;
@@ -68,6 +73,10 @@ const css = {
   }
 }
 
+/* The flip animation lives in JS (useFlipAnimation, via the Web Animations
+ * API). Its keyframes read --flip-from (set per placement below), so the
+ * bubble emerges from the anchor side when it flips. */
+
 /* ---------- placement: position the popover around its anchor ----------
  * anchor() resolves against the element named by position-anchor, which is
  * set inline, per instance.  --tooltip-offset is the gap.                */
@@ -76,24 +85,28 @@ const css = {
   left: anchor(center);
   translate: -50% 0;
   margin-bottom: var(--tooltip-offset, 0.25em);
+  --flip-from: translateY(8px);
 }
 .tooltip-popover.placement-bottom {
   top: anchor(bottom);
   left: anchor(center);
   translate: -50% 0;
   margin-top: var(--tooltip-offset, 0.25em);
+  --flip-from: translateY(-8px);
 }
 .tooltip-popover.placement-left {
   right: anchor(left);
   top: anchor(center);
   translate: 0 -50%;
   margin-right: var(--tooltip-offset, 0.25em);
+  --flip-from: translateX(8px);
 }
 .tooltip-popover.placement-right {
   left: anchor(right);
   top: anchor(center);
   translate: 0 -50%;
   margin-left: var(--tooltip-offset, 0.25em);
+  --flip-from: translateX(-8px);
 }
 
 /* Hand the popover-resolved inset down to the bubble's arrow offset, so the
