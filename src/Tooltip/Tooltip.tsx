@@ -2,7 +2,7 @@ import { useId, useRef, type CSSProperties } from 'react';
 import { default as cx } from 'clsx';
 
 import { TooltipAnchor } from '../TooltipAnchor';
-import { TooltipShape, DEFAULT_BUBBLE_STYLE } from '../TooltipShape';
+import { TooltipBubble, DEFAULT_BUBBLE_STYLE } from '../TooltipBubble';
 import {
   useHasFocusable,
   useStyleInjector,
@@ -212,20 +212,20 @@ export const Tooltip = ({
         id={tooltipId}
         role="tooltip"
         className={cx(
-          'tooltip-popover',
+          'tooltip',
           `placement-${effectivePlacement}`,
           `arrow-${arrowPlacement}`,
           className
         )}
         style={popoverStyle}
       >
-        <TooltipShape
+        <TooltipBubble
           placement={effectivePlacement}
           arrowPlacement={arrowPlacement}
           bubbleStyle={bubbleStyle}
         >
           {content}
-        </TooltipShape>
+        </TooltipBubble>
       </div>
     </>
   );

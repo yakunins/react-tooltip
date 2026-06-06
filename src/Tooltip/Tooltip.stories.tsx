@@ -8,7 +8,7 @@ import {
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { Tooltip } from './';
-import { TooltipShape } from '../TooltipShape';
+import { TooltipBubble } from '../TooltipBubble';
 import { type ArrowPlacement, type Placement } from '../types';
 
 const demoCss = `
@@ -42,7 +42,12 @@ const demoCss = `
     text-decoration-thickness: 1px;
   }
   .help-anchor-icon { flex: none; opacity: 0.7; }
-  .tooltip pre { margin: 0; }
+  .tooltip-bubble pre { margin: 0; }
+  .tooltip-bubble {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2))
+      drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+      backdrop-filter: drop-shadow(4px 4px 10px blue);
+  }
 `;
 
 /*
@@ -55,13 +60,13 @@ const demoCss = `
  * uses, so the gradients live here as classes instead.
  *
  * Each selector covers both placements of the class:
- *   `.grad-N .tooltip`  — on <Tooltip>, the class lands on the popover,
- *                         and the bubble (.tooltip) is its descendant.
- *   `.grad-N.tooltip`   — on <TooltipShape>, the class lands on the bubble.
+ *   `.grad-N .tooltip-bubble`  — on <Tooltip>, the class lands on the popover,
+ *                         and the bubble (.tooltip-bubble) is its descendant.
+ *   `.grad-N.tooltip-bubble`   — on <TooltipBubble>, the class lands on the bubble.
  */
 const gradientCss = `
-  .grad-1 .tooltip,
-  .grad-1.tooltip {
+  .grad-1 .tooltip-bubble,
+  .grad-1.tooltip-bubble {
     background-color: transparent !important;
     background-image:
       linear-gradient(114.95deg, rgba(235, 0, 255, 0.5) 0%, rgba(0, 71, 255, 0) 34.35%),
@@ -74,8 +79,8 @@ const gradientCss = `
     background-blend-mode: hard-light, overlay, overlay, overlay, difference, difference, normal !important;
   }
 
-  .grad-2 .tooltip,
-  .grad-2.tooltip {
+  .grad-2 .tooltip-bubble,
+  .grad-2.tooltip-bubble {
     background-color: transparent !important;
     background-image:
       linear-gradient(120deg, #ff0000 0%, #2400ff 100%),
@@ -88,8 +93,8 @@ const gradientCss = `
     background-blend-mode: overlay, color, overlay, difference, color-dodge, difference, normal !important;
   }
 
-  .grad-3 .tooltip,
-  .grad-3.tooltip {
+  .grad-3 .tooltip-bubble,
+  .grad-3.tooltip-bubble {
     background-color: transparent !important;
     background-image:
       linear-gradient(320.54deg, #00069f 0%, #120010 72.37%),
@@ -103,8 +108,8 @@ const gradientCss = `
     background-blend-mode: screen, color-dodge, color-burn, screen, overlay, difference, color-dodge, normal !important;
   }
 
-  .grad-4 .tooltip,
-  .grad-4.tooltip {
+  .grad-4 .tooltip-bubble,
+  .grad-4.tooltip-bubble {
     background-color: transparent !important;
     background-image: radial-gradient(
       circle at 30% 110%,
@@ -570,7 +575,7 @@ export const ExternalAnchor: Story = {
 
 /* ----------------------------------------------------------------------- */
 
-// `TooltipShape` injects its own stylesheet, so it renders standalone.
+// `TooltipBubble` injects its own stylesheet, so it renders standalone.
 const ShapeDemo = () => (
   <div
     style={{
@@ -582,11 +587,11 @@ const ShapeDemo = () => (
     }}
   >
     {placements.map((p, i) => (
-      <TooltipShape key={p} placement={p} className={gradClasses[i]}>
-        {`<TooltipShape placement="${p}" />`}
-      </TooltipShape>
+      <TooltipBubble key={p} placement={p} className={gradClasses[i]}>
+        {`<TooltipBubble placement="${p}" />`}
+      </TooltipBubble>
     ))}
-    <TooltipShape
+    <TooltipBubble
       placement="top"
       className="grad-1"
       bubbleStyle={{
@@ -594,8 +599,8 @@ const ShapeDemo = () => (
         arrowSize: '0.8em',
       }}
     >
-      Custom bubbleStyle on a standalone TooltipShape
-    </TooltipShape>
+      Custom bubbleStyle on a standalone TooltipBubble
+    </TooltipBubble>
   </div>
 );
 

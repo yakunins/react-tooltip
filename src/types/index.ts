@@ -54,7 +54,7 @@ export type TooltipTimings = {
 /**
  * Visual customisation of the tooltip bubble.
  *
- * Most fields map to a CSS custom property consumed by `tooltipShape.css`;
+ * Most fields map to a CSS custom property consumed by `tooltipBubble.css`;
  * any omitted field falls back to the stylesheet default. The exception is
  * `cornerSegments`, which selects a `.corners-N` class.
  */

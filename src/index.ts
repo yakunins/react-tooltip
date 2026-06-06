@@ -1,5 +1,5 @@
 export * from './Tooltip';
-export * from './TooltipShape';
+export * from './TooltipBubble';
 export * from './TooltipAnchor';
 export type {
   ArrowPlacement,

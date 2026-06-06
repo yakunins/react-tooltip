@@ -1,14 +1,20 @@
+/* This file is auto-generated */
+
+const css = {
+  src: `src/TooltipBubble/tooltipBubble.css`,
+  hash: `1kfs6m0vjyu`,
+  content: `
 /* ============================================================
- * react-tooltip-contemporary - TooltipShape layer
+ * react-tooltip-contemporary - TooltipBubble layer
  *
  * The bubble: its rounded box and its arrow are drawn as a single
  * clip-path: polygon(...) - no borders, pseudo-elements or SVG, so the
  * arrow inherits the bubble background, shadow and corner radius.
  * ============================================================ */
 
-.tooltip {
+.tooltip-bubble {
   /* Inputs: the public --tooltip-* custom properties. The component always
-   * sets them (DEFAULT_BUBBLE_STYLE in TooltipShape.tsx is the single source of
+   * sets them (DEFAULT_BUBBLE_STYLE in TooltipBubble.tsx is the single source of
    * defaults), so this sheet carries no --default-* fallbacks. */
   --py: var(--tooltip-padding-y);
   --px: var(--tooltip-padding-x);
@@ -17,10 +23,10 @@
 
   /* Distance from a bubble edge to the arrow tip, for arrow-start / arrow-end:
    * far enough that the arrow's near foot clears the rounded corner. Inside a
-   * Tooltip the popover overrides this (see '.tooltip-popover .tooltip' in
-   * tooltipShape's sibling sheet) with an absolute length resolved in the
-   * popover's font context, so the bubble's arrow and the popover's shift line
-   * up to the pixel. */
+   * Tooltip the popover overrides this (see the descendant rule in the sibling
+   * tooltip.css) with an absolute length resolved in the popover's font
+   * context, so the bubble's arrow and the popover's shift line up to the
+   * pixel. */
   --arrow-inset: calc(var(--rad) + var(--arrow-size) * 0.707);
 
   display: inline-block;
@@ -61,7 +67,7 @@
     var(--corner4)
   );
 }
-.tooltip:empty {
+.tooltip-bubble:empty {
   display: none;
 }
 
@@ -69,15 +75,15 @@
  * '--arrow-pos' is the along-edge coordinate the placement rules below read
  * for whichever axis is relevant (--cx for top/bottom, --cy for left/right).
  * 'center' is the default (no class), so --arrow-pos falls back to 50%. */
-.tooltip.arrow-start {
+.tooltip-bubble.arrow-start {
   --arrow-pos: var(--arrow-inset);
 }
-.tooltip.arrow-end {
+.tooltip-bubble.arrow-end {
   --arrow-pos: calc(100% - var(--arrow-inset));
 }
 
 /* placement-top: bubble above the anchor, arrow points down */
-.tooltip.placement-top {
+.tooltip-bubble.placement-top {
   --b: var(--arrow-size);
   --cx: var(--arrow-pos, 50%);
   --cy: calc(100% - var(--arrow-size));
@@ -97,7 +103,7 @@
 }
 
 /* placement-bottom: bubble below the anchor, arrow points up */
-.tooltip.placement-bottom {
+.tooltip-bubble.placement-bottom {
   --t: var(--arrow-size);
   --cx: var(--arrow-pos, 50%);
   --cy: calc(0% + var(--arrow-size));
@@ -117,7 +123,7 @@
 }
 
 /* placement-left: bubble left of the anchor, arrow points right */
-.tooltip.placement-left {
+.tooltip-bubble.placement-left {
   --r: var(--arrow-size);
   --cx: calc(100% - var(--arrow-size));
   --cy: var(--arrow-pos, 50%);
@@ -137,7 +143,7 @@
 }
 
 /* placement-right: bubble right of the anchor, arrow points left */
-.tooltip.placement-right {
+.tooltip-bubble.placement-right {
   --l: var(--arrow-size);
   --cx: calc(0% + var(--arrow-size));
   --cy: var(--arrow-pos, 50%);
@@ -155,3 +161,7 @@
     var(--corner4)
   );
 }
+`,
+};
+
+export default css;

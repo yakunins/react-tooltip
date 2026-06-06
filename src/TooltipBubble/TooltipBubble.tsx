@@ -7,14 +7,14 @@ import {
   type Placement,
   type TooltipBubbleStyle,
 } from '../types';
-import { default as shapeCss } from './tooltipShape.css.generated.js';
+import { default as bubbleCss } from './tooltipBubble.css.generated.js';
 import { default as cornersCss } from './roundedCorners.css.generated.js';
 
 /**
  * The bubble's default appearance — the single source of truth for every
  * `TooltipBubbleStyle` field. A consumer's `bubbleStyle` is layered on top and
  * each resolved field is applied as a CSS custom property (or, for
- * `cornerSegments`, the `.corners-N` class), so `tooltipShape.css` no longer
+ * `cornerSegments`, the `.corners-N` class), so `tooltipBubble.css` no longer
  * carries its own `--default-*` fallbacks. `transitionDuration` is consumed by
  * the popover layer (see `Tooltip.tsx`), the rest by the bubble here.
  */
@@ -36,7 +36,7 @@ const CORNER_SEGMENTS = [3, 4, 5, 6, 7] as const;
 
 type DivProps = HTMLAttributes<HTMLDivElement>;
 
-export type TooltipShapeProps = DivProps & {
+export type TooltipBubbleProps = DivProps & {
   /** Side of the anchor the bubble sits on; the arrow points the other way. */
   placement?: Placement;
   /**
@@ -52,17 +52,17 @@ export type TooltipShapeProps = DivProps & {
 };
 
 /**
- * TooltipShape — the visual bubble.
+ * TooltipBubble — the visual bubble.
  *
  * The rounded rectangle *and* its arrow are drawn as a single
  * `clip-path: polygon(...)` — no borders, no pseudo-elements, no SVG — so
  * the arrow inherits the bubble's background, shadow and corner radius for
  * free. The arrow points back toward the anchor, i.e. opposite `placement`.
  *
- * It injects its own stylesheet (`tooltipShape.css`) at runtime, so it
+ * It injects its own stylesheet (`tooltipBubble.css`) at runtime, so it
  * renders correctly on its own — no CSS import required by the consumer.
  */
-export const TooltipShape = ({
+export const TooltipBubble = ({
   placement = 'top',
   arrowPlacement = 'center',
   bubbleStyle,
@@ -70,12 +70,12 @@ export const TooltipShape = ({
   style,
   children,
   ...rest
-}: TooltipShapeProps) => {
-  useStyleInjector(shapeCss.content);
+}: TooltipBubbleProps) => {
+  useStyleInjector(bubbleCss.content);
   useStyleInjector(cornersCss.content);
 
   // Resolve every field against the defaults (ignoring explicit `undefined`),
-  // so the merged style is the single source of truth and tooltipShape.css
+  // so the merged style is the single source of truth and tooltipBubble.css
   // needs no fallbacks of its own.
   const definedStyle = Object.fromEntries(
     Object.entries(bubbleStyle ?? {}).filter(([, v]) => v !== undefined)
@@ -104,7 +104,7 @@ export const TooltipShape = ({
     <div
       {...rest}
       className={cx(
-        'tooltip',
+        'tooltip-bubble',
         `placement-${placement}`,
         `arrow-${arrowPlacement}`,
         `corners-${segments}`,

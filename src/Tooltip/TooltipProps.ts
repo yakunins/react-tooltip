@@ -92,7 +92,7 @@ type TooltipDefaults = Required<
 export const TOOLTIP_DEFAULTS_TIMINGS: Required<TooltipTimings> = {
   delayShow: 200,
   delayHide: 100,
-  clickCloseGuard: 500,
+  clickCloseGuard: 1000,
   minVisibleDuration: 1000,
 };
 

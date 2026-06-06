@@ -2,14 +2,14 @@
 
 const css = {
   src: `src/Tooltip/tooltip.css`,
-  hash: `hscoz9tnml`,
+  hash: `14rrj8evliz`,
   content: `
 /* ============================================================
  * react-tooltip-contemporary - Tooltip popover layer
  *
  * The top-layer popover element: user-agent reset, positioning via
  * anchor(), the enter/exit transition, and the four placement variants.
- * The bubble inside it is styled by tooltipShape.css.
+ * The bubble inside it is styled by tooltipBubble.css.
  * ============================================================ */
 
 /* Distance from a bubble edge to the arrow tip, for arrow-start / arrow-end.
@@ -25,7 +25,7 @@ const css = {
   initial-value: 0px;
 }
 
-.tooltip-popover {
+.tooltip {
   /* reset user-agent popover styles */
   inset: auto;
   margin: 0;
@@ -47,10 +47,6 @@ const css = {
   /* the popover is fixed and tracks its anchor */
   position: fixed;
 
-  /* soft shadow that follows the clip-path silhouette */
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))
-    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-
   /* enter / exit transition - Popover API + @starting-style */
   opacity: 0;
   transition:
@@ -59,16 +55,16 @@ const css = {
     display var(--tooltip-transition-duration) ease allow-discrete;
 }
 
-.tooltip-popover:popover-open {
+.tooltip:popover-open {
   opacity: 1;
 }
 @starting-style {
-  .tooltip-popover:popover-open {
+  .tooltip:popover-open {
     opacity: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tooltip-popover {
+  .tooltip {
     transition-duration: 0.01ms;
   }
 }
@@ -80,28 +76,28 @@ const css = {
 /* ---------- placement: position the popover around its anchor ----------
  * anchor() resolves against the element named by position-anchor, which is
  * set inline, per instance.  --tooltip-offset is the gap.                */
-.tooltip-popover.placement-top {
+.tooltip.placement-top {
   bottom: anchor(top);
   left: anchor(center);
   translate: -50% 0;
   margin-bottom: var(--tooltip-offset, 0.25em);
   --flip-from: translateY(8px);
 }
-.tooltip-popover.placement-bottom {
+.tooltip.placement-bottom {
   top: anchor(bottom);
   left: anchor(center);
   translate: -50% 0;
   margin-top: var(--tooltip-offset, 0.25em);
   --flip-from: translateY(-8px);
 }
-.tooltip-popover.placement-left {
+.tooltip.placement-left {
   right: anchor(left);
   top: anchor(center);
   translate: 0 -50%;
   margin-right: var(--tooltip-offset, 0.25em);
   --flip-from: translateX(8px);
 }
-.tooltip-popover.placement-right {
+.tooltip.placement-right {
   left: anchor(right);
   top: anchor(center);
   translate: 0 -50%;
@@ -111,9 +107,10 @@ const css = {
 
 /* Hand the popover-resolved inset down to the bubble's arrow offset, so the
  * arrow tip and the popover's shift use the identical absolute length. This
- * descendant selector outranks the bubble's own '.tooltip' default, and only
- * applies inside a popover, leaving standalone TooltipShape on its local calc. */
-.tooltip-popover .tooltip {
+ * descendant selector outranks the bubble's own '.tooltip-bubble' default, and
+ * only applies inside a popover, leaving standalone TooltipBubble on its local
+ * calc. */
+.tooltip .tooltip-bubble {
   --arrow-inset: var(--tooltip-arrow-inset);
 }
 
@@ -127,20 +124,20 @@ const css = {
  *     center; the bubble body then extends toward the end side.
  *   - 'end' mirrors that; the body extends toward the start side.
  * Only translate changes — the anchor(center) base is untouched.            */
-.tooltip-popover.placement-top.arrow-start,
-.tooltip-popover.placement-bottom.arrow-start {
+.tooltip.placement-top.arrow-start,
+.tooltip.placement-bottom.arrow-start {
   translate: calc(-1 * var(--tooltip-arrow-inset)) 0;
 }
-.tooltip-popover.placement-top.arrow-end,
-.tooltip-popover.placement-bottom.arrow-end {
+.tooltip.placement-top.arrow-end,
+.tooltip.placement-bottom.arrow-end {
   translate: calc(-100% + var(--tooltip-arrow-inset)) 0;
 }
-.tooltip-popover.placement-left.arrow-start,
-.tooltip-popover.placement-right.arrow-start {
+.tooltip.placement-left.arrow-start,
+.tooltip.placement-right.arrow-start {
   translate: 0 calc(-1 * var(--tooltip-arrow-inset));
 }
-.tooltip-popover.placement-left.arrow-end,
-.tooltip-popover.placement-right.arrow-end {
+.tooltip.placement-left.arrow-end,
+.tooltip.placement-right.arrow-end {
   translate: 0 calc(-100% + var(--tooltip-arrow-inset));
 }
 `,

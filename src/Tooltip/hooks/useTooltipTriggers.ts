@@ -253,6 +253,10 @@ export const useTooltipTriggers = ({
       // Only act when focus was actually holding the tooltip, and ignore moves
       // that stay inside the scope (anchor <-> bubble).
       if (!focusHoldRef.current) return;
+      // A pinned (clicked-open) tooltip is sticky: it survives focus leaving the
+      // document, e.g. on window blur / alt-tab. Only an outside click or Escape
+      // dismisses it — matching the hover path, which also bails while pinned.
+      if (pinnedRef.current) return;
       if (inScope((e as FocusEvent).relatedTarget)) return;
       focusHoldRef.current = false;
       syncHeld();

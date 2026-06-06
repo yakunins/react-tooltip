@@ -1,19 +1,19 @@
 /* This file is auto-generated */
 
 const css = {
-  src: `src/TooltipShape/roundedCorners.css`,
-  hash: `1gibtynjskk`,
+  src: `src/TooltipBubble/roundedCorners.css`,
+  hash: `260fvaby20j`,
   content: `
 /* ============================================================
  * react-tooltip-contemporary - rounded-corner geometry
  *
- * The bubble's four rounded corners, factored out of tooltipShape.css and
+ * The bubble's four rounded corners, factored out of tooltipBubble.css and
  * parameterized. Each corner is approximated by N straight segments (N+1
  * points) lying on a TRUE quarter-circle of radius --rad; N is chosen by a
- * .corners-N class (3..7) - more segments = smoother corner. tooltipShape.css
+ * .corners-N class (3..7) - more segments = smoother corner. tooltipBubble.css
  * consumes the --corner1..4 lists below and splices the arrow between them.
  *
- * Inputs (set on .tooltip by tooltipShape.css):
+ * Inputs (set on .tooltip-bubble by tooltipBubble.css):
  *   --rad            corner radius (length)
  *   --t --b --l --r  per-placement arrow-side insets (the bubble box edges)
  *
@@ -28,8 +28,8 @@ const css = {
  * ============================================================ */
 
 /* 3 segments - the default, also applied when no .corners-N class is set */
-.tooltip,
-.tooltip.corners-3 {
+.tooltip-bubble,
+.tooltip-bubble.corners-3 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 3));
   --rsin-0: calc(var(--rad) * sin(90deg * 0 / 3));
   --rcos-1: calc(var(--rad) * cos(90deg * 1 / 3));
@@ -61,7 +61,7 @@ const css = {
     calc(var(--l) + var(--rad) - var(--rsin-3)) calc(100% - var(--b) - var(--rad) + var(--rcos-3));
 }
 
-.tooltip.corners-4 {
+.tooltip-bubble.corners-4 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 4));
   --rsin-0: calc(var(--rad) * sin(90deg * 0 / 4));
   --rcos-1: calc(var(--rad) * cos(90deg * 1 / 4));
@@ -99,7 +99,7 @@ const css = {
     calc(var(--l) + var(--rad) - var(--rsin-4)) calc(100% - var(--b) - var(--rad) + var(--rcos-4));
 }
 
-.tooltip.corners-5 {
+.tooltip-bubble.corners-5 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 5));
   --rsin-0: calc(var(--rad) * sin(90deg * 0 / 5));
   --rcos-1: calc(var(--rad) * cos(90deg * 1 / 5));
@@ -143,7 +143,7 @@ const css = {
     calc(var(--l) + var(--rad) - var(--rsin-5)) calc(100% - var(--b) - var(--rad) + var(--rcos-5));
 }
 
-.tooltip.corners-6 {
+.tooltip-bubble.corners-6 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 6));
   --rsin-0: calc(var(--rad) * sin(90deg * 0 / 6));
   --rcos-1: calc(var(--rad) * cos(90deg * 1 / 6));
@@ -193,7 +193,7 @@ const css = {
     calc(var(--l) + var(--rad) - var(--rsin-6)) calc(100% - var(--b) - var(--rad) + var(--rcos-6));
 }
 
-.tooltip.corners-7 {
+.tooltip-bubble.corners-7 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 7));
   --rsin-0: calc(var(--rad) * sin(90deg * 0 / 7));
   --rcos-1: calc(var(--rad) * cos(90deg * 1 / 7));

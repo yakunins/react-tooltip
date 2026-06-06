@@ -1,4 +1,4 @@
-import { Tooltip, TooltipShape, TooltipAnchor } from '../src';
+import { Tooltip, TooltipBubble, TooltipAnchor } from '../src';
 
 describe('react-tooltip-contemporary', () => {
   describe('public exports', () => {
@@ -6,8 +6,8 @@ describe('react-tooltip-contemporary', () => {
       expect(typeof Tooltip).toBe('function');
     });
 
-    it('exports the TooltipShape subcomponent', () => {
-      expect(typeof TooltipShape).toBe('function');
+    it('exports the TooltipBubble subcomponent', () => {
+      expect(typeof TooltipBubble).toBe('function');
     });
 
     it('exports the TooltipAnchor subcomponent (forwardRef)', () => {
