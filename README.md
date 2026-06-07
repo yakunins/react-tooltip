@@ -16,11 +16,11 @@ features:
 
 ```tsx
 import { Tooltip } from 'react-tooltip-contemporary';
-
-<Tooltip content="Saved to your library" placement="top">
-  <button>Save</button>
-</Tooltip>;
 ```
+
+| Wrapping (default) | External by ref | External by name |
+| --- | --- | --- |
+| `<Tooltip content="Saved">`<br>`  <button>Save</button>`<br>`</Tooltip>` | `<button ref={ref}>Save</button>`<br>`<Tooltip anchorRef={ref}`<br>`  content="Saved" />` | `<button style={{ anchorName: '--s' }}>Save</button>`<br>`<Tooltip anchorName="--s" content="Saved"`<br>`  open={open} onOpenChange={setOpen} />` |
 
 ## Components
 
