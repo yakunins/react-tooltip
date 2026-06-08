@@ -101,7 +101,7 @@ export const TOOLTIP_DEFAULTS: TooltipDefaults = {
   arrowPlacement: 'center',
   trigger: ['hover', 'focus'],
   timings: TOOLTIP_DEFAULTS_TIMINGS,
-  offset: '0.25em',
+  offset: '0rem',
   autoFlip: true,
   defaultOpen: false,
 };

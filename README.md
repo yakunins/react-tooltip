@@ -1,4 +1,7 @@
-# Contemporary React Tooltip 
+# Contemporary React Tooltip
+
+[![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
+[![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 
 A small, dependency-light React tooltip built on modern web-platform
 features:

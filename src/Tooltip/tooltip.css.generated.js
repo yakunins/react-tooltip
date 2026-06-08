@@ -2,7 +2,7 @@
 
 const css = {
   src: `src/Tooltip/tooltip.css`,
-  hash: `14rrj8evliz`,
+  hash: `114f2ke3rk5`,
   content: `
 /* ============================================================
  * react-tooltip-contemporary - Tooltip popover layer
@@ -43,6 +43,19 @@ const css = {
   --tooltip-arrow-inset: calc(
     var(--tooltip-radius) + var(--tooltip-arrow-size) * 0.707
   );
+  --tooltip-outline-color: rgba(255, 255, 255, 1);
+  --tooltip-outline-size: 0px;
+  --tooltip-outline-blur: 0.5px;
+
+  --o-c: var(--tooltip-outline-color);
+  --o-s: var(--tooltip-outline-size);
+  --o--s: calc(var(--o-s) * -1);
+  --o-b: var(--tooltip-outline-blur);
+
+  --tooltip-outline: drop-shadow(var(--o-s) 0 var(--o-b) var(--o-c))
+    drop-shadow(var(--o--s) 0 var(--o-b) var(--o-c))
+    drop-shadow(0 var(--o-s) var(--o-b) var(--o-c))
+    drop-shadow(0 var(--o--s) var(--o-b) var(--o-c));
 
   /* the popover is fixed and tracks its anchor */
   position: fixed;
@@ -57,6 +70,7 @@ const css = {
 
 .tooltip:popover-open {
   opacity: 1;
+  filter: var(--tooltip-outline);
 }
 @starting-style {
   .tooltip:popover-open {

@@ -43,11 +43,6 @@ const demoCss = `
   }
   .help-anchor-icon { flex: none; opacity: 0.7; }
   .tooltip-bubble pre { margin: 0; }
-  .tooltip-bubble {
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2))
-      drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
-      backdrop-filter: drop-shadow(4px 4px 10px blue);
-  }
 `;
 
 /*
@@ -238,7 +233,49 @@ export const Playground: Story = {
   args: {
     content: (
       <span>
-        Contemporary tooltip component: based on based on{' '}
+        Contemporary tooltip component: based on{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Popover_API">
+          Popover API
+        </a>
+        ,{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Anchor_positioning">
+          anchor positioning
+        </a>
+        , and{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/clip-path">
+          clip-path shape
+        </a>
+      </span>
+    ),
+    placement: 'top',
+    trigger: ['hover', 'focus', 'click'],
+    bubbleStyle: { radius: '1.5rem', arrowSize: '1rem', cornerSegments: 3 },
+    timings: { delayShow: 200, delayHide: 100 },
+    offset: '-0.25em',
+    autoFlip: true,
+    className: 'grad-1',
+    children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
+  },
+  render: args => (
+    <div style={{ maxWidth: '36rem' }}>
+      <LoremIpsum />
+      <Tooltip {...args} />
+      <LoremIpsum />
+      <LoremIpsum />
+      <LoremIpsum />
+    </div>
+  ),
+};
+
+/* ----------------------------------------------------------------------- */
+
+// Same layout as Playground, but every prop left at its default and no
+// gradient class on the bubble — the out-of-the-box look.
+export const NoStylePlayground: Story = {
+  args: {
+    content: (
+      <span>
+        Contemporary tooltip component: based on{' '}
         <a href="https://developer.mozilla.org/en-US/docs/Web/API/Popover_API">
           Popover API
         </a>
@@ -252,17 +289,12 @@ export const Playground: Story = {
         </a>
       </span>
     ),
-    placement: 'top',
-    trigger: ['hover', 'focus', 'click'],
-    bubbleStyle: { radius: '1rem', arrowSize: '1rem' },
-    timings: { delayShow: 200, delayHide: 100 },
-    offset: '0.25em',
-    autoFlip: true,
-    className: 'grad-1',
-    children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
+    className: undefined,
+    children: <HelpAnchor>Hover or focus me</HelpAnchor>,
   },
   render: args => (
-    <div style={{ maxWidth: '36rem' }}>
+    <div style={{ maxWidth: '36rem', backgroundColor: 'tan', padding: '2rem' }}>
+      <style>{'body { background-color: black; }'}</style>
       <LoremIpsum />
       <Tooltip {...args} />
       <LoremIpsum />

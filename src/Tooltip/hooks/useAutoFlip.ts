@@ -59,8 +59,10 @@ export interface AutoFlipParams {
  * movement, or open — and re-runs a (throttled) decision that reads geometry
  * only (no measure→render→remeasure). The decision is sticky on the current
  * side — it flips only when that side runs out of room — so a side regaining
- * space never pulls the bubble back and the placement can't oscillate. The
- * preferred `placement` is re-established as the starting side on each open.
+ * space never pulls the bubble back and the placement can't oscillate. A
+ * flipped placement is cleared back to the preferred `placement` once the
+ * tooltip has fully closed, so the next open starts from the preferred side
+ * without replaying the flip animation on reopen.
  */
 export const useAutoFlip = ({
   anchorRef,
@@ -143,12 +145,32 @@ export const useAutoFlip = ({
     if (!autoFlip) setEffectivePlacement(placement);
   }, [autoFlip, placement]);
 
-  // --- reset to the preferred side on each open and whenever `placement`
-  // changes; the sticky decision above then governs flips within that open
-  // session (so a reopen always starts from the requested side) ---
+  // --- clear a flipped placement once the tooltip has fully closed, so the
+  // next open starts from the preferred side instead of the stale flipped one
+  // (which would otherwise reset *while reopening* and play the flip-slide
+  // animation). Deferred until the hide transition ends so the bubble doesn't
+  // visibly jump sides mid-fade; done immediately if it's already hidden, and
+  // cancelled if it reopens first. ---
   useEffect(() => {
-    if (autoFlip && isOpen) setEffectivePlacement(placement);
-  }, [autoFlip, isOpen, placement]);
+    if (!autoFlip || isOpen) return;
+    if (effectivePlacementRef.current === placement) return; // nothing to clear
+    const pop = popoverRef.current;
+    const reset = () => setEffectivePlacement(placement);
+    if (!pop || !pop.matches(':popover-open')) {
+      reset(); // already hidden (or no element) — safe to snap now
+      return;
+    }
+    // still fading out: wait for the opacity transition to finish
+    const onEnd = (e: TransitionEvent) => {
+      if (e.target === pop && e.propertyName === 'opacity') reset();
+    };
+    pop.addEventListener('transitionend', onEnd);
+    const fallback = setTimeout(reset, 1000); // in case transitionend never fires
+    return () => {
+      pop.removeEventListener('transitionend', onEnd);
+      clearTimeout(fallback);
+    };
+  }, [autoFlip, isOpen, placement, popoverRef]);
 
   // --- autoFlip on: re-evaluate the side while the tooltip is open ---
   useEffect(() => {
