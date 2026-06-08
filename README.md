@@ -21,9 +21,11 @@ features:
 import { Tooltip } from 'react-tooltip-contemporary';
 ```
 
-| Wrapping (default) | External by ref | External by name |
-| --- | --- | --- |
-| `<Tooltip content="Saved">`<br>`  <button>Save</button>`<br>`</Tooltip>` | `<button ref={ref}>Save</button>`<br>`<Tooltip anchorRef={ref}`<br>`  content="Saved" />` | `<button style={{ anchorName: '--s' }}>Save</button>`<br>`<Tooltip anchorName="--s" content="Saved"`<br>`  open={open} onOpenChange={setOpen} />` |
+| Mode                   | Markup                                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Wrapping** (default) | `<Tooltip content="Saved">`<br>`  <button>Save</button>`<br>`</Tooltip>`                                               |
+| **External by ref**    | `<button ref={ref}>Save</button>`<br>`<Tooltip anchorRef={ref} content="Saved" />`                                     |
+| **External by name**   | `<button style={{ anchorName: '--s' }}>Save</button>`<br>`<Tooltip anchorName="--s" content="Saved"`<br>`  open={open} onOpenChange={setOpen} />` |
 
 ## Components
 
