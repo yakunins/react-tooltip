@@ -19,6 +19,17 @@ const css = {
 export default css;
 `;
 
+// Strip CSS comments from the generated content (the source .css keeps them).
+// Shrinks the injected/shipped CSS and removes the backtick-in-comment hazard
+// that would break the template literal. Single spaces are left intact, so
+// calc() expressions stay valid.
+const stripCssComments = css =>
+  css
+    .replace(/\/\*[\s\S]*?\*\//g, '') // drop /* ... */ comments
+    .replace(/[ \t]+$/gm, '') // trim trailing whitespace
+    .replace(/\n\s*\n/g, '\n') // collapse the blank lines they leave
+    .replace(/^\s*\n/, ''); // and any leading blank line
+
 const watching = process.argv.includes(cfg.watchParameter);
 const ignorePaths = (path, stats) =>
   stats?.isFile() && !cfg.watch.extensions.includes(getExtension(path, stats));
@@ -92,7 +103,7 @@ function remove(path) {
 function convert(path) {
   const inputText = read(path);
   if (inputText === null) return;
-  const outputData = template(inputText, path);
+  const outputData = template(stripCssComments(inputText), path);
   const writeResult = write(cfg.outputPath(path), outputData);
   return writeResult;
 }

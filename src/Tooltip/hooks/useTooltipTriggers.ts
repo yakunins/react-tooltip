@@ -41,6 +41,8 @@ export interface TooltipTriggersParams {
   supported: boolean;
   /** Current open state — gates Escape / outside-click dismissal. */
   isOpen: boolean;
+  /** Parent owns `open` — a controlled tooltip is not auto-pinned by defaultOpen. */
+  isControlled: boolean;
   /** Stable committer that flips the open state. */
   commitRef: MutableRefObject<(next: boolean) => void>;
 }
@@ -76,6 +78,7 @@ export const useTooltipTriggers = ({
   minVisibleDuration,
   supported,
   isOpen,
+  isControlled,
   commitRef,
 }: TooltipTriggersParams): TooltipTriggersResult => {
   const timer = useRef<ReturnType<typeof setTimeout>>();
@@ -95,9 +98,11 @@ export const useTooltipTriggers = ({
   // and the minimum-visible window.
   const shownAtRef = useRef(0);
 
-  // `pinned` = opened/held by a click. It suppresses the hover-out close; any
-  // click (document-level), a focus-out, or Escape still dismisses it.
-  const [pinned, setPinned] = useState(false);
+  // `pinned` = held open by a click — or, equivalently, open from the start via
+  // an uncontrolled `defaultOpen`. Either way it behaves like a click-opened
+  // tooltip: it suppresses the hover-out close, autoflips (heldRef), and is
+  // dismissed by any document click, a focus-out, or Escape.
+  const [pinned, setPinned] = useState(() => !isControlled && isOpen);
   const pinnedRef = useRef(pinned);
   pinnedRef.current = pinned;
   // The click that pins the tooltip open also bubbles to the document, where

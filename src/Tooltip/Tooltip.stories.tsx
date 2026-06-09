@@ -215,7 +215,7 @@ type Story = StoryObj<typeof meta>;
 const placements: Placement[] = ['top', 'bottom', 'left', 'right'];
 
 const LoremIpsum = () => (
-  <p>
+  <p className="lorem-ipsum">
     Lorem Ipsum is simply dummy text of the printing and typesetting industry.
     Lorem Ipsum has been the industry's standard dummy text ever since 1966,
     when designers at Letraset and James Mosley, the librarian at St Bride
@@ -247,17 +247,19 @@ export const Playground: Story = {
         </a>
       </span>
     ),
-    placement: 'top',
-    trigger: ['hover', 'focus', 'click'],
     bubbleStyle: { radius: '1.5rem', arrowSize: '1rem', cornerSegments: 3 },
-    timings: { delayShow: 200, delayHide: 100 },
-    offset: '-0.25em',
-    autoFlip: true,
     className: 'grad-1',
     children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
+    defaultOpen: true,
+    offset: '-0.25em',
+    placement: 'top',
+    style: { '--tooltip-outline-color': 'transparent' },
+    trigger: ['hover', 'focus', 'click'],
+    timings: { delayShow: 200, delayHide: 100 },
   },
   render: args => (
     <div style={{ maxWidth: '36rem' }}>
+      <style>{`body { background-color: rgba(127,127,127, .25); } .lorem-ipsum { color: rgba(127,127,127, .25); }`}</style>
       <LoremIpsum />
       <Tooltip {...args} />
       <LoremIpsum />
@@ -291,10 +293,11 @@ export const NoStylePlayground: Story = {
     ),
     className: undefined,
     children: <HelpAnchor>Hover or focus me</HelpAnchor>,
+    defaultOpen: true,
   },
   render: args => (
-    <div style={{ maxWidth: '36rem', backgroundColor: 'tan', padding: '2rem' }}>
-      <style>{'body { background-color: black; }'}</style>
+    <div style={{ maxWidth: '36rem' }}>
+      <style>{`body { background-color: rgba(127,127,127, .25); } .lorem-ipsum { color: rgba(127,127,127, .25); }`}</style>
       <LoremIpsum />
       <Tooltip {...args} />
       <LoremIpsum />

@@ -2,31 +2,14 @@
 
 const css = {
   src: `src/Tooltip/tooltip.css`,
-  hash: `114f2ke3rk5`,
+  hash: `vhm6uik9rv`,
   content: `
-/* ============================================================
- * react-tooltip-contemporary - Tooltip popover layer
- *
- * The top-layer popover element: user-agent reset, positioning via
- * anchor(), the enter/exit transition, and the four placement variants.
- * The bubble inside it is styled by tooltipBubble.css.
- * ============================================================ */
-
-/* Distance from a bubble edge to the arrow tip, for arrow-start / arrow-end.
- * Registered as a <length> so its em units resolve once here, on the popover,
- * and inherit to the bubble as an absolute length. The bubble sets
- * font-size: 0.875em, so an unregistered custom property would re-resolve its
- * em against that smaller font and the arrow tip would drift off-center; this
- * keeps the popover's translate and the bubble's arrow offset identical. The
- * radius / arrow-size inputs are mirrored onto the popover by Tooltip. */
 @property --tooltip-arrow-inset {
   syntax: '<length>';
   inherits: true;
   initial-value: 0px;
 }
-
 .tooltip {
-  /* reset user-agent popover styles */
   inset: auto;
   margin: 0;
   padding: 0;
@@ -36,38 +19,27 @@ const css = {
   overflow: visible;
   width: max-content;
   height: max-content;
-
-  /* --tooltip-radius / --tooltip-arrow-size / --tooltip-transition-duration are
-   * set on the popover by Tooltip.tsx, resolved against DEFAULT_BUBBLE_STYLE
-   * (the single source of defaults), so this sheet needs no fallbacks. */
   --tooltip-arrow-inset: calc(
     var(--tooltip-radius) + var(--tooltip-arrow-size) * 0.707
   );
   --tooltip-outline-color: rgba(255, 255, 255, 1);
   --tooltip-outline-size: 0px;
   --tooltip-outline-blur: 0.5px;
-
   --o-c: var(--tooltip-outline-color);
   --o-s: var(--tooltip-outline-size);
   --o--s: calc(var(--o-s) * -1);
   --o-b: var(--tooltip-outline-blur);
-
   --tooltip-outline: drop-shadow(var(--o-s) 0 var(--o-b) var(--o-c))
     drop-shadow(var(--o--s) 0 var(--o-b) var(--o-c))
     drop-shadow(0 var(--o-s) var(--o-b) var(--o-c))
     drop-shadow(0 var(--o--s) var(--o-b) var(--o-c));
-
-  /* the popover is fixed and tracks its anchor */
   position: fixed;
-
-  /* enter / exit transition - Popover API + @starting-style */
   opacity: 0;
   transition:
     opacity var(--tooltip-transition-duration) ease,
     overlay var(--tooltip-transition-duration) ease allow-discrete,
     display var(--tooltip-transition-duration) ease allow-discrete;
 }
-
 .tooltip:popover-open {
   opacity: 1;
   filter: var(--tooltip-outline);
@@ -82,14 +54,6 @@ const css = {
     transition-duration: 0.01ms;
   }
 }
-
-/* The flip animation lives in JS (useFlipAnimation, via the Web Animations
- * API). Its keyframes read --flip-from (set per placement below), so the
- * bubble emerges from the anchor side when it flips. */
-
-/* ---------- placement: position the popover around its anchor ----------
- * anchor() resolves against the element named by position-anchor, which is
- * set inline, per instance.  --tooltip-offset is the gap.                */
 .tooltip.placement-top {
   bottom: anchor(top);
   left: anchor(center);
@@ -118,26 +82,9 @@ const css = {
   margin-left: var(--tooltip-offset, 0.25em);
   --flip-from: translateX(-8px);
 }
-
-/* Hand the popover-resolved inset down to the bubble's arrow offset, so the
- * arrow tip and the popover's shift use the identical absolute length. This
- * descendant selector outranks the bubble's own '.tooltip-bubble' default, and
- * only applies inside a popover, leaving standalone TooltipBubble on its local
- * calc. */
 .tooltip .tooltip-bubble {
   --arrow-inset: var(--tooltip-arrow-inset);
 }
-
-/* ---------- arrow-placement: keep the arrow on the anchor center ----------
- * The base rules above anchor the cross-axis to anchor(center); the arrow tip
- * sits --tooltip-arrow-inset from whichever bubble edge it is near. To keep
- * that tip on the anchor center we shift the bubble so the arrow, not the
- * bubble's middle, lands on center:
- *   - 'center' (default, no class) keeps translate -50% (arrow at the middle).
- *   - 'start' slides the bubble so its near (start) edge sits one inset before
- *     center; the bubble body then extends toward the end side.
- *   - 'end' mirrors that; the body extends toward the start side.
- * Only translate changes — the anchor(center) base is untouched.            */
 .tooltip.placement-top.arrow-start,
 .tooltip.placement-bottom.arrow-start {
   translate: calc(-1 * var(--tooltip-arrow-inset)) 0;

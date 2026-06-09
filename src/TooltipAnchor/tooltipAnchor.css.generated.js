@@ -2,15 +2,8 @@
 
 const css = {
   src: `src/TooltipAnchor/tooltipAnchor.css`,
-  hash: `1jj1ukgc34z`,
+  hash: `29ehb46hve6`,
   content: `
-/* ============================================================
- * react-tooltip-contemporary - TooltipAnchor layer
- *
- * Wraps the trigger and exposes it as a CSS positioning anchor.
- * The anchor-name itself is set inline, per instance.
- * ============================================================ */
-
 .tooltip-anchor {
   display: inline-block;
 }

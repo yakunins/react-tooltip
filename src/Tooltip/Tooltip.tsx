@@ -132,6 +132,7 @@ export const Tooltip = ({
     minVisibleDuration: t.minVisibleDuration,
     supported,
     isOpen,
+    isControlled,
     commitRef,
   });
 
