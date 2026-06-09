@@ -12,7 +12,7 @@ import { TooltipBubble } from '../TooltipBubble';
 import { type ArrowPlacement, type Placement } from '../types';
 
 const demoCss = `
-  body { font-family: sans-serif; }
+  body { font-family: 'Segoe UI', sans-serif; }
   .demo-btn {
     font: inherit;
     padding: 0.5em 1em;
@@ -248,7 +248,7 @@ export const Playground: Story = {
       </span>
     ),
     bubbleStyle: { radius: '1.5rem', arrowSize: '1rem', cornerSegments: 3 },
-    className: 'grad-1',
+    className: 'grad-2',
     children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
     defaultOpen: true,
     offset: '-0.25em',

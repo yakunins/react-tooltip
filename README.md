@@ -1,7 +1,11 @@
+![Contemporary React Tooltip](.storybook/contemporary-react-tooltip-splash-1.gif)
+
 # Contemporary React Tooltip
 
 [![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 [![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
+
+**Bundle Size:** [8kB Minified+Gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.7)
 
 A small, dependency-light React tooltip built on modern web-platform
 features:
