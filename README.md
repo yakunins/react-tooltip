@@ -1,11 +1,11 @@
-![Contemporary React Tooltip](.storybook/contemporary-react-tooltip-splash-2.gif)
+![Contemporary React Tooltip](.storybook/contemporary-react-tooltip-splash.gif)
 
 # Contemporary React Tooltip
 
 [![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 [![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 
-A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.7), [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies), React tooltip built on modern web-platform features:
+A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.8), [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies), React tooltip built on modern web-platform features:
 
 - **Native Popover API** — the bubble lives in the browser **top layer**, so
   it escapes `overflow: hidden` and `z-index` stacking with no portal.
@@ -79,8 +79,23 @@ top→bottom for `left`/`right`.
 
 ### `bubbleStyle`
 
-Every field maps to a CSS custom property; omitted fields use the stylesheet
-default.
+Per-instance look of the bubble. Pass any subset; omitted fields fall back to
+the library defaults. Most fields are applied as CSS custom properties on the
+bubble — the one exception is `cornerSegments`, which selects a `.corners-N`
+class.
+
+| Field                | Type                  | Default      | Notes                                                                  |
+| -------------------- | --------------------- | ------------ | ---------------------------------------------------------------------- |
+| `background`         | `string`              | `'#000'`     | Bubble background (any CSS `background`).                               |
+| `color`              | `string`              | `'#fff'`     | Text color.                                                            |
+| `fontSize`           | `string`              | `'0.875rem'` | Bubble font size.                                                       |
+| `radius`             | `string`              | `'0.5rem'`   | Corner radius (any CSS length).                                        |
+| `arrowSize`          | `string`              | `'0.5rem'`   | Arrow size (half-diagonal).                                            |
+| `paddingX`           | `string`              | `'0.7rem'`   | Horizontal padding.                                                     |
+| `paddingY`           | `string`              | `'0.4rem'`   | Vertical padding.                                                       |
+| `maxWidth`           | `string`              | `'16rem'`    | Maximum bubble width.                                                   |
+| `transitionDuration` | `string`              | `'0.2s'`     | Fade in/out (and flip) duration.                                       |
+| `cornerSegments`     | `3 \| 4 \| 5 \| 6 \| 7` | `5`        | Straight segments per rounded corner — higher is smoother. Selects a `.corners-N` class. |
 
 ```tsx
 <Tooltip
@@ -88,12 +103,13 @@ default.
   bubbleStyle={{
     background: '#2563eb',
     color: '#fff',
-    radius: '0.8em',
-    arrowSize: '0.6em',
-    paddingX: '1em',
-    paddingY: '0.5em',
+    radius: '0.8rem',
+    arrowSize: '0.6rem',
+    paddingX: '1rem',
+    paddingY: '0.5rem',
     maxWidth: '20rem',
     transitionDuration: '0.25s',
+    cornerSegments: 7,
   }}
 >
   <button>Hover me</button>
