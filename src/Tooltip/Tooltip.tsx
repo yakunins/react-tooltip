@@ -1,5 +1,5 @@
 import { useId, useRef, type CSSProperties } from 'react';
-import { default as cx } from 'clsx';
+import { cx } from '../utils/cx';
 
 import { TooltipAnchor } from '../TooltipAnchor';
 import { TooltipBubble, DEFAULT_BUBBLE_STYLE } from '../TooltipBubble';

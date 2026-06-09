@@ -1,14 +1,11 @@
-![Contemporary React Tooltip](.storybook/contemporary-react-tooltip-splash-1.gif)
+![Contemporary React Tooltip](.storybook/contemporary-react-tooltip-splash-2.gif)
 
 # Contemporary React Tooltip
 
 [![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 [![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 
-**Bundle Size:** [8kB Minified+Gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.7)
-
-A small, dependency-light React tooltip built on modern web-platform
-features:
+A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.7), [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies), React tooltip built on modern web-platform features:
 
 - **Native Popover API** — the bubble lives in the browser **top layer**, so
   it escapes `overflow: hidden` and `z-index` stacking with no portal.
@@ -16,7 +13,7 @@ features:
   `anchor-name` / `position-anchor` / `anchor()`; no JS measuring on scroll.
   Browsers without native support (currently Firefox) degrade gracefully to
   the element's native `title` tooltip — no polyfill, no extra dependency.
-- **Pure-CSS shape** — the rounded bubble *and* its arrow are one
+- **Pure-CSS shape** — the rounded bubble _and_ its arrow are one
   `clip-path: polygon(...)` — no borders, pseudo-elements or SVG.
 - **Zero-config styling** — each component injects its own stylesheet slice
   at runtime; no CSS import and no bundler CSS loader required.
@@ -25,10 +22,10 @@ features:
 import { Tooltip } from 'react-tooltip-contemporary';
 ```
 
-| Mode                   | Markup                                                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **Wrapping** (default) | `<Tooltip content="Saved">`<br>`  <button>Save</button>`<br>`</Tooltip>`                                               |
-| **External by ref**    | `<button ref={ref}>Save</button>`<br>`<Tooltip anchorRef={ref} content="Saved" />`                                     |
+| Mode                   | Markup                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Wrapping** (default) | `<Tooltip content="Saved">`<br>`  <button>Save</button>`<br>`</Tooltip>`                                                                          |
+| **External by ref**    | `<button ref={ref}>Save</button>`<br>`<Tooltip anchorRef={ref} content="Saved" />`                                                                |
 | **External by name**   | `<button style={{ anchorName: '--s' }}>Save</button>`<br>`<Tooltip anchorName="--s" content="Saved"`<br>`  open={open} onOpenChange={setOpen} />` |
 
 ## Components
@@ -44,25 +41,25 @@ work standalone with no CSS import.
 
 ## `Tooltip` props
 
-| Prop           | Type                                      | Default              | Notes                                              |
-| -------------- | ----------------------------------------- | -------------------- | -------------------------------------------------- |
-| `children`     | `ReactNode`                               | —                    | The trigger element (wrapping mode).               |
-| `content`      | `ReactNode`                               | —                    | The bubble content.                                |
-| `placement`    | `'top' \| 'bottom' \| 'left' \| 'right'`  | `'top'`              | Preferred side of the anchor.                      |
-| `arrowPlacement` | `'start' \| 'center' \| 'end'`          | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below). |
-| `trigger`      | `('hover' \| 'focus' \| 'click')[]`       | `['hover', 'focus']` | Interactions that reveal the tooltip.              |
-| `delayShow`    | `number`                                  | `200`                | ms before showing (hover/focus only; click is instant). |
-| `delayHide`    | `number`                                  | `100`                | ms before hiding (hover/focus only; click is instant).  |
-| `offset`       | `string`                                  | `'0.25em'`           | Gap between anchor and bubble (any CSS length).    |
-| `autoFlip`     | `boolean`                                 | `true`               | Flip to the opposite side when it would overflow.  |
-| `defaultOpen`  | `boolean`                                 | `false`              | Initial open state (uncontrolled).                 |
-| `open`         | `boolean`                                 | —                    | Controlled open state; pair with `onOpenChange`.   |
-| `onOpenChange` | `(open: boolean) => void`                 | —                    | Fires when the open state should change.           |
-| `bubbleStyle`  | `TooltipBubbleStyle`                      | —                    | Bubble appearance (see below).                     |
-| `className`    | `string`                                  | —                    | Applied to the popover element.                    |
-| `style`        | `CSSProperties`                           | —                    | Applied to the popover element.                    |
-| `anchorRef`    | `RefObject<HTMLElement>`                  | —                    | Attach to an existing element instead of wrapping `children`. See *External anchor* below. |
-| `anchorName`   | `string`                                  | —                    | Use this CSS anchor name verbatim. See *External anchor* below.                            |
+| Prop             | Type                                     | Default              | Notes                                                                                      |
+| ---------------- | ---------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
+| `children`       | `ReactNode`                              | —                    | The trigger element (wrapping mode).                                                       |
+| `content`        | `ReactNode`                              | —                    | The bubble content.                                                                        |
+| `placement`      | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                              |
+| `arrowPlacement` | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below).                |
+| `trigger`        | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                      |
+| `delayShow`      | `number`                                 | `200`                | ms before showing (hover/focus only; click is instant).                                    |
+| `delayHide`      | `number`                                 | `100`                | ms before hiding (hover/focus only; click is instant).                                     |
+| `offset`         | `string`                                 | `'0.25em'`           | Gap between anchor and bubble (any CSS length).                                            |
+| `autoFlip`       | `boolean`                                | `true`               | Flip to the opposite side when it would overflow.                                          |
+| `defaultOpen`    | `boolean`                                | `false`              | Initial open state (uncontrolled).                                                         |
+| `open`           | `boolean`                                | —                    | Controlled open state; pair with `onOpenChange`.                                           |
+| `onOpenChange`   | `(open: boolean) => void`                | —                    | Fires when the open state should change.                                                   |
+| `bubbleStyle`    | `TooltipBubbleStyle`                     | —                    | Bubble appearance (see below).                                                             |
+| `className`      | `string`                                 | —                    | Applied to the popover element.                                                            |
+| `style`          | `CSSProperties`                          | —                    | Applied to the popover element.                                                            |
+| `anchorRef`      | `RefObject<HTMLElement>`                 | —                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below. |
+| `anchorName`     | `string`                                 | —                    | Use this CSS anchor name verbatim. See _External anchor_ below.                            |
 
 ### `arrowPlacement`
 

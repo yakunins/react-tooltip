@@ -1,5 +1,5 @@
 import { type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
-import { default as cx } from 'clsx';
+import { cx } from '../utils/cx';
 
 import { useStyleInjector } from '../hooks';
 import {

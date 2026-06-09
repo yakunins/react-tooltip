@@ -252,10 +252,7 @@ export const Playground: Story = {
     children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
     defaultOpen: true,
     offset: '-0.25em',
-    placement: 'top',
-    style: { '--tooltip-outline-color': 'transparent' },
-    trigger: ['hover', 'focus', 'click'],
-    timings: { delayShow: 200, delayHide: 100 },
+    style: { '--tooltip-outline-color': 'transparent' } as CSSProperties,
   },
   render: args => (
     <div style={{ maxWidth: '36rem' }}>

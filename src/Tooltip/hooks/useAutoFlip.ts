@@ -145,6 +145,18 @@ export const useAutoFlip = ({
     if (!autoFlip) setEffectivePlacement(placement);
   }, [autoFlip, placement]);
 
+  // --- a change to the `placement` prop re-establishes that side immediately,
+  // whether the tooltip is open or closed, so live placement changes (e.g. a
+  // Storybook control) take effect. Keyed on `placement` only — not `isOpen` —
+  // so reopening never resets the side and replays the flip animation. The ref
+  // guard skips the initial mount (effective already equals placement). ---
+  const settledPlacementRef = useRef(placement);
+  useEffect(() => {
+    if (settledPlacementRef.current === placement) return;
+    settledPlacementRef.current = placement;
+    if (autoFlip) setEffectivePlacement(placement);
+  }, [autoFlip, placement]);
+
   // --- clear a flipped placement once the tooltip has fully closed, so the
   // next open starts from the preferred side instead of the stale flipped one
   // (which would otherwise reset *while reopening* and play the flip-slide

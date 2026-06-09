@@ -1,6 +1,6 @@
 {
   "name": "react-tooltip-contemporary",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "contemporary react tooltip — CSS clip-path shape, native Popover API, CSS anchor positioning",
   "main": "./lib/index.js",
   "files": [
@@ -38,9 +38,6 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",
