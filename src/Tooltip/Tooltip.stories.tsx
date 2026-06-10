@@ -4,6 +4,8 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -29,7 +31,6 @@ const demoCss = `
   .help-anchor {
     display: inline-flex;
     align-items: center;
-    gap: 0.3em;
     font: inherit;
     color: #0f172a;
     border-radius: 0.25em;
@@ -41,7 +42,6 @@ const demoCss = `
     text-underline-offset: 0.2em;
     text-decoration-thickness: 1px;
   }
-  .help-anchor-icon { flex: none; opacity: 0.7; }
   .tooltip-bubble pre { margin: 0; }
 `;
 
@@ -120,41 +120,10 @@ const gradientCss = `
 // Cycled across the demos so every tooltip gets a gradient.
 const gradClasses = ['grad-1', 'grad-2', 'grad-3', 'grad-4'];
 
-// A question-mark-in-circle, sized to the current font (1em) and inheriting
-// `currentColor`.
-const HelpIcon = () => (
-  <svg
-    className="help-anchor-icon"
-    aria-hidden="true"
-    focusable="false"
-    width="1em"
-    height="1em"
-    viewBox="0 0 16 16"
-  >
-    <circle
-      cx="8"
-      cy="8"
-      r="7"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-    />
-    <path
-      d="M6.1 6.3c0-1.05.86-1.8 1.95-1.8s1.9.7 1.9 1.7c0 .8-.45 1.2-1.1 1.65-.62.43-.95.78-.95 1.55v.15"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-    />
-    <circle cx="8" cy="11.5" r="0.95" fill="currentColor" />
-  </svg>
-);
-
 // The dashed-underlined "help term" used as the tooltip anchor in place of a
-// button: keeps its text label, appends the help icon, and is keyboard
-// focusable (tabIndex=0) so focus/keyboard triggers still work. `forwardRef`
-// and `...rest` let the external-anchor demos attach a ref / inline styles /
-// handlers.
+// button: keeps its text label and is keyboard focusable (tabIndex=0) so
+// focus/keyboard triggers still work. `forwardRef` and `...rest` let the
+// external-anchor demos attach a ref / inline styles / handlers.
 const HelpAnchor = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
   ({ children, className, ...rest }, ref) => (
     <span
@@ -164,7 +133,6 @@ const HelpAnchor = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
       {...rest}
     >
       <span className="help-anchor-label">{children}</span>
-      <HelpIcon />
     </span>
   )
 );
@@ -648,65 +616,132 @@ export const Shape: Story = {
 // never reach an edge, so autoFlip is a silent no-op there (which is why it
 // looks like "nothing happens").
 //
-// This story is a big scrollable canvas with the four anchors clustered in the
-// dead centre. HOVER an anchor to open its tooltip, then scroll: an
-// IntersectionObserver tracks the bubble and flips it live (throttled, ~0.5s)
-// as it nears the matching viewport edge, flipping back when there's room
-// again. It also evaluates on open, so scrolling first then hovering works too.
+// Here each anchor is DRAGGABLE. Drag one toward the matching viewport edge
+// (up for `top`, down for `bottom`, etc.): an IntersectionObserver tracks the
+// bubble and flips it to the opposite side live (throttled, ~0.5s) as it nears
+// the edge, flipping back when there's room again. The four tooltips are forced
+// open so the effect is visible without any hover.
 //
 // Note: the styled bubble needs native CSS anchor positioning (Chromium /
 // Safari). In Firefox the tooltip degrades to a native `title`, so there is no
 // bubble to flip.
 
-// Faint grid so the scrolling is visible against the empty canvas.
+// Faint grid so the dragging is visible against the empty canvas.
 const gridBg =
   'repeating-linear-gradient(0deg, #f1f5f9 0 1px, transparent 1px 64px),' +
   'repeating-linear-gradient(90deg, #f1f5f9 0 1px, transparent 1px 64px)';
 
+// A viewport-fixed, pointer-draggable wrapper. Position is fixed (so it's
+// relative to the viewport, matching the autoFlip overflow math) and clamped to
+// the window so an anchor can be parked right against any edge.
+const DraggableAnchor = ({
+  children,
+  initial,
+}: {
+  children: ReactNode;
+  initial: CSSProperties;
+}) => {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const drag = useRef({ active: false, offX: 0, offY: 0 });
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    drag.current = {
+      active: true,
+      offX: e.clientX - r.left,
+      offY: e.clientY - r.top,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag.current.active) return;
+    const w = e.currentTarget.offsetWidth;
+    const h = e.currentTarget.offsetHeight;
+    const x = Math.max(
+      0,
+      Math.min(e.clientX - drag.current.offX, window.innerWidth - w)
+    );
+    const y = Math.max(
+      0,
+      Math.min(e.clientY - drag.current.offY, window.innerHeight - h)
+    );
+    setPos({ x, y });
+  };
+  const onPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    drag.current.active = false;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  };
+
+  const placed: CSSProperties = pos
+    ? { left: pos.x, top: pos.y }
+    : { ...initial };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        cursor: 'grab',
+        touchAction: 'none',
+        userSelect: 'none',
+        ...placed,
+      }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Initial spots: a loose cluster near centre, each offset toward the edge it
+// demonstrates so there's somewhere obvious to drag it.
+const initialSpots: Record<Placement, CSSProperties> = {
+  top: { left: 'calc(50% - 1.5rem)', top: 'calc(50% - 6rem)' },
+  bottom: { left: 'calc(50% - 1.5rem)', top: 'calc(50% + 5rem)' },
+  left: { left: 'calc(50% - 11rem)', top: '50%' },
+  right: { left: 'calc(50% + 7rem)', top: '50%' },
+};
+
 const AutoFlipDemo = () => (
   <div
     style={{
-      minWidth: '200vw',
-      minHeight: '200vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      position: 'fixed',
+      inset: 0,
       background: gridBg,
     }}
   >
-    {/* fixed so it stays put while you scroll the canvas underneath */}
     <div
       style={{
         position: 'fixed',
         top: 0,
-        left: 'calc(50% - 18rem)',
+        left: '50%',
+        transform: 'translateX(-50%)',
         padding: '0.75rem 1rem',
         pointerEvents: 'none',
-        maxWidth: '36rem',
+        maxWidth: '40rem',
+        textAlign: 'center',
       }}
     >
-      Hover an anchor to open it, then scroll the canvas toward the matching
-      edge (down for <code>top</code>, up for <code>bottom</code>, right for{' '}
-      <code>left</code>, left for <code>right</code>) — it flips to the opposite
-      side live as it nears the edge, and flips back when there's room again.
+      Drag an anchor toward the matching viewport edge (up for <code>top</code>,
+      down for <code>bottom</code>, left for <code>left</code>, right for{' '}
+      <code>right</code>) — its bubble flips to the opposite side live as it
+      nears the edge, and flips back when there's room again.
     </div>
 
-    <div style={{ display: 'flex', gap: '20dvw' }}>
-      {placements.map((p, i) => (
+    {placements.map((p, i) => (
+      <DraggableAnchor key={p} initial={initialSpots[p]}>
         <Tooltip
-          key={p}
           placement={p}
           autoFlip
           open
-          content={
-            <pre>{`placement="${p}"\nscroll to its edge,\nthen hover`}</pre>
-          }
+          content={<pre>{`placement="${p}"\ndrag me to the ${p} edge`}</pre>}
           className={gradClasses[i]}
         >
           <HelpAnchor>{p}</HelpAnchor>
         </Tooltip>
-      ))}
-    </div>
+      </DraggableAnchor>
+    ))}
   </div>
 );
 

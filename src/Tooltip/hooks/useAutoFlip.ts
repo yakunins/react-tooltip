@@ -24,6 +24,12 @@ const OPPOSITE: Record<Placement, Placement> = {
 // scrolling can't thrash the placement.
 const FLIP_THRESHOLD = 10;
 const AUTOFLIP_THROTTLE_MS = 500;
+// IntersectionObserver thresholds. [0, 1] alone only fires when the bubble
+// *starts* to clip (ratio leaves 1) and when it has *fully* left (ratio hits 0)
+// — with nothing in between, the decision never re-runs during the window where
+// the flip should happen, so the bubble flips only once it has slid entirely off
+// the edge. A graded set re-runs the decision as the bubble progressively clips.
+const FLIP_RATIOS = Array.from({ length: 21 }, (_, i) => i / 20);
 
 export interface AutoFlipParams {
   /** External anchor element (anchorRef mode), if any. */
@@ -191,7 +197,7 @@ export const useAutoFlip = ({
     if (!pop || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(scheduleDecide, {
       rootMargin: `-${FLIP_THRESHOLD}px`,
-      threshold: [0, 1],
+      threshold: FLIP_RATIOS,
     });
     io.observe(pop);
     return () => {
