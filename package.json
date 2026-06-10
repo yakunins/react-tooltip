@@ -1,6 +1,6 @@
 {
   "name": "react-tooltip-contemporary",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "contemporary react tooltip — CSS clip-path shape, native Popover API, CSS anchor positioning",
   "main": "./lib/index.js",
   "files": [

@@ -2,7 +2,7 @@
 
 const css = {
   src: `src/TooltipBubble/roundedCorners.css`,
-  hash: `16oce6n7i67`,
+  hash: `2053152cbfe`,
   content: `
 .tooltip-bubble,
 .tooltip-bubble.corners-3 {
@@ -15,61 +15,41 @@ const css = {
   --rcos-3: calc(var(--rad) * cos(90deg * 3 / 3));
   --rsin-3: calc(var(--rad) * sin(90deg * 3 / 3));
   --corner1:
-    calc(var(--l) + var(--rad) - var(--rcos-0)) calc(var(--t) + var(--rad) - var(--rsin-0)),
-    calc(var(--l) + var(--rad) - var(--rcos-1)) calc(var(--t) + var(--rad) - var(--rsin-1)),
-    calc(var(--l) + var(--rad) - var(--rcos-2)) calc(var(--t) + var(--rad) - var(--rsin-2)),
-    calc(var(--l) + var(--rad) - var(--rcos-3)) calc(var(--t) + var(--rad) - var(--rsin-3));
+    calc(var(--l) + var(--rad) - var(--rcos-0))
+      calc(var(--t) + var(--rad) - var(--rsin-0)),
+    calc(var(--l) + var(--rad) - var(--rcos-1))
+      calc(var(--t) + var(--rad) - var(--rsin-1)),
+    calc(var(--l) + var(--rad) - var(--rcos-2))
+      calc(var(--t) + var(--rad) - var(--rsin-2)),
+    calc(var(--l) + var(--rad) - var(--rcos-3))
+      calc(var(--t) + var(--rad) - var(--rsin-3));
   --corner2:
-    calc(100% - var(--r) - var(--rad) + var(--rsin-0)) calc(var(--t) + var(--rad) - var(--rcos-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-1)) calc(var(--t) + var(--rad) - var(--rcos-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-2)) calc(var(--t) + var(--rad) - var(--rcos-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-3)) calc(var(--t) + var(--rad) - var(--rcos-3));
+    calc(100% - var(--r) - var(--rad) + var(--rsin-0))
+      calc(var(--t) + var(--rad) - var(--rcos-0)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-1))
+      calc(var(--t) + var(--rad) - var(--rcos-1)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-2))
+      calc(var(--t) + var(--rad) - var(--rcos-2)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-3))
+      calc(var(--t) + var(--rad) - var(--rcos-3));
   --corner3:
-    calc(100% - var(--r) - var(--rad) + var(--rcos-0)) calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-1)) calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-2)) calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-3)) calc(100% - var(--b) - var(--rad) + var(--rsin-3));
+    calc(100% - var(--r) - var(--rad) + var(--rcos-0))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-1))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-2))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-3))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-3));
   --corner4:
-    calc(var(--l) + var(--rad) - var(--rsin-0)) calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
-    calc(var(--l) + var(--rad) - var(--rsin-1)) calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
-    calc(var(--l) + var(--rad) - var(--rsin-2)) calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
-    calc(var(--l) + var(--rad) - var(--rsin-3)) calc(100% - var(--b) - var(--rad) + var(--rcos-3));
-}
-.tooltip-bubble.corners-4 {
-  --rcos-0: calc(var(--rad) * cos(90deg * 0 / 4));
-  --rsin-0: calc(var(--rad) * sin(90deg * 0 / 4));
-  --rcos-1: calc(var(--rad) * cos(90deg * 1 / 4));
-  --rsin-1: calc(var(--rad) * sin(90deg * 1 / 4));
-  --rcos-2: calc(var(--rad) * cos(90deg * 2 / 4));
-  --rsin-2: calc(var(--rad) * sin(90deg * 2 / 4));
-  --rcos-3: calc(var(--rad) * cos(90deg * 3 / 4));
-  --rsin-3: calc(var(--rad) * sin(90deg * 3 / 4));
-  --rcos-4: calc(var(--rad) * cos(90deg * 4 / 4));
-  --rsin-4: calc(var(--rad) * sin(90deg * 4 / 4));
-  --corner1:
-    calc(var(--l) + var(--rad) - var(--rcos-0)) calc(var(--t) + var(--rad) - var(--rsin-0)),
-    calc(var(--l) + var(--rad) - var(--rcos-1)) calc(var(--t) + var(--rad) - var(--rsin-1)),
-    calc(var(--l) + var(--rad) - var(--rcos-2)) calc(var(--t) + var(--rad) - var(--rsin-2)),
-    calc(var(--l) + var(--rad) - var(--rcos-3)) calc(var(--t) + var(--rad) - var(--rsin-3)),
-    calc(var(--l) + var(--rad) - var(--rcos-4)) calc(var(--t) + var(--rad) - var(--rsin-4));
-  --corner2:
-    calc(100% - var(--r) - var(--rad) + var(--rsin-0)) calc(var(--t) + var(--rad) - var(--rcos-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-1)) calc(var(--t) + var(--rad) - var(--rcos-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-2)) calc(var(--t) + var(--rad) - var(--rcos-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-3)) calc(var(--t) + var(--rad) - var(--rcos-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-4)) calc(var(--t) + var(--rad) - var(--rcos-4));
-  --corner3:
-    calc(100% - var(--r) - var(--rad) + var(--rcos-0)) calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-1)) calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-2)) calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-3)) calc(100% - var(--b) - var(--rad) + var(--rsin-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-4)) calc(100% - var(--b) - var(--rad) + var(--rsin-4));
-  --corner4:
-    calc(var(--l) + var(--rad) - var(--rsin-0)) calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
-    calc(var(--l) + var(--rad) - var(--rsin-1)) calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
-    calc(var(--l) + var(--rad) - var(--rsin-2)) calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
-    calc(var(--l) + var(--rad) - var(--rsin-3)) calc(100% - var(--b) - var(--rad) + var(--rcos-3)),
-    calc(var(--l) + var(--rad) - var(--rsin-4)) calc(100% - var(--b) - var(--rad) + var(--rcos-4));
+    calc(var(--l) + var(--rad) - var(--rsin-0))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
+    calc(var(--l) + var(--rad) - var(--rsin-1))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
+    calc(var(--l) + var(--rad) - var(--rsin-2))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
+    calc(var(--l) + var(--rad) - var(--rsin-3))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-3));
 }
 .tooltip-bubble.corners-5 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 5));
@@ -85,81 +65,57 @@ const css = {
   --rcos-5: calc(var(--rad) * cos(90deg * 5 / 5));
   --rsin-5: calc(var(--rad) * sin(90deg * 5 / 5));
   --corner1:
-    calc(var(--l) + var(--rad) - var(--rcos-0)) calc(var(--t) + var(--rad) - var(--rsin-0)),
-    calc(var(--l) + var(--rad) - var(--rcos-1)) calc(var(--t) + var(--rad) - var(--rsin-1)),
-    calc(var(--l) + var(--rad) - var(--rcos-2)) calc(var(--t) + var(--rad) - var(--rsin-2)),
-    calc(var(--l) + var(--rad) - var(--rcos-3)) calc(var(--t) + var(--rad) - var(--rsin-3)),
-    calc(var(--l) + var(--rad) - var(--rcos-4)) calc(var(--t) + var(--rad) - var(--rsin-4)),
-    calc(var(--l) + var(--rad) - var(--rcos-5)) calc(var(--t) + var(--rad) - var(--rsin-5));
+    calc(var(--l) + var(--rad) - var(--rcos-0))
+      calc(var(--t) + var(--rad) - var(--rsin-0)),
+    calc(var(--l) + var(--rad) - var(--rcos-1))
+      calc(var(--t) + var(--rad) - var(--rsin-1)),
+    calc(var(--l) + var(--rad) - var(--rcos-2))
+      calc(var(--t) + var(--rad) - var(--rsin-2)),
+    calc(var(--l) + var(--rad) - var(--rcos-3))
+      calc(var(--t) + var(--rad) - var(--rsin-3)),
+    calc(var(--l) + var(--rad) - var(--rcos-4))
+      calc(var(--t) + var(--rad) - var(--rsin-4)),
+    calc(var(--l) + var(--rad) - var(--rcos-5))
+      calc(var(--t) + var(--rad) - var(--rsin-5));
   --corner2:
-    calc(100% - var(--r) - var(--rad) + var(--rsin-0)) calc(var(--t) + var(--rad) - var(--rcos-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-1)) calc(var(--t) + var(--rad) - var(--rcos-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-2)) calc(var(--t) + var(--rad) - var(--rcos-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-3)) calc(var(--t) + var(--rad) - var(--rcos-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-4)) calc(var(--t) + var(--rad) - var(--rcos-4)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-5)) calc(var(--t) + var(--rad) - var(--rcos-5));
+    calc(100% - var(--r) - var(--rad) + var(--rsin-0))
+      calc(var(--t) + var(--rad) - var(--rcos-0)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-1))
+      calc(var(--t) + var(--rad) - var(--rcos-1)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-2))
+      calc(var(--t) + var(--rad) - var(--rcos-2)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-3))
+      calc(var(--t) + var(--rad) - var(--rcos-3)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-4))
+      calc(var(--t) + var(--rad) - var(--rcos-4)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-5))
+      calc(var(--t) + var(--rad) - var(--rcos-5));
   --corner3:
-    calc(100% - var(--r) - var(--rad) + var(--rcos-0)) calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-1)) calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-2)) calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-3)) calc(100% - var(--b) - var(--rad) + var(--rsin-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-4)) calc(100% - var(--b) - var(--rad) + var(--rsin-4)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-5)) calc(100% - var(--b) - var(--rad) + var(--rsin-5));
+    calc(100% - var(--r) - var(--rad) + var(--rcos-0))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-1))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-2))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-3))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-3)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-4))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-4)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-5))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-5));
   --corner4:
-    calc(var(--l) + var(--rad) - var(--rsin-0)) calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
-    calc(var(--l) + var(--rad) - var(--rsin-1)) calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
-    calc(var(--l) + var(--rad) - var(--rsin-2)) calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
-    calc(var(--l) + var(--rad) - var(--rsin-3)) calc(100% - var(--b) - var(--rad) + var(--rcos-3)),
-    calc(var(--l) + var(--rad) - var(--rsin-4)) calc(100% - var(--b) - var(--rad) + var(--rcos-4)),
-    calc(var(--l) + var(--rad) - var(--rsin-5)) calc(100% - var(--b) - var(--rad) + var(--rcos-5));
-}
-.tooltip-bubble.corners-6 {
-  --rcos-0: calc(var(--rad) * cos(90deg * 0 / 6));
-  --rsin-0: calc(var(--rad) * sin(90deg * 0 / 6));
-  --rcos-1: calc(var(--rad) * cos(90deg * 1 / 6));
-  --rsin-1: calc(var(--rad) * sin(90deg * 1 / 6));
-  --rcos-2: calc(var(--rad) * cos(90deg * 2 / 6));
-  --rsin-2: calc(var(--rad) * sin(90deg * 2 / 6));
-  --rcos-3: calc(var(--rad) * cos(90deg * 3 / 6));
-  --rsin-3: calc(var(--rad) * sin(90deg * 3 / 6));
-  --rcos-4: calc(var(--rad) * cos(90deg * 4 / 6));
-  --rsin-4: calc(var(--rad) * sin(90deg * 4 / 6));
-  --rcos-5: calc(var(--rad) * cos(90deg * 5 / 6));
-  --rsin-5: calc(var(--rad) * sin(90deg * 5 / 6));
-  --rcos-6: calc(var(--rad) * cos(90deg * 6 / 6));
-  --rsin-6: calc(var(--rad) * sin(90deg * 6 / 6));
-  --corner1:
-    calc(var(--l) + var(--rad) - var(--rcos-0)) calc(var(--t) + var(--rad) - var(--rsin-0)),
-    calc(var(--l) + var(--rad) - var(--rcos-1)) calc(var(--t) + var(--rad) - var(--rsin-1)),
-    calc(var(--l) + var(--rad) - var(--rcos-2)) calc(var(--t) + var(--rad) - var(--rsin-2)),
-    calc(var(--l) + var(--rad) - var(--rcos-3)) calc(var(--t) + var(--rad) - var(--rsin-3)),
-    calc(var(--l) + var(--rad) - var(--rcos-4)) calc(var(--t) + var(--rad) - var(--rsin-4)),
-    calc(var(--l) + var(--rad) - var(--rcos-5)) calc(var(--t) + var(--rad) - var(--rsin-5)),
-    calc(var(--l) + var(--rad) - var(--rcos-6)) calc(var(--t) + var(--rad) - var(--rsin-6));
-  --corner2:
-    calc(100% - var(--r) - var(--rad) + var(--rsin-0)) calc(var(--t) + var(--rad) - var(--rcos-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-1)) calc(var(--t) + var(--rad) - var(--rcos-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-2)) calc(var(--t) + var(--rad) - var(--rcos-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-3)) calc(var(--t) + var(--rad) - var(--rcos-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-4)) calc(var(--t) + var(--rad) - var(--rcos-4)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-5)) calc(var(--t) + var(--rad) - var(--rcos-5)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-6)) calc(var(--t) + var(--rad) - var(--rcos-6));
-  --corner3:
-    calc(100% - var(--r) - var(--rad) + var(--rcos-0)) calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-1)) calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-2)) calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-3)) calc(100% - var(--b) - var(--rad) + var(--rsin-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-4)) calc(100% - var(--b) - var(--rad) + var(--rsin-4)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-5)) calc(100% - var(--b) - var(--rad) + var(--rsin-5)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-6)) calc(100% - var(--b) - var(--rad) + var(--rsin-6));
-  --corner4:
-    calc(var(--l) + var(--rad) - var(--rsin-0)) calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
-    calc(var(--l) + var(--rad) - var(--rsin-1)) calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
-    calc(var(--l) + var(--rad) - var(--rsin-2)) calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
-    calc(var(--l) + var(--rad) - var(--rsin-3)) calc(100% - var(--b) - var(--rad) + var(--rcos-3)),
-    calc(var(--l) + var(--rad) - var(--rsin-4)) calc(100% - var(--b) - var(--rad) + var(--rcos-4)),
-    calc(var(--l) + var(--rad) - var(--rsin-5)) calc(100% - var(--b) - var(--rad) + var(--rcos-5)),
-    calc(var(--l) + var(--rad) - var(--rsin-6)) calc(100% - var(--b) - var(--rad) + var(--rcos-6));
+    calc(var(--l) + var(--rad) - var(--rsin-0))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
+    calc(var(--l) + var(--rad) - var(--rsin-1))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
+    calc(var(--l) + var(--rad) - var(--rsin-2))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
+    calc(var(--l) + var(--rad) - var(--rsin-3))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-3)),
+    calc(var(--l) + var(--rad) - var(--rsin-4))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-4)),
+    calc(var(--l) + var(--rad) - var(--rsin-5))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-5));
 }
 .tooltip-bubble.corners-7 {
   --rcos-0: calc(var(--rad) * cos(90deg * 0 / 7));
@@ -179,41 +135,73 @@ const css = {
   --rcos-7: calc(var(--rad) * cos(90deg * 7 / 7));
   --rsin-7: calc(var(--rad) * sin(90deg * 7 / 7));
   --corner1:
-    calc(var(--l) + var(--rad) - var(--rcos-0)) calc(var(--t) + var(--rad) - var(--rsin-0)),
-    calc(var(--l) + var(--rad) - var(--rcos-1)) calc(var(--t) + var(--rad) - var(--rsin-1)),
-    calc(var(--l) + var(--rad) - var(--rcos-2)) calc(var(--t) + var(--rad) - var(--rsin-2)),
-    calc(var(--l) + var(--rad) - var(--rcos-3)) calc(var(--t) + var(--rad) - var(--rsin-3)),
-    calc(var(--l) + var(--rad) - var(--rcos-4)) calc(var(--t) + var(--rad) - var(--rsin-4)),
-    calc(var(--l) + var(--rad) - var(--rcos-5)) calc(var(--t) + var(--rad) - var(--rsin-5)),
-    calc(var(--l) + var(--rad) - var(--rcos-6)) calc(var(--t) + var(--rad) - var(--rsin-6)),
-    calc(var(--l) + var(--rad) - var(--rcos-7)) calc(var(--t) + var(--rad) - var(--rsin-7));
+    calc(var(--l) + var(--rad) - var(--rcos-0))
+      calc(var(--t) + var(--rad) - var(--rsin-0)),
+    calc(var(--l) + var(--rad) - var(--rcos-1))
+      calc(var(--t) + var(--rad) - var(--rsin-1)),
+    calc(var(--l) + var(--rad) - var(--rcos-2))
+      calc(var(--t) + var(--rad) - var(--rsin-2)),
+    calc(var(--l) + var(--rad) - var(--rcos-3))
+      calc(var(--t) + var(--rad) - var(--rsin-3)),
+    calc(var(--l) + var(--rad) - var(--rcos-4))
+      calc(var(--t) + var(--rad) - var(--rsin-4)),
+    calc(var(--l) + var(--rad) - var(--rcos-5))
+      calc(var(--t) + var(--rad) - var(--rsin-5)),
+    calc(var(--l) + var(--rad) - var(--rcos-6))
+      calc(var(--t) + var(--rad) - var(--rsin-6)),
+    calc(var(--l) + var(--rad) - var(--rcos-7))
+      calc(var(--t) + var(--rad) - var(--rsin-7));
   --corner2:
-    calc(100% - var(--r) - var(--rad) + var(--rsin-0)) calc(var(--t) + var(--rad) - var(--rcos-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-1)) calc(var(--t) + var(--rad) - var(--rcos-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-2)) calc(var(--t) + var(--rad) - var(--rcos-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-3)) calc(var(--t) + var(--rad) - var(--rcos-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-4)) calc(var(--t) + var(--rad) - var(--rcos-4)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-5)) calc(var(--t) + var(--rad) - var(--rcos-5)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-6)) calc(var(--t) + var(--rad) - var(--rcos-6)),
-    calc(100% - var(--r) - var(--rad) + var(--rsin-7)) calc(var(--t) + var(--rad) - var(--rcos-7));
+    calc(100% - var(--r) - var(--rad) + var(--rsin-0))
+      calc(var(--t) + var(--rad) - var(--rcos-0)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-1))
+      calc(var(--t) + var(--rad) - var(--rcos-1)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-2))
+      calc(var(--t) + var(--rad) - var(--rcos-2)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-3))
+      calc(var(--t) + var(--rad) - var(--rcos-3)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-4))
+      calc(var(--t) + var(--rad) - var(--rcos-4)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-5))
+      calc(var(--t) + var(--rad) - var(--rcos-5)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-6))
+      calc(var(--t) + var(--rad) - var(--rcos-6)),
+    calc(100% - var(--r) - var(--rad) + var(--rsin-7))
+      calc(var(--t) + var(--rad) - var(--rcos-7));
   --corner3:
-    calc(100% - var(--r) - var(--rad) + var(--rcos-0)) calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-1)) calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-2)) calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-3)) calc(100% - var(--b) - var(--rad) + var(--rsin-3)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-4)) calc(100% - var(--b) - var(--rad) + var(--rsin-4)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-5)) calc(100% - var(--b) - var(--rad) + var(--rsin-5)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-6)) calc(100% - var(--b) - var(--rad) + var(--rsin-6)),
-    calc(100% - var(--r) - var(--rad) + var(--rcos-7)) calc(100% - var(--b) - var(--rad) + var(--rsin-7));
+    calc(100% - var(--r) - var(--rad) + var(--rcos-0))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-0)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-1))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-1)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-2))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-2)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-3))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-3)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-4))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-4)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-5))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-5)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-6))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-6)),
+    calc(100% - var(--r) - var(--rad) + var(--rcos-7))
+      calc(100% - var(--b) - var(--rad) + var(--rsin-7));
   --corner4:
-    calc(var(--l) + var(--rad) - var(--rsin-0)) calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
-    calc(var(--l) + var(--rad) - var(--rsin-1)) calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
-    calc(var(--l) + var(--rad) - var(--rsin-2)) calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
-    calc(var(--l) + var(--rad) - var(--rsin-3)) calc(100% - var(--b) - var(--rad) + var(--rcos-3)),
-    calc(var(--l) + var(--rad) - var(--rsin-4)) calc(100% - var(--b) - var(--rad) + var(--rcos-4)),
-    calc(var(--l) + var(--rad) - var(--rsin-5)) calc(100% - var(--b) - var(--rad) + var(--rcos-5)),
-    calc(var(--l) + var(--rad) - var(--rsin-6)) calc(100% - var(--b) - var(--rad) + var(--rcos-6)),
-    calc(var(--l) + var(--rad) - var(--rsin-7)) calc(100% - var(--b) - var(--rad) + var(--rcos-7));
+    calc(var(--l) + var(--rad) - var(--rsin-0))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-0)),
+    calc(var(--l) + var(--rad) - var(--rsin-1))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-1)),
+    calc(var(--l) + var(--rad) - var(--rsin-2))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-2)),
+    calc(var(--l) + var(--rad) - var(--rsin-3))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-3)),
+    calc(var(--l) + var(--rad) - var(--rsin-4))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-4)),
+    calc(var(--l) + var(--rad) - var(--rsin-5))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-5)),
+    calc(var(--l) + var(--rad) - var(--rsin-6))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-6)),
+    calc(var(--l) + var(--rad) - var(--rsin-7))
+      calc(100% - var(--b) - var(--rad) + var(--rcos-7));
 }
 `,
 };

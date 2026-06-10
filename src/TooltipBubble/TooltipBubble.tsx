@@ -32,7 +32,7 @@ export const DEFAULT_BUBBLE_STYLE: Required<TooltipBubbleStyle> = {
 };
 
 // Supported corner-segment counts; anything else falls back to the default.
-const CORNER_SEGMENTS = [3, 4, 5, 6, 7] as const;
+const CORNER_SEGMENTS = [3, 5, 7] as const;
 
 type DivProps = HTMLAttributes<HTMLDivElement>;
 

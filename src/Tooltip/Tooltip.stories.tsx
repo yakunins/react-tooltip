@@ -34,14 +34,12 @@ const demoCss = `
     font: inherit;
     color: #0f172a;
     border-radius: 0.25em;
-  }
-  .help-anchor:hover { color: #2563eb; }
-  .help-anchor:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
-  .help-anchor-label {
     text-decoration: underline dashed;
     text-underline-offset: 0.2em;
     text-decoration-thickness: 1px;
   }
+  .help-anchor:hover { color: #2563eb; }
+  .help-anchor:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
   .tooltip-bubble pre { margin: 0; }
 `;
 
@@ -132,7 +130,7 @@ const HelpAnchor = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
       className={['help-anchor', className].filter(Boolean).join(' ')}
       {...rest}
     >
-      <span className="help-anchor-label">{children}</span>
+      {children}
     </span>
   )
 );
@@ -215,7 +213,7 @@ export const Playground: Story = {
         </a>
       </span>
     ),
-    bubbleStyle: { radius: '1.5rem', arrowSize: '1rem', cornerSegments: 3 },
+    bubbleStyle: { radius: '1.5rem', arrowSize: '1rem', cornerSegments: 5 },
     className: 'grad-2',
     children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
     defaultOpen: true,
@@ -257,7 +255,7 @@ export const NoStylePlayground: Story = {
       </span>
     ),
     className: undefined,
-    children: <HelpAnchor>Hover or focus me</HelpAnchor>,
+    children: <HelpAnchor>Click, hover, or focus me</HelpAnchor>,
     defaultOpen: true,
   },
   render: args => (

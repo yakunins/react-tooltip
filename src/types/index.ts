@@ -83,5 +83,5 @@ export type TooltipBubbleStyle = {
    * `5` is the default (`3` matches the original 4-point look). Unlike the
    * other fields this selects a `.corners-N` class rather than a custom property.
    */
-  cornerSegments?: 3 | 4 | 5 | 6 | 7;
+  cornerSegments?: 3 | 5 | 7;
 };

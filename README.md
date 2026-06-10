@@ -26,18 +26,18 @@ A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporar
 Each component injects its own stylesheet slice at runtime, so all three
 work standalone with no CSS import.
 
-| Export          | Role                                            |
-| --------------- | ----------------------------------------------- |
-| `Tooltip`       | The tooltip — behaviour, triggers, positioning. |
-| `TooltipShape`  | The bubble: the clip-path shape + arrow.        |
-| `TooltipAnchor` | The "anchor" half of CSS anchor positioning.    |
+| Export          | Role                                         |
+| --------------- | -------------------------------------------- |
+| `Tooltip`       | Behaviour, triggers, positioning.            |
+| `TooltipShape`  | The bubble, e.g the clip-path shape + arrow. |
+| `TooltipAnchor` | The anchor part of CSS anchor positioning.   |
 
 ## `Tooltip` props
 
 | Prop             | Type                                     | Default              | Notes                                                                                      |
 | ---------------- | ---------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
-| `children`       | `ReactNode`                              | —                    | The trigger element (wrapping mode).                                                       |
-| `content`        | `ReactNode`                              | —                    | The bubble content.                                                                        |
+| `children`       | `ReactNode`                              | –                    | The trigger element (wrapping mode).                                                       |
+| `content`        | `ReactNode`                              | –                    | The bubble content.                                                                        |
 | `placement`      | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                              |
 | `arrowPlacement` | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below).                |
 | `trigger`        | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                      |
@@ -46,22 +46,22 @@ work standalone with no CSS import.
 | `offset`         | `string`                                 | `'0.25em'`           | Gap between anchor and bubble (any CSS length).                                            |
 | `autoFlip`       | `boolean`                                | `true`               | Flip to the opposite side when it would overflow.                                          |
 | `defaultOpen`    | `boolean`                                | `false`              | Initial open state (uncontrolled).                                                         |
-| `open`           | `boolean`                                | —                    | Controlled open state; pair with `onOpenChange`.                                           |
-| `onOpenChange`   | `(open: boolean) => void`                | —                    | Fires when the open state should change.                                                   |
-| `bubbleStyle`    | `TooltipBubbleStyle`                     | —                    | Bubble appearance (see below).                                                             |
-| `className`      | `string`                                 | —                    | Applied to the popover element.                                                            |
-| `style`          | `CSSProperties`                          | —                    | Applied to the popover element.                                                            |
-| `anchorRef`      | `RefObject<HTMLElement>`                 | —                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below. |
-| `anchorName`     | `string`                                 | —                    | Use this CSS anchor name verbatim. See _External anchor_ below.                            |
+| `open`           | `boolean`                                | –                    | Controlled open state; pair with `onOpenChange`.                                           |
+| `onOpenChange`   | `(open: boolean) => void`                | –                    | Fires when the open state should change.                                                   |
+| `bubbleStyle`    | `TooltipBubbleStyle`                     | –                    | Bubble appearance (see below).                                                             |
+| `className`      | `string`                                 | –                    | Applied to the popover element.                                                            |
+| `style`          | `CSSProperties`                          | –                    | Applied to the popover element.                                                            |
+| `anchorRef`      | `RefObject<HTMLElement>`                 | –                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below. |
+| `anchorName`     | `string`                                 | –                    | Use this CSS anchor name verbatim. See _External anchor_ below.                            |
 
 ### `arrowPlacement`
 
-The arrow always points at the **anchor's centre** — `arrowPlacement` only
+The arrow always points at the **anchor's centre**, `arrowPlacement` only
 chooses which way the bubble body extends from it. `'center'` (default) centres
 the bubble on the anchor; `'start'` keeps the arrow near the bubble's leading
 edge so the body grows toward the trailing side; `'end'` mirrors that. Handy
 when the anchor sits near a viewport edge and you want the bubble to grow the
-other way. The axis follows `placement` — left→right for `top`/`bottom`,
+other way. The axis follows `placement`: left→right for `top`/`bottom`,
 top→bottom for `left`/`right`.
 
 ```tsx
@@ -74,21 +74,21 @@ top→bottom for `left`/`right`.
 
 Per-instance look of the bubble. Pass any subset; omitted fields fall back to
 the library defaults. Most fields are applied as CSS custom properties on the
-bubble — the one exception is `cornerSegments`, which selects a `.corners-N`
+bubble. The one exception is `cornerSegments`, which selects a `.corners-N`
 class.
 
-| Field                | Type                    | Default      | Notes                                                                                    |
-| -------------------- | ----------------------- | ------------ | ---------------------------------------------------------------------------------------- |
-| `background`         | `string`                | `'#000'`     | Bubble background (any CSS `background`).                                                |
-| `color`              | `string`                | `'#fff'`     | Text color.                                                                              |
-| `fontSize`           | `string`                | `'0.875rem'` | Bubble font size.                                                                        |
-| `radius`             | `string`                | `'0.5rem'`   | Corner radius (any CSS length).                                                          |
-| `arrowSize`          | `string`                | `'0.5rem'`   | Arrow size (half-diagonal).                                                              |
-| `paddingX`           | `string`                | `'0.7rem'`   | Horizontal padding.                                                                      |
-| `paddingY`           | `string`                | `'0.4rem'`   | Vertical padding.                                                                        |
-| `maxWidth`           | `string`                | `'16rem'`    | Maximum bubble width.                                                                    |
-| `transitionDuration` | `string`                | `'0.2s'`     | Fade in/out (and flip) duration.                                                         |
-| `cornerSegments`     | `3 \| 4 \| 5 \| 6 \| 7` | `5`          | Straight segments per rounded corner — higher is smoother. Selects a `.corners-N` class. |
+| Field                | Type          | Default      | Notes                                                     |
+| -------------------- | ------------- | ------------ | --------------------------------------------------------- |
+| `background`         | `string`      | `'#000'`     | Bubble background (any CSS `background`).                 |
+| `color`              | `string`      | `'#fff'`     | Text color.                                               |
+| `fontSize`           | `string`      | `'0.875rem'` | Bubble font size.                                         |
+| `radius`             | `string`      | `'0.5rem'`   | Corner radius (any CSS length).                           |
+| `arrowSize`          | `string`      | `'0.5rem'`   | Arrow size (half-diagonal).                               |
+| `paddingX`           | `string`      | `'0.7rem'`   | Horizontal padding.                                       |
+| `paddingY`           | `string`      | `'0.4rem'`   | Vertical padding.                                         |
+| `maxWidth`           | `string`      | `'16rem'`    | Maximum bubble width.                                     |
+| `transitionDuration` | `string`      | `'0.2s'`     | Fade in/out (and flip) duration.                          |
+| `cornerSegments`     | `3 \| 5 \| 7` | `5`          | Straight segments per rounded corner, higher is smoother. |
 
 ```tsx
 <Tooltip
@@ -121,8 +121,8 @@ const [open, setOpen] = useState(false);
 
 ## External anchor (skip the wrapper)
 
-When you'd rather attach the tooltip to an element you already render —
-without `Tooltip` wrapping it in an extra `<div>` — pass `anchorRef` and
+When you'd rather attach the tooltip to an element you already render.
+Without `Tooltip` wrapping it in an extra `<div>`. Pass `anchorRef` and
 omit `children`. `Tooltip` writes `anchor-name` onto the referenced
 element, wires the configured triggers to it, and mirrors
 `aria-describedby` on it for accessibility:
@@ -138,7 +138,7 @@ const btnRef = useRef<HTMLButtonElement>(null);
 
 If you'd rather own the CSS anchor name yourself, use `anchorName`. In
 this mode `Tooltip` has no handle to your element, so it cannot wire
-triggers — pair with controlled `open` / `onOpenChange`:
+triggers; pair with controlled `open` / `onOpenChange`:
 
 ```tsx
 const [open, setOpen] = useState(false);
@@ -162,11 +162,8 @@ const [open, setOpen] = useState(false);
 
 ## Browser support
 
-Native Popover API, `@starting-style` and CSS anchor positioning are used.
-Popover and `@starting-style` are supported across current Chrome, Safari and
-Firefox; CSS anchor positioning is native in Chromium and Safari. Where it is
-missing (currently Firefox) there is no polyfill and no extra dependency — the
-styled bubble is skipped and string `content` is surfaced through the
+Where CSS anchor positioning is missing, there is no polyfill and no extra dependency.
+The styled bubble is skipped and string `content` is surfaced through the
 element's native `title` tooltip instead.
 
 ## Development
