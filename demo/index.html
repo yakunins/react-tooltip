@@ -15,14 +15,14 @@
           "react-dom/client": "https://esm.sh/react-dom@19.2.7/client",
           "react/jsx-runtime": "https://esm.sh/react@19.2.7/jsx-runtime",
           "htm": "https://esm.sh/htm@3.1.1",
-          "react-tooltip-contemporary": "https://esm.sh/react-tooltip-contemporary@0.1.0?external=react,react-dom"
+          "react-tooltip-contemporary": "https://esm.sh/react-tooltip-contemporary@0.1.1?external=react,react-dom"
         }
       }
     </script>
   </head>
   <body>
     <header class="header">
-      <h1><code>&lt;Tooltip /&gt;</code> — Contemporary React Tooltip</h1>
+      <h1>Contemporary React Tooltip</h1>
       <span class="spacer"></span>
       <a href="https://www.npmjs.com/package/react-tooltip-contemporary">npm</a>
       <a href="https://github.com/yakunins/react-tooltip">GitHub</a>
@@ -31,7 +31,7 @@
     <div id="root"></div>
 
     <script type="module">
-      import React, { useState, useMemo } from 'react';
+      import React, { useState, useMemo, useEffect } from 'react';
       import { createRoot } from 'react-dom/client';
       import htm from 'htm';
       import { Tooltip } from 'react-tooltip-contemporary';
@@ -40,12 +40,15 @@
 
       // ---- defaults (mirror the library defaults) ----
       const DEFAULTS = {
-        content: 'Saved to your library',
+        content:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         placement: 'top',
         arrowPlacement: 'center',
-        triggers: { hover: true, focus: true, click: false },
+        triggers: { hover: true, focus: true, click: true },
         offset: '0.25em',
         autoFlip: true,
+        defaultOpen: true,
+        open: false,
         delayShow: 200,
         delayHide: 100,
         // bubbleStyle
@@ -193,67 +196,39 @@
 
         const tip = children =>
           html`<${Tooltip}
+            key=${'open-' + s.defaultOpen}
             content=${s.content}
             placement=${s.placement}
             arrowPlacement=${s.arrowPlacement}
             trigger=${triggerList.length ? triggerList : ['hover']}
             offset=${s.offset}
             autoFlip=${s.autoFlip}
+            defaultOpen=${s.defaultOpen}
+            open=${s.open || undefined}
+            onOpenChange=${v => set({ open: v })}
             timings=${{ delayShow: s.delayShow, delayHide: s.delayHide }}
             bubbleStyle=${fullBubble}
             >${children}<//
           >`;
 
-        // ---- draggable trigger inside the stage ----
+        // ---- center the scrollable stage on the trigger initially ----
         const stageRef = React.useRef(null);
-        const drag = React.useRef({ active: false, offX: 0, offY: 0 });
-        const [pos, setPos] = useState(null); // null => centered
-
-        const dragStyle =
-          pos === null
-            ? { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
-            : { left: pos.x + 'px', top: pos.y + 'px' };
-
-        const onPointerDown = e => {
-          const r = e.currentTarget.getBoundingClientRect();
-          drag.current = {
-            active: true,
-            offX: e.clientX - r.left,
-            offY: e.clientY - r.top,
-          };
-          e.currentTarget.setPointerCapture(e.pointerId);
-        };
-        const onPointerMove = e => {
-          if (!drag.current.active) return;
-          const stage = stageRef.current.getBoundingClientRect();
-          const w = e.currentTarget.offsetWidth;
-          const h = e.currentTarget.offsetHeight;
-          const x = Math.max(
-            0,
-            Math.min(e.clientX - stage.left - drag.current.offX, stage.width - w)
-          );
-          const y = Math.max(
-            0,
-            Math.min(e.clientY - stage.top - drag.current.offY, stage.height - h)
-          );
-          setPos({ x, y });
-        };
-        const onPointerUp = e => {
-          drag.current.active = false;
-          e.currentTarget.releasePointerCapture(e.pointerId);
-        };
+        useEffect(() => {
+          const el = stageRef.current;
+          if (!el) return;
+          el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+          el.scrollTop = (el.scrollHeight - el.clientHeight) / 2;
+        }, []);
 
         return html`
           <div class="layout">
             <aside class="controls">
-              <h2>Content</h2>
               <${TextField}
                 label="content"
                 value=${s.content}
                 onChange=${v => set({ content: v })}
               />
 
-              <h2>Behaviour</h2>
               <${Segmented}
                 label="placement"
                 value=${s.placement}
@@ -276,15 +251,36 @@
                 value=${s.offset}
                 onChange=${v => set({ offset: v })}
               />
-              <div class="field row">
-                <input
-                  type="checkbox"
-                  id="autoflip"
-                  checked=${s.autoFlip}
-                  onChange=${e => set({ autoFlip: e.target.checked })}
-                />
-                <label for="autoflip">autoFlip</label>
+              <div class="grid3">
+                <div class="field row">
+                  <input
+                    type="checkbox"
+                    id="autoflip"
+                    checked=${s.autoFlip}
+                    onChange=${e => set({ autoFlip: e.target.checked })}
+                  />
+                  <label for="autoflip">autoFlip</label>
+                </div>
+                <div class="field row">
+                  <input
+                    type="checkbox"
+                    id="defaultopen"
+                    checked=${s.defaultOpen}
+                    onChange=${e => set({ defaultOpen: e.target.checked })}
+                  />
+                  <label for="defaultopen">defaultOpen</label>
+                </div>
+                <div class="field row">
+                  <input
+                    type="checkbox"
+                    id="open"
+                    checked=${s.open}
+                    onChange=${e => set({ open: e.target.checked })}
+                  />
+                  <label for="open">open</label>
+                </div>
               </div>
+              <br />
               <${Range}
                 label="delayShow"
                 value=${s.delayShow}
@@ -304,60 +300,61 @@
                 onChange=${v => set({ delayHide: v })}
               />
 
-              <h2>Bubble style</h2>
-              <${Color}
-                label="background"
-                value=${s.background}
-                onChange=${v => set({ background: v })}
-              />
-              <${Color}
-                label="color"
-                value=${s.color}
-                onChange=${v => set({ color: v })}
-              />
-              <${TextField}
-                label="fontSize"
-                value=${s.fontSize}
-                onChange=${v => set({ fontSize: v })}
-              />
-              <${TextField}
-                label="radius"
-                value=${s.radius}
-                onChange=${v => set({ radius: v })}
-              />
-              <${TextField}
-                label="arrowSize"
-                value=${s.arrowSize}
-                onChange=${v => set({ arrowSize: v })}
-              />
-              <${TextField}
-                label="paddingX"
-                value=${s.paddingX}
-                onChange=${v => set({ paddingX: v })}
-              />
-              <${TextField}
-                label="paddingY"
-                value=${s.paddingY}
-                onChange=${v => set({ paddingY: v })}
-              />
-              <${TextField}
-                label="maxWidth"
-                value=${s.maxWidth}
-                onChange=${v => set({ maxWidth: v })}
-              />
-              <${TextField}
-                label="transitionDuration"
-                value=${s.transitionDuration}
-                onChange=${v => set({ transitionDuration: v })}
-              />
-              <${Range}
-                label="cornerSegments"
-                value=${s.cornerSegments}
-                min=${3}
-                max=${7}
-                step=${1}
-                onChange=${v => set({ cornerSegments: v })}
-              />
+              <div class="grid3">
+                <${Color}
+                  label="bg"
+                  value=${s.background}
+                  onChange=${v => set({ background: v })}
+                />
+                <${Color}
+                  label="color"
+                  value=${s.color}
+                  onChange=${v => set({ color: v })}
+                />
+                <${TextField}
+                  label="fontSize"
+                  value=${s.fontSize}
+                  onChange=${v => set({ fontSize: v })}
+                />
+                <${TextField}
+                  label="radius"
+                  value=${s.radius}
+                  onChange=${v => set({ radius: v })}
+                />
+                <${TextField}
+                  label="arrowSize"
+                  value=${s.arrowSize}
+                  onChange=${v => set({ arrowSize: v })}
+                />
+                <${TextField}
+                  label="paddingX"
+                  value=${s.paddingX}
+                  onChange=${v => set({ paddingX: v })}
+                />
+                <${TextField}
+                  label="paddingY"
+                  value=${s.paddingY}
+                  onChange=${v => set({ paddingY: v })}
+                />
+                <${TextField}
+                  label="maxWidth"
+                  value=${s.maxWidth}
+                  onChange=${v => set({ maxWidth: v })}
+                />
+                <${TextField}
+                  label="transitionDuration"
+                  value=${s.transitionDuration}
+                  onChange=${v => set({ transitionDuration: v })}
+                />
+                <${Range}
+                  label="cornerSegments"
+                  value=${s.cornerSegments}
+                  min=${3}
+                  max=${7}
+                  step=${1}
+                  onChange=${v => set({ cornerSegments: v })}
+                />
+              </div>
 
               <button class="reset" onClick=${() => setS(DEFAULTS)}>
                 Reset to defaults
@@ -366,14 +363,12 @@
 
             <main class="stage-wrap">
               <div class="stage" ref=${stageRef}>
-                <div
-                  class="drag"
-                  style=${dragStyle}
-                  onPointerDown=${onPointerDown}
-                  onPointerMove=${onPointerMove}
-                  onPointerUp=${onPointerUp}
-                >
-                  ${tip(html`<button class="demo-btn">Drag me</button>`)}
+                <div class="stage-canvas">
+                  ${tip(
+                    html`<div class="demo-anchor">
+                      Click, focus, or hover me
+                    </div>`
+                  )}
                 </div>
               </div>
             </main>

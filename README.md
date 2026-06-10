@@ -1,26 +1,19 @@
 ![Contemporary React Tooltip](.storybook/splash-1.gif)
 
-# Contemporary React Tooltip
+# Contemporary React Tooltip [![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary) [![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 
-[![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
-[![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
+[✨ Demo](https://yakunins.github.io/react-tooltip/)
 
-A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.8), [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies), React tooltip built on modern web-platform features:
+A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.8) and [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies) React tooltip built on modern web features:
 
-- **Native Popover API** — the bubble lives in the browser **top layer**, so
-  it escapes `overflow: hidden` and `z-index` stacking with no portal.
-- **CSS anchor positioning** — the bubble pins itself to its trigger with
+- **CSS anchor positioning**: the bubble pins itself to its trigger with
   `anchor-name` / `position-anchor` / `anchor()`; no JS measuring on scroll.
-  Browsers without native support (currently Firefox) degrade gracefully to
-  the element's native `title` tooltip — no polyfill, no extra dependency.
-- **Pure-CSS shape** — the rounded bubble _and_ its arrow are one
-  `clip-path: polygon(...)` — no borders, pseudo-elements or SVG.
-- **Zero-config styling** — each component injects its own stylesheet slice
+  Old browsers degrade gracefully to `title` tooltip, no polyfill, no extra dependency.
+- **Popover API**: the bubble lives in browser's top layer, it escapes `overflow: hidden` and `z-index` stacking with no portal.
+- **Pure CSS shape**: the rounded bubble _and_ its arrow are one
+  `clip-path: polygon(...)`, no borders, no pseudo-elements or SVG.
+- **Zero-config styling**: each component injects its own stylesheet slice
   at runtime; no CSS import and no bundler CSS loader required.
-
-```tsx
-import { Tooltip } from 'react-tooltip-contemporary';
-```
 
 | Mode                   | Markup                                                                                                                                            |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -5,6 +5,22 @@
   --muted: #6b7280;
   --text: #1f2430;
   --accent: #2563eb;
+
+  /* stage strips: 13 random semi-transparent colors (alpha 0.1–0.2) */
+  --sz: 64px;
+  --c1: rgba(255, 99, 132, 0.1);
+  --c2: rgba(54, 162, 235, 0.11);
+  --c3: rgba(255, 206, 86, 0.12);
+  --c4: rgba(75, 192, 192, 0.13);
+  --c5: rgba(153, 102, 255, 0.14);
+  --c6: rgba(255, 159, 64, 0.15);
+  --c7: rgba(46, 204, 113, 0.16);
+  --c8: rgba(231, 76, 60, 0.17);
+  --c9: rgba(52, 73, 94, 0.18);
+  --c10: rgba(26, 188, 156, 0.19);
+  --c11: rgba(241, 196, 15, 0.2);
+  --c12: rgba(142, 68, 173, 0.21);
+  --c13: rgba(243, 156, 18, 0.22);
 }
 * {
   box-sizing: border-box;
@@ -16,12 +32,26 @@ body {
 }
 body {
   font-family:
-    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
   color: var(--text);
   background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+#root {
+  flex: 1;
+  min-height: 0;
+  position: relative;
 }
 
 .header {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -50,23 +80,29 @@ body {
 }
 
 .layout {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  height: calc(100% - 53px);
-}
-@media (max-width: 760px) {
-  .layout {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
+  position: relative;
+  height: 100%;
 }
 
-/* ---- control panel ---- */
+/* ---- control panel: floating overlay above the stage ---- */
 .controls {
-  border-right: 1px solid var(--border);
-  background: var(--panel);
+  position: absolute;
+  z-index: 10;
+  top: 1rem;
+  left: 1rem;
+  width: 320px;
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
-  padding: 1rem 1.1rem 3rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.16);
+  padding: 1rem 1.1rem;
+
+  input[type='checkbox'] {
+    width: 1.25em;
+    height: 1.25em;
+  }
 }
 .controls h2 {
   font-size: 0.7rem;
@@ -80,6 +116,15 @@ body {
 }
 .field {
   margin-bottom: 0.7rem;
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem 0.6rem;
+}
+.grid3 .field {
+  margin-bottom: 0;
+  min-width: 0;
 }
 .field > label {
   display: block;
@@ -142,7 +187,7 @@ body {
 .row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0;
   font-size: 0.82rem;
 }
 .reset {
@@ -150,9 +195,9 @@ body {
   width: 100%;
   padding: 0.45rem;
   font-size: 0.82rem;
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 6px;
-  background: #fff;
+  background: rgba(127, 127, 127, 0.25);
   color: var(--text);
   cursor: pointer;
 }
@@ -161,42 +206,63 @@ body {
   color: var(--accent);
 }
 
-/* ---- stage ---- */
+/* ---- stage: fills the whole viewport area, no margins ---- */
 .stage-wrap {
-  overflow: auto;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  position: absolute;
+  inset: 0;
 }
 .stage {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   position: relative;
-  overflow: hidden;
-  min-height: 320px;
+  overflow: auto;
+  background: var(--panel);
+}
+.stage-canvas {
+  width: 300%;
+  height: 300%;
+  display: grid;
+  place-items: center;
+  /* vertical strips (one random color combo) layered over horizontal strips
+     (a different random combo); each strip is --sz wide, colors are translucent
+     so the two layers blend into a plaid */
   background:
-    linear-gradient(90deg, #eceef2 1px, transparent 1px) 0 0 / 24px 24px,
-    linear-gradient(#eceef2 1px, transparent 1px) 0 0 / 24px 24px,
-    var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+    repeating-linear-gradient(
+      to right,
+      var(--c5) 0 var(--sz),
+      var(--c1) var(--sz) calc(var(--sz) * 2),
+      var(--c9) calc(var(--sz) * 2) calc(var(--sz) * 3),
+      var(--c3) calc(var(--sz) * 3) calc(var(--sz) * 4),
+      var(--c12) calc(var(--sz) * 4) calc(var(--sz) * 5),
+      var(--c7) calc(var(--sz) * 5) calc(var(--sz) * 6),
+      var(--c2) calc(var(--sz) * 6) calc(var(--sz) * 7),
+      var(--c11) calc(var(--sz) * 7) calc(var(--sz) * 8),
+      var(--c4) calc(var(--sz) * 8) calc(var(--sz) * 9),
+      var(--c13) calc(var(--sz) * 9) calc(var(--sz) * 10),
+      var(--c6) calc(var(--sz) * 10) calc(var(--sz) * 11),
+      var(--c10) calc(var(--sz) * 11) calc(var(--sz) * 12),
+      var(--c8) calc(var(--sz) * 12) calc(var(--sz) * 13)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--c2) 0 var(--sz),
+      var(--c8) var(--sz) calc(var(--sz) * 2),
+      var(--c4) calc(var(--sz) * 2) calc(var(--sz) * 3),
+      var(--c11) calc(var(--sz) * 3) calc(var(--sz) * 4),
+      var(--c1) calc(var(--sz) * 4) calc(var(--sz) * 5),
+      var(--c13) calc(var(--sz) * 5) calc(var(--sz) * 6),
+      var(--c10) calc(var(--sz) * 6) calc(var(--sz) * 7),
+      var(--c5) calc(var(--sz) * 7) calc(var(--sz) * 8),
+      var(--c6) calc(var(--sz) * 8) calc(var(--sz) * 9),
+      var(--c3) calc(var(--sz) * 9) calc(var(--sz) * 10),
+      var(--c9) calc(var(--sz) * 10) calc(var(--sz) * 11),
+      var(--c12) calc(var(--sz) * 11) calc(var(--sz) * 12),
+      var(--c7) calc(var(--sz) * 12) calc(var(--sz) * 13)
+    );
 }
-.drag {
-  position: absolute;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-.drag:active {
-  cursor: grabbing;
-}
-.demo-btn {
+.demo-anchor {
   font: inherit;
-  font-size: 0.95rem;
   padding: 0.6rem 1.1rem;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: #fff;
-  border-radius: 8px;
-  cursor: pointer;
+  border: 1px dashed var(--accent);
+  color: var(--text);
 }
