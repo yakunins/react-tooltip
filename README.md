@@ -1,4 +1,4 @@
-![Contemporary React Tooltip](.storybook/contemporary-react-tooltip-splash.gif)
+![Contemporary React Tooltip](.storybook/splash-1.gif)
 
 # Contemporary React Tooltip
 
@@ -84,18 +84,18 @@ the library defaults. Most fields are applied as CSS custom properties on the
 bubble — the one exception is `cornerSegments`, which selects a `.corners-N`
 class.
 
-| Field                | Type                  | Default      | Notes                                                                  |
-| -------------------- | --------------------- | ------------ | ---------------------------------------------------------------------- |
-| `background`         | `string`              | `'#000'`     | Bubble background (any CSS `background`).                               |
-| `color`              | `string`              | `'#fff'`     | Text color.                                                            |
-| `fontSize`           | `string`              | `'0.875rem'` | Bubble font size.                                                       |
-| `radius`             | `string`              | `'0.5rem'`   | Corner radius (any CSS length).                                        |
-| `arrowSize`          | `string`              | `'0.5rem'`   | Arrow size (half-diagonal).                                            |
-| `paddingX`           | `string`              | `'0.7rem'`   | Horizontal padding.                                                     |
-| `paddingY`           | `string`              | `'0.4rem'`   | Vertical padding.                                                       |
-| `maxWidth`           | `string`              | `'16rem'`    | Maximum bubble width.                                                   |
-| `transitionDuration` | `string`              | `'0.2s'`     | Fade in/out (and flip) duration.                                       |
-| `cornerSegments`     | `3 \| 4 \| 5 \| 6 \| 7` | `5`        | Straight segments per rounded corner — higher is smoother. Selects a `.corners-N` class. |
+| Field                | Type                    | Default      | Notes                                                                                    |
+| -------------------- | ----------------------- | ------------ | ---------------------------------------------------------------------------------------- |
+| `background`         | `string`                | `'#000'`     | Bubble background (any CSS `background`).                                                |
+| `color`              | `string`                | `'#fff'`     | Text color.                                                                              |
+| `fontSize`           | `string`                | `'0.875rem'` | Bubble font size.                                                                        |
+| `radius`             | `string`                | `'0.5rem'`   | Corner radius (any CSS length).                                                          |
+| `arrowSize`          | `string`                | `'0.5rem'`   | Arrow size (half-diagonal).                                                              |
+| `paddingX`           | `string`                | `'0.7rem'`   | Horizontal padding.                                                                      |
+| `paddingY`           | `string`                | `'0.4rem'`   | Vertical padding.                                                                        |
+| `maxWidth`           | `string`                | `'16rem'`    | Maximum bubble width.                                                                    |
+| `transitionDuration` | `string`                | `'0.2s'`     | Fade in/out (and flip) duration.                                                         |
+| `cornerSegments`     | `3 \| 4 \| 5 \| 6 \| 7` | `5`          | Straight segments per rounded corner — higher is smoother. Selects a `.corners-N` class. |
 
 ```tsx
 <Tooltip
@@ -191,3 +191,7 @@ Each component owns a `*.css` file; `css-to-js` regenerates the matching
 ## License
 
 MIT © Sergey Yakunin
+
+<p align="center">
+  <img src=".storybook/logo.png" alt="Contemporary React Tooltip logo" width="120" />
+</p>

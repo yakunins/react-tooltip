@@ -13,5 +13,8 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
+  staticDirs: ['./assets'],
+  managerHead: head =>
+    `${head}<link rel="icon" type="image/png" href="./favicon-tooltip.png" />`,
 };
 export default config;
