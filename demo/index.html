@@ -48,7 +48,6 @@
         offset: '0.25em',
         autoFlip: true,
         defaultOpen: true,
-        open: false,
         delayShow: 200,
         delayHide: 100,
         // bubbleStyle
@@ -204,8 +203,6 @@
             offset=${s.offset}
             autoFlip=${s.autoFlip}
             defaultOpen=${s.defaultOpen}
-            open=${s.open || undefined}
-            onOpenChange=${v => set({ open: v })}
             timings=${{ delayShow: s.delayShow, delayHide: s.delayHide }}
             bubbleStyle=${fullBubble}
             >${children}<//
@@ -270,15 +267,7 @@
                   />
                   <label for="defaultopen">defaultOpen</label>
                 </div>
-                <div class="field row">
-                  <input
-                    type="checkbox"
-                    id="open"
-                    checked=${s.open}
-                    onChange=${e => set({ open: e.target.checked })}
-                  />
-                  <label for="open">open</label>
-                </div>
+                <div class="field row"></div>
               </div>
               <br />
               <${Range}
