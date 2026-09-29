@@ -1,80 +1,61 @@
 # Releasing
 
-Steps to publish a new version of `react-tooltip-contemporary` to npm.
-`X.Y.Z` below stands for the new version.
-
-## 1. Check
+## 1. Update packages
 
 ```sh
-npm outdated        # list packages with newer versions
-npm update          # update them within their package.json semver ranges
-npm run lint        # runs eslint --fix; commit anything it changes
+npm outdated
+npm update
+```
+
+- Upgrade major versions listed by `npm outdated`, if wanted: `npm install <pkg>@latest -D`
+
+## 2. Check
+
+```sh
+npm run lint
 npm run typecheck
 npm test
+npm run dev
 ```
 
-Then run `npm run dev` and click through Storybook in a browser: every
-placement (top / bottom / left / right), every arrow position (start / center /
-end), and a few `bubbleStyle` / `cornerSegments` values.
+- Click through Storybook: placements, arrow positions, triggers, Scroll Container
+- Commit any changes made by `npm run lint`
 
-## 2. Bump the version
+## 3. Bump version
 
-Edit `"version"` in `package.json` by hand, following semver:
-
-- **patch** – bug fixes only
-- **minor** – new features, backward compatible
-- **major** – breaking API or behavior changes
-
-Keep `package-lock.json` in sync. Either run `npm install` after the edit, or
-make the edit with `npm version X.Y.Z --no-git-tag-version`, which changes both
-files without committing or tagging.
-
-Check that the version isn't taken yet:
+- Check the version is free: `npm view react-tooltip-contemporary versions`
+- Change `"version"` in `package.json` to `X.Y.Z`
 
 ```sh
-npm view react-tooltip-contemporary versions
-```
-
-Commit and push:
-
-```sh
+npm install
 git commit -am "release X.Y.Z"
 git push
 ```
 
-## 3. Build and publish
-
-`lib/` is git-ignored and there is no `prepublishOnly` hook, so always build
-right before publishing:
+## 4. Publish
 
 ```sh
 npm run build
 npm publish
 ```
 
-## 4. GitHub Release notes
+## 5. GitHub Release
 
 ```sh
 gh release create vX.Y.Z --target master --title "X.Y.Z" --generate-notes
 ```
 
-This creates the `vX.Y.Z` tag on GitHub (there's no local tagging step) and
-drafts the notes from the commits since the previous release. Edit the notes
-into a short user-facing list of changes if needed.
+- Edit the release notes on GitHub into a short list of changes
 
-## 5. After publishing
+## 6. Update demo and README
 
-- **Demo:** in `demo/index.html`, update the import map pin
-  `https://esm.sh/react-tooltip-contemporary@X.Y.Z?external=react,react-dom`.
-  esm.sh can only serve the version once it's on npm. After pushing, open
-  https://yakunins.github.io/react-tooltip/ and check that it works.
-- **README:** update the bundlephobia link
-  (`https://bundlephobia.com/package/react-tooltip-contemporary@X.Y.Z`) and the
-  "8kB gzipped" figure next to it with the size bundlephobia reports.
-
-Commit and push these:
+- `demo/index.html`: change `react-tooltip-contemporary@...` to `@X.Y.Z`
+- `README.md`: change `bundlephobia.com/package/react-tooltip-contemporary@...` to `@X.Y.Z`
+- `README.md`: update the gzipped size from bundlephobia
 
 ```sh
 git commit -am "docs: point demo and README at X.Y.Z"
 git push
 ```
+
+- Open https://yakunins.github.io/react-tooltip/ and check the demo works
