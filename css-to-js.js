@@ -25,10 +25,23 @@ export default css;
 // calc() expressions stay valid.
 const stripCssComments = css =>
   css
+    .replace(/\r\n/g, '\n') // normalize CRLF checkouts
     .replace(/\/\*[\s\S]*?\*\//g, '') // drop /* ... */ comments
     .replace(/[ \t]+$/gm, '') // trim trailing whitespace
     .replace(/\n\s*\n/g, '\n') // collapse the blank lines they leave
     .replace(/^\s*\n/, ''); // and any leading blank line
+
+// Minify the comment-free CSS: collapse whitespace and drop it around
+// { } ; , and after ':', but keep the line breaks so the output stays readable.
+// Spaces between tokens (e.g. the operators in `calc(a - b)`, or the
+// descendant combinator) are kept as a single space.
+const minifyCss = css =>
+  css
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n') // drop indentation
+    .replace(/ *([{};,]) */g, '$1')
+    .replace(/: +/g, ':')
+    .trim();
 
 const watching = process.argv.includes(cfg.watchParameter);
 const ignorePaths = (path, stats) =>
@@ -39,18 +52,13 @@ const watch = watcherInstance =>
     .on('change', path => handleFile(path, 'change'))
     .on('unlink', path => handleFile(path, 'remove'));
 
-if (watching) {
-  console.log('css-to-js: watching...');
+// Run only when invoked as a script; a require() (e.g. from the tests) just
+// gets the exported helpers below.
+if (require.main === module) {
+  console.log(watching ? 'css-to-js: watching...' : 'css-to-js: run once');
   const watcher = chokidar.watch(cfg.watch.paths, {
     ignored: ignorePaths,
-    persistent: true,
-  });
-  watch(watcher);
-} else {
-  console.log('css-to-js: run once');
-  const watcher = chokidar.watch(cfg.watch.paths, {
-    ignored: ignorePaths,
-    persistent: false,
+    persistent: watching,
   });
   watch(watcher);
 }
@@ -103,7 +111,7 @@ function remove(path) {
 function convert(path) {
   const inputText = read(path);
   if (inputText === null) return;
-  const outputData = template(stripCssComments(inputText), path);
+  const outputData = template(minifyCss(stripCssComments(inputText)), path);
   const writeResult = write(cfg.outputPath(path), outputData);
   return writeResult;
 }
@@ -134,3 +142,5 @@ const cyrb53 = (str, seed = 0) => {
 
   return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 };
+
+module.exports = { stripCssComments, minifyCss };

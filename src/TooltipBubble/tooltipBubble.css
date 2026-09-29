@@ -44,21 +44,32 @@
   padding: var(--py) var(--px);
 
   /* arrow-side insets - set per placement below. Consumed (with --rad) by
-   * roundedCorners.css, which builds the four rounded corners. */
+   * the rounded-corner rules at the end of this file. */
   --t: 0%;
   --b: 0%;
   --l: 0%;
   --r: 0%;
 
-  /* The rounded corners --corner1..4 are defined in roundedCorners.css, as a
-   * true quarter-circle approximated by N segments (the .corners-N class). The
-   * placement rules below splice the arrow points between them. */
+  /* The rounded corners --corner1..4 are defined at the end of this file, as a
+   * true quarter-circle approximated by N segments (the .corners-N class).
+   * Between them sits one --arrow-* point list per edge. An edge without the
+   * arrow gets a single point that repeats the preceding corner's last point
+   * (a redundant vertex, so it draws nothing); the placement rules below
+   * replace one of the lists with the three arrow points. */
+  --arrow-t: calc(var(--l) + var(--rad)) var(--t);
+  --arrow-r: calc(100% - var(--r)) calc(var(--t) + var(--rad));
+  --arrow-b: calc(100% - var(--r) - var(--rad)) calc(100% - var(--b));
+  --arrow-l: var(--l) calc(100% - var(--b) - var(--rad));
 
   clip-path: polygon(
     var(--corner1),
+    var(--arrow-t),
     var(--corner2),
+    var(--arrow-r),
     var(--corner3),
-    var(--corner4)
+    var(--arrow-b),
+    var(--corner4),
+    var(--arrow-l)
   );
 }
 .tooltip-bubble:empty {
@@ -76,24 +87,19 @@
   --arrow-pos: calc(100% - var(--arrow-inset));
 }
 
+/* Placement rules: each reserves --arrow-size on the arrow side and lists the
+ * arrow's three points (foot, tip, foot) in the polygon's clockwise order. */
+
 /* placement-top: bubble above the anchor, arrow points down */
 .tooltip-bubble.placement-top {
   --b: var(--arrow-size);
   --cx: var(--arrow-pos, 50%);
   --cy: calc(100% - var(--arrow-size));
-  --a1: calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
-  --a2: var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
-  --a3: calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
+  --arrow-b:
+    calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
+    var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707),
+    calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
   padding-bottom: calc(var(--b) + var(--py));
-  clip-path: polygon(
-    var(--corner1),
-    var(--corner2),
-    var(--corner3),
-    var(--a1),
-    var(--a2),
-    var(--a3),
-    var(--corner4)
-  );
 }
 
 /* placement-bottom: bubble below the anchor, arrow points up */
@@ -101,19 +107,11 @@
   --t: var(--arrow-size);
   --cx: var(--arrow-pos, 50%);
   --cy: calc(0% + var(--arrow-size));
-  --a1: calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
-  --a2: var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
-  --a3: calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
+  --arrow-t:
+    calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy),
+    var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707),
+    calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
   padding-top: calc(var(--t) + var(--py));
-  clip-path: polygon(
-    var(--corner1),
-    var(--a1),
-    var(--a2),
-    var(--a3),
-    var(--corner2),
-    var(--corner3),
-    var(--corner4)
-  );
 }
 
 /* placement-left: bubble left of the anchor, arrow points right */
@@ -121,19 +119,11 @@
   --r: var(--arrow-size);
   --cx: calc(100% - var(--arrow-size));
   --cy: var(--arrow-pos, 50%);
-  --a1: var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
-  --a2: calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
-  --a3: var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
+  --arrow-r:
+    var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707),
+    calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
+    var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
   padding-right: calc(var(--r) + var(--px));
-  clip-path: polygon(
-    var(--corner1),
-    var(--corner2),
-    var(--a1),
-    var(--a2),
-    var(--a3),
-    var(--corner3),
-    var(--corner4)
-  );
 }
 
 /* placement-right: bubble right of the anchor, arrow points left */
@@ -141,17 +131,144 @@
   --l: var(--arrow-size);
   --cx: calc(0% + var(--arrow-size));
   --cy: var(--arrow-pos, 50%);
-  --a1: var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
-  --a2: calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
-  --a3: var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
+  --arrow-l:
+    var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707),
+    calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy),
+    var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
   padding-left: calc(var(--l) + var(--px));
-  clip-path: polygon(
-    var(--a1),
-    var(--a2),
-    var(--a3),
-    var(--corner1),
-    var(--corner2),
-    var(--corner3),
-    var(--corner4)
-  );
+}
+
+/* ============================================================
+ * Rounded-corner geometry
+ *
+ * The bubble's four rounded corners. Each corner is approximated by N
+ * straight segments (N+1 points) lying on a TRUE quarter-circle of radius
+ * --rad; N is chosen by a .corners-N class (3, 5, 7) - more segments =
+ * smoother corner. The placement rules above splice the arrow points between them.
+ *
+ * Inputs (set on .tooltip-bubble above):
+ *   --rad            corner radius (length)
+ *   --t --b --l --r  per-placement arrow-side insets (the bubble box edges)
+ *
+ * Outputs:
+ *   --corner1  top-left      (left edge   -> top edge)
+ *   --corner2  top-right     (top edge    -> right edge)
+ *   --corner3  bottom-right  (right edge  -> bottom edge)
+ *   --corner4  bottom-left   (bottom edge -> left edge)
+ *
+ * Point k (k = 0..N) sits at angle 90deg * k / N around the corner center.
+ * --dK = --rad * (1 - cos(90deg * K / N)) is that point's distance from the
+ * corner's tangent edge (the constants are precomputed); by symmetry the
+ * other coordinate uses --d(N-K). --d0 = 0 and --dN = --rad are inlined.
+ * ============================================================ */
+
+/* 3 segments - also the fallback when no .corners-N class is set (the
+ * component always sets one; DEFAULT_BUBBLE_STYLE.cornerSegments is 5) */
+.tooltip-bubble,
+.tooltip-bubble.corners-3 {
+  --d1: calc(var(--rad) * 0.134);
+  --d2: calc(var(--rad) * 0.5);
+
+  --corner1:
+    var(--l) calc(var(--t) + var(--rad)),
+    calc(var(--l) + var(--d1)) calc(var(--t) + var(--d2)),
+    calc(var(--l) + var(--d2)) calc(var(--t) + var(--d1)),
+    calc(var(--l) + var(--rad)) var(--t);
+  --corner2:
+    calc(100% - var(--r) - var(--rad)) var(--t),
+    calc(100% - var(--r) - var(--d2)) calc(var(--t) + var(--d1)),
+    calc(100% - var(--r) - var(--d1)) calc(var(--t) + var(--d2)),
+    calc(100% - var(--r)) calc(var(--t) + var(--rad));
+  --corner3:
+    calc(100% - var(--r)) calc(100% - var(--b) - var(--rad)),
+    calc(100% - var(--r) - var(--d1)) calc(100% - var(--b) - var(--d2)),
+    calc(100% - var(--r) - var(--d2)) calc(100% - var(--b) - var(--d1)),
+    calc(100% - var(--r) - var(--rad)) calc(100% - var(--b));
+  --corner4:
+    calc(var(--l) + var(--rad)) calc(100% - var(--b)),
+    calc(var(--l) + var(--d2)) calc(100% - var(--b) - var(--d1)),
+    calc(var(--l) + var(--d1)) calc(100% - var(--b) - var(--d2)),
+    var(--l) calc(100% - var(--b) - var(--rad));
+}
+
+.tooltip-bubble.corners-5 {
+  --d1: calc(var(--rad) * 0.0489);
+  --d2: calc(var(--rad) * 0.191);
+  --d3: calc(var(--rad) * 0.4122);
+  --d4: calc(var(--rad) * 0.691);
+
+  --corner1:
+    var(--l) calc(var(--t) + var(--rad)),
+    calc(var(--l) + var(--d1)) calc(var(--t) + var(--d4)),
+    calc(var(--l) + var(--d2)) calc(var(--t) + var(--d3)),
+    calc(var(--l) + var(--d3)) calc(var(--t) + var(--d2)),
+    calc(var(--l) + var(--d4)) calc(var(--t) + var(--d1)),
+    calc(var(--l) + var(--rad)) var(--t);
+  --corner2:
+    calc(100% - var(--r) - var(--rad)) var(--t),
+    calc(100% - var(--r) - var(--d4)) calc(var(--t) + var(--d1)),
+    calc(100% - var(--r) - var(--d3)) calc(var(--t) + var(--d2)),
+    calc(100% - var(--r) - var(--d2)) calc(var(--t) + var(--d3)),
+    calc(100% - var(--r) - var(--d1)) calc(var(--t) + var(--d4)),
+    calc(100% - var(--r)) calc(var(--t) + var(--rad));
+  --corner3:
+    calc(100% - var(--r)) calc(100% - var(--b) - var(--rad)),
+    calc(100% - var(--r) - var(--d1)) calc(100% - var(--b) - var(--d4)),
+    calc(100% - var(--r) - var(--d2)) calc(100% - var(--b) - var(--d3)),
+    calc(100% - var(--r) - var(--d3)) calc(100% - var(--b) - var(--d2)),
+    calc(100% - var(--r) - var(--d4)) calc(100% - var(--b) - var(--d1)),
+    calc(100% - var(--r) - var(--rad)) calc(100% - var(--b));
+  --corner4:
+    calc(var(--l) + var(--rad)) calc(100% - var(--b)),
+    calc(var(--l) + var(--d4)) calc(100% - var(--b) - var(--d1)),
+    calc(var(--l) + var(--d3)) calc(100% - var(--b) - var(--d2)),
+    calc(var(--l) + var(--d2)) calc(100% - var(--b) - var(--d3)),
+    calc(var(--l) + var(--d1)) calc(100% - var(--b) - var(--d4)),
+    var(--l) calc(100% - var(--b) - var(--rad));
+}
+
+.tooltip-bubble.corners-7 {
+  --d1: calc(var(--rad) * 0.0251);
+  --d2: calc(var(--rad) * 0.099);
+  --d3: calc(var(--rad) * 0.2182);
+  --d4: calc(var(--rad) * 0.3765);
+  --d5: calc(var(--rad) * 0.5661);
+  --d6: calc(var(--rad) * 0.7775);
+
+  --corner1:
+    var(--l) calc(var(--t) + var(--rad)),
+    calc(var(--l) + var(--d1)) calc(var(--t) + var(--d6)),
+    calc(var(--l) + var(--d2)) calc(var(--t) + var(--d5)),
+    calc(var(--l) + var(--d3)) calc(var(--t) + var(--d4)),
+    calc(var(--l) + var(--d4)) calc(var(--t) + var(--d3)),
+    calc(var(--l) + var(--d5)) calc(var(--t) + var(--d2)),
+    calc(var(--l) + var(--d6)) calc(var(--t) + var(--d1)),
+    calc(var(--l) + var(--rad)) var(--t);
+  --corner2:
+    calc(100% - var(--r) - var(--rad)) var(--t),
+    calc(100% - var(--r) - var(--d6)) calc(var(--t) + var(--d1)),
+    calc(100% - var(--r) - var(--d5)) calc(var(--t) + var(--d2)),
+    calc(100% - var(--r) - var(--d4)) calc(var(--t) + var(--d3)),
+    calc(100% - var(--r) - var(--d3)) calc(var(--t) + var(--d4)),
+    calc(100% - var(--r) - var(--d2)) calc(var(--t) + var(--d5)),
+    calc(100% - var(--r) - var(--d1)) calc(var(--t) + var(--d6)),
+    calc(100% - var(--r)) calc(var(--t) + var(--rad));
+  --corner3:
+    calc(100% - var(--r)) calc(100% - var(--b) - var(--rad)),
+    calc(100% - var(--r) - var(--d1)) calc(100% - var(--b) - var(--d6)),
+    calc(100% - var(--r) - var(--d2)) calc(100% - var(--b) - var(--d5)),
+    calc(100% - var(--r) - var(--d3)) calc(100% - var(--b) - var(--d4)),
+    calc(100% - var(--r) - var(--d4)) calc(100% - var(--b) - var(--d3)),
+    calc(100% - var(--r) - var(--d5)) calc(100% - var(--b) - var(--d2)),
+    calc(100% - var(--r) - var(--d6)) calc(100% - var(--b) - var(--d1)),
+    calc(100% - var(--r) - var(--rad)) calc(100% - var(--b));
+  --corner4:
+    calc(var(--l) + var(--rad)) calc(100% - var(--b)),
+    calc(var(--l) + var(--d6)) calc(100% - var(--b) - var(--d1)),
+    calc(var(--l) + var(--d5)) calc(100% - var(--b) - var(--d2)),
+    calc(var(--l) + var(--d4)) calc(100% - var(--b) - var(--d3)),
+    calc(var(--l) + var(--d3)) calc(100% - var(--b) - var(--d4)),
+    calc(var(--l) + var(--d2)) calc(100% - var(--b) - var(--d5)),
+    calc(var(--l) + var(--d1)) calc(100% - var(--b) - var(--d6)),
+    var(--l) calc(100% - var(--b) - var(--rad));
 }

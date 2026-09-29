@@ -21,7 +21,7 @@ const prefersReducedMotion = (): boolean =>
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /** Parse a computed CSS `<time>` (`'0.48s'` | `'160ms'`) to milliseconds. */
-const cssTimeToMs = (value: string): number => {
+export const cssTimeToMs = (value: string): number => {
   const v = value.trim();
   if (v.endsWith('ms')) return parseFloat(v);
   if (v.endsWith('s')) return parseFloat(v) * 1000;

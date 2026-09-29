@@ -2,12 +2,11 @@
 
 const css = {
   src: `src/TooltipAnchor/tooltipAnchor.css`,
-  hash: `29ehb46hve6`,
+  hash: `z9hsidq07n`,
   content: `
-.tooltip-anchor {
-  display: inline-block;
-}
-`,
+.tooltip-anchor{
+display:inline-block;
+}`,
 };
 
 export default css;

@@ -83,7 +83,7 @@ const wrapWithScope = (css: string, scopeAttribute: string) => {
     `[${scopeAttribute}] { display: contents; }` +
     `[${scopeAttribute}] {` +
     `${css}` +
-    `}`
+    '}'
   );
 };
 

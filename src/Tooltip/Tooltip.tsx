@@ -15,6 +15,7 @@ import {
   TOOLTIP_DEFAULTS_TIMINGS,
   type TooltipProps,
 } from './TooltipProps';
+import { useAnchorVisibility } from './hooks/useAnchorVisibility';
 import { useAutoFlip } from './hooks/useAutoFlip';
 import { useControllableOpen } from './hooks/useControllableOpen';
 import { useExternalAnchor } from './hooks/useExternalAnchor';
@@ -65,8 +66,9 @@ const FLIP_ANIMATION: FlipAnimation = {
  * is a string) is surfaced through the element's native `title` tooltip.
  *
  * The behavior is composed from focused hooks — `useControllableOpen`,
- * `useTooltipTriggers`, `useAutoFlip`, `useExternalAnchor`, `usePopover`,
- * `useFlipAnimation` — leaving this component as an orchestrator + render.
+ * `useTooltipTriggers`, `useAutoFlip`, `useAnchorVisibility`,
+ * `useExternalAnchor`, `usePopover`, `useFlipAnimation` — leaving this
+ * component as an orchestrator + render.
  */
 export const Tooltip = ({
   children,
@@ -159,6 +161,14 @@ export const Tooltip = ({
     content,
     tooltipId,
   });
+  // Fades the bubble out while its anchor is scrolled out of sight (see the
+  // `anchor-hidden` rule in tooltip.css), and back in when it returns.
+  const anchorHidden = useAnchorVisibility({
+    anchorRef: anchorRefProp,
+    internalAnchorRef,
+    isOpen,
+    supported,
+  });
   usePopover(popoverRef, isOpen);
   useFlipAnimation(popoverRef, effectivePlacement, isOpen, FLIP_ANIMATION);
 
@@ -184,7 +194,8 @@ export const Tooltip = ({
     positionAnchor: anchorName,
     '--tooltip-offset': offset,
     '--tooltip-transition-duration':
-      bubbleStyle?.transitionDuration ?? DEFAULT_BUBBLE_STYLE.transitionDuration,
+      bubbleStyle?.transitionDuration ??
+      DEFAULT_BUBBLE_STYLE.transitionDuration,
     // Mirrored so the popover can compute --tooltip-arrow-inset (the
     // arrow-start / arrow-end shift) from the same radius / arrow size the
     // bubble uses. Resolved against DEFAULT_BUBBLE_STYLE (the single source of
@@ -216,6 +227,7 @@ export const Tooltip = ({
           'tooltip',
           `placement-${effectivePlacement}`,
           `arrow-${arrowPlacement}`,
+          anchorHidden && 'anchor-hidden',
           className
         )}
         style={popoverStyle}

@@ -53,6 +53,10 @@
 
   /* the popover is fixed and tracks its anchor */
   position: fixed;
+  /* Keep it rendered when the anchor is scrolled out of a scroll container:
+   * the default (anchors-visible) would hide it instantly. The .anchor-hidden
+   * rule below fades it out instead (useAnchorVisibility sets the class). */
+  position-visibility: always;
 
   /* enter / exit transition - Popover API + @starting-style */
   opacity: 0;
@@ -65,6 +69,11 @@
 .tooltip:popover-open {
   opacity: 1;
   filter: var(--tooltip-outline);
+}
+/* anchor scrolled fully out of sight: fade out, stay open, fade back in */
+.tooltip.anchor-hidden:popover-open {
+  opacity: 0;
+  pointer-events: none;
 }
 @starting-style {
   .tooltip:popover-open {

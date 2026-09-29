@@ -25,7 +25,7 @@ export const useControllableOpen = (
 ): ControllableOpen => {
   const isControlled = open !== undefined;
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
-  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const isOpen = isControlled ? open : internalOpen;
 
   const openRef = useRef(isOpen);
   openRef.current = isOpen;

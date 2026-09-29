@@ -31,6 +31,47 @@ const AUTOFLIP_THROTTLE_MS = 500;
 // the edge. A graded set re-runs the decision as the bubble progressively clips.
 const FLIP_RATIOS = Array.from({ length: 21 }, (_, i) => i / 20);
 
+interface Bounds {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+/**
+ * The anchor's nearest scrolling ancestor, or null when it only scrolls with
+ * the page. The bubble lives in the top layer, so such a container can't clip
+ * it — but the anchor scrolls inside it, and a bubble sticking out past the
+ * container's edge reads as detached, so autoflip keeps it inside.
+ */
+const findScrollContainer = (el: HTMLElement): HTMLElement | null => {
+  const root = document.documentElement;
+  for (let p = el.parentElement; p && p !== root; p = p.parentElement) {
+    if (p === document.body) break;
+    const { overflowX, overflowY } = getComputedStyle(p);
+    if (/auto|scroll|hidden|overlay/.test(overflowX + overflowY)) return p;
+  }
+  return null;
+};
+
+/** The area the bubble should stay within: the viewport, narrowed to the
+ * visible (padding-box) area of the scroll container, if any. */
+const getBounds = (container: HTMLElement | null): Bounds => {
+  const vw = document.documentElement.clientWidth;
+  const vh = document.documentElement.clientHeight;
+  const b: Bounds = { top: 0, left: 0, bottom: vh, right: vw };
+  if (container) {
+    const r = container.getBoundingClientRect();
+    const top = r.top + container.clientTop;
+    const left = r.left + container.clientLeft;
+    b.top = Math.max(b.top, top);
+    b.left = Math.max(b.left, left);
+    b.bottom = Math.min(b.bottom, top + container.clientHeight);
+    b.right = Math.min(b.right, left + container.clientWidth);
+  }
+  return b;
+};
+
 export interface AutoFlipParams {
   /** External anchor element (anchorRef mode), if any. */
   anchorRef?: RefObject<HTMLElement>;
@@ -58,7 +99,8 @@ export interface AutoFlipParams {
 
 /**
  * Returns the *effective* placement: the preferred `placement`, flipped to the
- * opposite side when it would overflow the viewport.
+ * opposite side when it would overflow the viewport — or, when the anchor sits
+ * in a scroll container, that container's visible area.
  *
  * An IntersectionObserver on the bubble (rootMargin = -FLIP_THRESHOLD) fires
  * whenever it comes within the threshold of a viewport edge — on scroll, anchor
@@ -85,6 +127,8 @@ export const useAutoFlip = ({
     useState<Placement>(placement);
   const effectivePlacementRef = useRef(effectivePlacement);
   effectivePlacementRef.current = effectivePlacement;
+  // The anchor's scroll container for the current open session (null = page).
+  const containerRef = useRef<HTMLElement | null>(null);
 
   const decidePlacement = useCallback(() => {
     // A tooltip shown purely by hover never autoflips; only flip when it's
@@ -96,13 +140,12 @@ export const useAutoFlip = ({
     const a = anchorEl.getBoundingClientRect();
     const p = pop.getBoundingClientRect();
     if (!p.width && !p.height) return; // not shown yet — nothing to measure
-    const vw = document.documentElement.clientWidth;
-    const vh = document.documentElement.clientHeight;
+    const b = getBounds(containerRef.current);
     const space: Record<Placement, number> = {
-      top: a.top,
-      bottom: vh - a.bottom,
-      left: a.left,
-      right: vw - a.right,
+      top: a.top - b.top,
+      bottom: b.bottom - a.bottom,
+      left: a.left - b.left,
+      right: b.right - a.right,
     };
     const need: Record<Placement, number> = {
       top: p.height,
@@ -200,11 +243,53 @@ export const useAutoFlip = ({
       threshold: FLIP_RATIOS,
     });
     io.observe(pop);
+
+    // Inside a scroll container the bubble never nears the viewport edge, so
+    // the observer above stays silent. Watch the *anchor* against the
+    // container instead, with the root shrunk by the room the bubble needs:
+    // it fires as the anchor scrolls within bubble-size of a container edge.
+    // Set up a frame later, once the popover is shown and has a size.
+    const anchorEl = anchorRef?.current ?? internalAnchorRef.current;
+    const container = anchorEl ? findScrollContainer(anchorEl) : null;
+    containerRef.current = container;
+    let containerIo: IntersectionObserver | undefined;
+    const frame = requestAnimationFrame(() => {
+      if (!container || !anchorEl) return;
+      const { width, height } = pop.getBoundingClientRect();
+      // Inset only the edges on the placement's axis (a vertical flip doesn't
+      // care about the side edges), and keep each inset under half the
+      // container so the observed area can never collapse to nothing — an
+      // empty root would never report an intersection change.
+      const vertical = placement === 'top' || placement === 'bottom';
+      const inset = (bubble: number, box: number) =>
+        Math.max(0, Math.min(Math.round(bubble) + FLIP_THRESHOLD, box / 2 - 1));
+      const v = vertical ? inset(height, container.clientHeight) : 0;
+      const h = vertical ? 0 : inset(width, container.clientWidth);
+      containerIo = new IntersectionObserver(scheduleDecide, {
+        root: container,
+        rootMargin: `${-v}px ${-h}px`,
+        threshold: FLIP_RATIOS,
+      });
+      containerIo.observe(anchorEl);
+    });
+
     return () => {
       io.disconnect();
+      cancelAnimationFrame(frame);
+      containerIo?.disconnect();
+      containerRef.current = null;
       clearTimeout(decideTimerRef.current);
     };
-  }, [autoFlip, isOpen, supported, scheduleDecide, popoverRef]);
+  }, [
+    autoFlip,
+    isOpen,
+    supported,
+    scheduleDecide,
+    popoverRef,
+    anchorRef,
+    internalAnchorRef,
+    placement,
+  ]);
 
   return effectivePlacement;
 };

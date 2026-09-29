@@ -8,7 +8,6 @@ import {
   type TooltipBubbleStyle,
 } from '../types';
 import { default as bubbleCss } from './tooltipBubble.css.generated.js';
-import { default as cornersCss } from './roundedCorners.css.generated.js';
 
 /**
  * The bubble's default appearance — the single source of truth for every
@@ -72,7 +71,6 @@ export const TooltipBubble = ({
   ...rest
 }: TooltipBubbleProps) => {
   useStyleInjector(bubbleCss.content);
-  useStyleInjector(cornersCss.content);
 
   // Resolve every field against the defaults (ignoring explicit `undefined`),
   // so the merged style is the single source of truth and tooltipBubble.css

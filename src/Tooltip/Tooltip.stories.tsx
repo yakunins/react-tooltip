@@ -222,7 +222,11 @@ export const Playground: Story = {
   },
   render: args => (
     <div style={{ maxWidth: '36rem' }}>
-      <style>{`body { background-color: rgba(127,127,127, .25); } .lorem-ipsum { color: rgba(127,127,127, .25); }`}</style>
+      <style>
+        {
+          'body { background-color: rgba(127,127,127, .25); } .lorem-ipsum { color: rgba(127,127,127, .25); }'
+        }
+      </style>
       <LoremIpsum />
       <Tooltip {...args} />
       <LoremIpsum />
@@ -260,7 +264,11 @@ export const NoStylePlayground: Story = {
   },
   render: args => (
     <div style={{ maxWidth: '36rem' }}>
-      <style>{`body { background-color: rgba(127,127,127, .25); } .lorem-ipsum { color: rgba(127,127,127, .25); }`}</style>
+      <style>
+        {
+          'body { background-color: rgba(127,127,127, .25); } .lorem-ipsum { color: rgba(127,127,127, .25); }'
+        }
+      </style>
       <LoremIpsum />
       <Tooltip {...args} />
       <LoremIpsum />
@@ -745,5 +753,56 @@ const AutoFlipDemo = () => (
 
 export const AutoFlip: Story = {
   render: () => <AutoFlipDemo />,
+  parameters: { layout: 'fullscreen' },
+};
+
+// A tooltip whose anchor sits inside its own scroll container (like the demo's
+// stage). The popover lives in the top layer, so the container can't clip it;
+// instead useAnchorVisibility fades it out once the anchor is scrolled fully
+// out of the container (replacing the browser's instant
+// `position-visibility: anchors-visible` hiding), and back in on return.
+const ScrollContainerDemo = () => (
+  <div style={{ padding: '2rem', background: gridBg, minHeight: '100vh' }}>
+    <p style={{ maxWidth: '40rem', marginTop: 0 }}>
+      Scroll the box below until the anchor leaves it: the bubble (drawn in the
+      top layer, above the box) fades out once its anchor is fully clipped.
+      Scroll back and it fades back in. Near the box&apos;s top edge the bubble
+      flips below the anchor, to stay inside the box.
+    </p>
+    <div
+      ref={el => {
+        if (!el) return;
+        el.scrollTo({
+          left: (el.scrollWidth - el.clientWidth) / 2,
+          top: (el.scrollHeight - el.clientHeight) / 2,
+        });
+      }}
+      style={{
+        width: '24rem',
+        height: '16rem',
+        overflow: 'auto',
+        border: '1px solid #cbd5e1',
+        borderRadius: '0.5rem',
+        background: '#eee',
+      }}
+    >
+      <div
+        style={{
+          width: '72rem',
+          height: '48rem',
+          display: 'grid',
+          placeItems: 'center',
+        }}
+      >
+        <Tooltip open content="scroll my anchor out of the box">
+          <HelpAnchor>anchor</HelpAnchor>
+        </Tooltip>
+      </div>
+    </div>
+  </div>
+);
+
+export const ScrollContainer: Story = {
+  render: () => <ScrollContainerDemo />,
   parameters: { layout: 'fullscreen' },
 };
