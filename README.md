@@ -4,7 +4,7 @@
 
 ✨ [Demo](https://yakunins.github.io/react-tooltip/)
 
-A small [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.0.8) and [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies) React tooltip built on modern web features:
+[8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.1.4), [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies) React tooltip built on modern web features:
 
 - **CSS anchor positioning**: the bubble pins itself to its trigger with
   `anchor-name` / `position-anchor` / `anchor()`; no JS measuring on scroll.
