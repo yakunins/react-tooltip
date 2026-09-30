@@ -36,16 +36,30 @@ git push
 
 ```sh
 npm run build
+npm pack --dry-run
+```
+
+- Check the list has `lib/index.js` and no `lib/src/` or `lib/test/`
+
+```sh
 npm publish
 ```
 
 ## 5. GitHub Release
 
 ```sh
-gh release create vX.Y.Z --target master --title "X.Y.Z" --generate-notes
+git fetch --tags
+git log --pretty="- %s" vPREV..HEAD
 ```
 
-- Edit the release notes on GitHub into a short list of changes
+- Write `release-notes/vX.Y.Z.md` from that list: Features, Changes, Fixes, Internal
+
+```sh
+git add release-notes/vX.Y.Z.md
+git commit -m "docs: release notes X.Y.Z"
+git push
+gh release create vX.Y.Z --target master --title "X.Y.Z" --notes-file release-notes/vX.Y.Z.md
+```
 
 ## 6. Update demo and README
 
