@@ -16,7 +16,7 @@ const defaultInjectorOptions: InjectorOptions = {
   selector: 'head',
 };
 
-// Runtime style injection
+// Injects `css` into <head> while mounted, shared across users of the same CSS.
 const useStyleInjector = (
   css: string,
   dependencies = [],
@@ -42,7 +42,7 @@ const useStyleInjector = (
   };
 };
 
-// Inject style into head
+// Ref-counted <style> tags: added on first use, removed after the last.
 export class StyleInjector {
   private static instance: StyleInjector;
   #styles: Map<string, number> = new Map();

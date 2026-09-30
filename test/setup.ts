@@ -1,6 +1,5 @@
-// jsdom's CSS parser doesn't understand modern syntax (nesting, @starting-style,
-// anchor()), so every injected stylesheet logs "Could not parse CSS
-// stylesheet". The styles aren't applied in jsdom anyway — silence just that.
+// jsdom can't parse modern CSS (nesting, @starting-style, anchor()) and logs
+// an error per injected stylesheet; styles aren't applied in jsdom anyway.
 const originalError = console.error.bind(console);
 console.error = (...args: unknown[]) => {
   const first = args[0];

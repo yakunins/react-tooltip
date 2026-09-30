@@ -43,20 +43,8 @@ const demoCss = `
   .tooltip-bubble pre { margin: 0; }
 `;
 
-/*
- * Colorful multi-layer gradient backgrounds, applied to the tooltip bubble
- * purely through demo CSS + the component's existing `className` prop — the
- * Tooltip component itself is untouched.
- *
- * `background-image` (many layers) + `background-blend-mode` cannot pass
- * through the single `background` shorthand that `bubbleStyle.background`
- * uses, so the gradients live here as classes instead.
- *
- * Each selector covers both placements of the class:
- *   `.grad-N .tooltip-bubble`  — on <Tooltip>, the class lands on the popover,
- *                         and the bubble (.tooltip-bubble) is its descendant.
- *   `.grad-N.tooltip-bubble`   — on <TooltipBubble>, the class lands on the bubble.
- */
+// Demo gradients via className: multi-layer backgrounds with blend modes
+// can't pass through the single `bubbleStyle.background` shorthand.
 const gradientCss = `
   .grad-1 .tooltip-bubble,
   .grad-1.tooltip-bubble {
@@ -118,10 +106,8 @@ const gradientCss = `
 // Cycled across the demos so every tooltip gets a gradient.
 const gradClasses = ['grad-1', 'grad-2', 'grad-3', 'grad-4'];
 
-// The dashed-underlined "help term" used as the tooltip anchor in place of a
-// button: keeps its text label and is keyboard focusable (tabIndex=0) so
-// focus/keyboard triggers still work. `forwardRef` and `...rest` let the
-// external-anchor demos attach a ref / inline styles / handlers.
+// Focusable "help term" anchor; forwardRef + ...rest let external-anchor
+// demos attach refs, styles and handlers.
 const HelpAnchor = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
   ({ children, className, ...rest }, ref) => (
     <span
@@ -193,7 +179,7 @@ const LoremIpsum = () => (
   </p>
 );
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 export const Playground: Story = {
   args: {
@@ -236,10 +222,9 @@ export const Playground: Story = {
   ),
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
-// Same layout as Playground, but every prop left at its default and no
-// gradient class on the bubble — the out-of-the-box look.
+// Playground with every prop at its default and no gradient: the stock look.
 export const NoStylePlayground: Story = {
   args: {
     content: (
@@ -278,7 +263,7 @@ export const NoStylePlayground: Story = {
   ),
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 const PlacementsDemo = () => (
   <div
@@ -308,13 +293,9 @@ export const Placements: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
-// Every placement forced open at once — no hover/focus needed. Each tooltip
-// is controlled with `open` pinned to `true`, and `autoFlip` is disabled so a
-// bubble never flips away from the side it is meant to demonstrate. Generous
-// horizontal gaps and padding leave room for the `left`/`right` bubbles, which
-// extend sideways past their anchors.
+// All placements forced open, autoFlip off so each stays on its side.
 const AllPlacementsDemo = () => (
   <div
     style={{
@@ -345,15 +326,10 @@ export const AllPlacements: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
-// arrowPlacement = start | center | end. Every variant is forced open so the
-// effect is visible without interaction. The arrow always points at the
-// anchor's center; arrowPlacement just chooses which way the bubble body
-// extends — `start` puts the arrow near the bubble's leading edge (body grows
-// toward the end), `end` mirrors it, `center` (the default) is symmetric.
-// Shown for a horizontal placement (top) and a vertical one (left) so both
-// axes are clear.
+// arrowPlacement start / center / end, forced open, on top and left to show
+// both axes.
 const arrowPlacements: ArrowPlacement[] = ['start', 'center', 'end'];
 
 const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
@@ -400,7 +376,7 @@ export const ArrowPlacements: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 const TriggersDemo = () => (
   <div style={{ display: 'flex', gap: '2rem', padding: '5rem' }}>
@@ -440,7 +416,7 @@ export const Triggers: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 const CustomShapeDemo = () => (
   <div style={{ display: 'flex', gap: '2.5rem', padding: '5rem' }}>
@@ -477,7 +453,7 @@ export const CustomShape: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 const ControlledDemo = () => {
   const [open, setOpen] = useState(false);
@@ -515,7 +491,7 @@ export const Controlled: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 const ExternalAnchorRefDemo = () => {
   const termRef = useRef<HTMLSpanElement>(null);
@@ -579,7 +555,7 @@ export const ExternalAnchor: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
 // `TooltipBubble` injects its own stylesheet, so it renders standalone.
 const ShapeDemo = () => (
@@ -615,31 +591,17 @@ export const Shape: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-/* ----------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
 
-// autoFlip only does something when the bubble would overflow the viewport on
-// its preferred side — then it flips to the opposite side. Centered demos
-// never reach an edge, so autoFlip is a silent no-op there (which is why it
-// looks like "nothing happens").
-//
-// Here each anchor is DRAGGABLE. Drag one toward the matching viewport edge
-// (up for `top`, down for `bottom`, etc.): an IntersectionObserver tracks the
-// bubble and flips it to the opposite side live (throttled, ~0.5s) as it nears
-// the edge, flipping back when there's room again. The four tooltips are forced
-// open so the effect is visible without any hover.
-//
-// Note: the styled bubble needs native CSS anchor positioning (Chromium /
-// Safari). In Firefox the tooltip degrades to a native `title`, so there is no
-// bubble to flip.
+// Draggable, forced-open anchors: drag one toward its edge and the bubble
+// flips live (autoFlip is a no-op until the bubble would overflow).
 
 // Faint grid so the dragging is visible against the empty canvas.
 const gridBg =
   'repeating-linear-gradient(0deg, #f1f5f9 0 1px, transparent 1px 64px),' +
   'repeating-linear-gradient(90deg, #f1f5f9 0 1px, transparent 1px 64px)';
 
-// A viewport-fixed, pointer-draggable wrapper. Position is fixed (so it's
-// relative to the viewport, matching the autoFlip overflow math) and clamped to
-// the window so an anchor can be parked right against any edge.
+// Viewport-fixed drag wrapper, clamped to the window, matching the autoFlip math.
 const DraggableAnchor = ({
   children,
   initial,
@@ -700,8 +662,7 @@ const DraggableAnchor = ({
   );
 };
 
-// Initial spots: a loose cluster near centre, each offset toward the edge it
-// demonstrates so there's somewhere obvious to drag it.
+// Start near the centre, offset toward the edge each one demonstrates.
 const initialSpots: Record<Placement, CSSProperties> = {
   top: { left: 'calc(50% - 1.5rem)', top: 'calc(50% - 6rem)' },
   bottom: { left: 'calc(50% - 1.5rem)', top: 'calc(50% + 5rem)' },
@@ -756,11 +717,8 @@ export const AutoFlip: Story = {
   parameters: { layout: 'fullscreen' },
 };
 
-// A tooltip whose anchor sits inside its own scroll container (like the demo's
-// stage). The popover lives in the top layer, so the container can't clip it;
-// instead useAnchorVisibility fades it out once the anchor is scrolled fully
-// out of the container (replacing the browser's instant
-// `position-visibility: anchors-visible` hiding), and back in on return.
+// Anchor inside a scroll container: the bubble fades when the anchor is
+// clipped (useAnchorVisibility) and flips at the container edges.
 const ScrollContainerDemo = () => (
   <div style={{ padding: '2rem', background: gridBg, minHeight: '100vh' }}>
     <p style={{ maxWidth: '40rem', marginTop: 0 }}>

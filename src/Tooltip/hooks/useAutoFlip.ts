@@ -16,19 +16,12 @@ const OPPOSITE: Record<Placement, Placement> = {
   right: 'left',
 };
 
-// autoFlip tuning.
-// FLIP_THRESHOLD: how close (px) the bubble may come to a viewport edge before
-// flipping — used both as the IntersectionObserver rootMargin (the trigger)
-// and as the slack in the fit test (the decision).
-// AUTOFLIP_THROTTLE_MS: max re-evaluation rate while a tooltip is open, so fast
-// scrolling can't thrash the placement.
+// Edge slack (px), used both as the observer margin and in the fit test.
 const FLIP_THRESHOLD = 10;
+// Max re-evaluation rate while open, so fast scrolling can't thrash placement.
 const AUTOFLIP_THROTTLE_MS = 500;
-// IntersectionObserver thresholds. [0, 1] alone only fires when the bubble
-// *starts* to clip (ratio leaves 1) and when it has *fully* left (ratio hits 0)
-// — with nothing in between, the decision never re-runs during the window where
-// the flip should happen, so the bubble flips only once it has slid entirely off
-// the edge. A graded set re-runs the decision as the bubble progressively clips.
+// Graded ratios re-run the decision as the bubble clips; [0, 1] alone would
+// only fire once it has fully left the edge.
 const FLIP_RATIOS = Array.from({ length: 21 }, (_, i) => i / 20);
 
 interface Bounds {
@@ -38,12 +31,8 @@ interface Bounds {
   right: number;
 }
 
-/**
- * The anchor's nearest scrolling ancestor, or null when it only scrolls with
- * the page. The bubble lives in the top layer, so such a container can't clip
- * it — but the anchor scrolls inside it, and a bubble sticking out past the
- * container's edge reads as detached, so autoflip keeps it inside.
- */
+// Nearest scrolling ancestor (null = scrolls with the page). It can't clip the
+// top-layer bubble, but a bubble sticking out past its edge looks detached.
 const findScrollContainer = (el: HTMLElement): HTMLElement | null => {
   const root = document.documentElement;
   for (let p = el.parentElement; p && p !== root; p = p.parentElement) {
@@ -54,8 +43,7 @@ const findScrollContainer = (el: HTMLElement): HTMLElement | null => {
   return null;
 };
 
-/** The area the bubble should stay within: the viewport, narrowed to the
- * visible (padding-box) area of the scroll container, if any. */
+// The viewport, narrowed to the scroll container's visible padding box.
 const getBounds = (container: HTMLElement | null): Bounds => {
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
@@ -73,45 +61,22 @@ const getBounds = (container: HTMLElement | null): Bounds => {
 };
 
 export interface AutoFlipParams {
-  /** External anchor element (anchorRef mode), if any. */
   anchorRef?: RefObject<HTMLElement>;
-  /** The wrapper element rendered in wrapping mode. */
   internalAnchorRef: RefObject<HTMLElement>;
-  /** The popover (bubble) element being placed. */
   popoverRef: RefObject<HTMLElement>;
-  /** Preferred side. */
   placement: Placement;
-  /** Whether to flip away from the preferred side near a viewport edge. */
   autoFlip: boolean;
-  /** Only observe while open. */
   isOpen: boolean;
-  /** No styled bubble (and so no flipping) in the title fallback. */
+  // False in the title fallback: no bubble to flip.
   supported: boolean;
-  /**
-   * True while the tooltip is held open by focus or a pinning click. A tooltip
-   * shown purely by hover is never autoflipped (it can't track the cursor on
-   * scroll anyway); focus or a pin re-enables flipping.
-   */
+  // Held by focus or a pin; a hover-only tooltip never flips.
   heldRef?: MutableRefObject<boolean>;
-  /** Parent owns `open`; such a tooltip always flips. */
+  // Parent owns `open`; such a tooltip always flips.
   isControlled?: boolean;
 }
 
-/**
- * Returns the *effective* placement: the preferred `placement`, flipped to the
- * opposite side when it would overflow the viewport — or, when the anchor sits
- * in a scroll container, that container's visible area.
- *
- * An IntersectionObserver on the bubble (rootMargin = -FLIP_THRESHOLD) fires
- * whenever it comes within the threshold of a viewport edge — on scroll, anchor
- * movement, or open — and re-runs a (throttled) decision that reads geometry
- * only (no measure→render→remeasure). The decision is sticky on the current
- * side — it flips only when that side runs out of room — so a side regaining
- * space never pulls the bubble back and the placement can't oscillate. A
- * flipped placement is cleared back to the preferred `placement` once the
- * tooltip has fully closed, so the next open starts from the preferred side
- * without replaying the flip animation on reopen.
- */
+// Returns `placement`, flipped to the opposite side when it would overflow the
+// viewport or the anchor's scroll container. Sticky, reset after close.
 export const useAutoFlip = ({
   anchorRef,
   internalAnchorRef,
@@ -127,19 +92,17 @@ export const useAutoFlip = ({
     useState<Placement>(placement);
   const effectivePlacementRef = useRef(effectivePlacement);
   effectivePlacementRef.current = effectivePlacement;
-  // The anchor's scroll container for the current open session (null = page).
+  // The anchor's scroll container for this open session (null = page).
   const containerRef = useRef<HTMLElement | null>(null);
 
   const decidePlacement = useCallback(() => {
-    // A tooltip shown purely by hover never autoflips; only flip when it's
-    // held by focus or a pin, or owned by the parent (controlled).
     if (!isControlled && heldRef && !heldRef.current) return;
     const anchorEl = anchorRef?.current ?? internalAnchorRef.current;
     const pop = popoverRef.current;
     if (!anchorEl || !pop) return;
     const a = anchorEl.getBoundingClientRect();
     const p = pop.getBoundingClientRect();
-    if (!p.width && !p.height) return; // not shown yet — nothing to measure
+    if (!p.width && !p.height) return; // not shown yet
     const b = getBounds(containerRef.current);
     const space: Record<Placement, number> = {
       top: a.top - b.top,
@@ -153,12 +116,8 @@ export const useAutoFlip = ({
       left: p.width,
       right: p.width,
     };
-    // Sticky on the *current* side: keep it as long as its outer edge still has
-    // room, and flip to the opposite only when the current side runs out. This
-    // is what stops the oscillation — a side that regains room while the bubble
-    // sits comfortably on the opposite side no longer pulls it back. The
-    // preferred `placement` is re-established as the starting side on each open
-    // (reset effect below), so this only governs flips within one open session.
+    // Sticky on the current side: flip only when it runs out of room, so a
+    // side regaining space never pulls the bubble back (no oscillation).
     const current = effectivePlacementRef.current;
     const opp = OPPOSITE[current];
     let next: Placement;
@@ -172,7 +131,7 @@ export const useAutoFlip = ({
     setEffectivePlacement(prev => (prev === next ? prev : next));
   }, [anchorRef, internalAnchorRef, popoverRef, heldRef, isControlled]);
 
-  // Throttle re-evaluation to AUTOFLIP_THROTTLE_MS (leading + trailing).
+  // Throttle (leading + trailing).
   const lastDecideRef = useRef(0);
   const decideTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const scheduleDecide = useCallback(() => {
@@ -189,16 +148,12 @@ export const useAutoFlip = ({
     }
   }, [decidePlacement]);
 
-  // --- autoFlip off: the effective placement is simply `placement` ---
   useEffect(() => {
     if (!autoFlip) setEffectivePlacement(placement);
   }, [autoFlip, placement]);
 
-  // --- a change to the `placement` prop re-establishes that side immediately,
-  // whether the tooltip is open or closed, so live placement changes (e.g. a
-  // Storybook control) take effect. Keyed on `placement` only — not `isOpen` —
-  // so reopening never resets the side and replays the flip animation. The ref
-  // guard skips the initial mount (effective already equals placement). ---
+  // A `placement` prop change applies immediately. Not keyed on `isOpen`, so
+  // reopening never replays the flip animation; the ref skips the mount.
   const settledPlacementRef = useRef(placement);
   useEffect(() => {
     if (settledPlacementRef.current === placement) return;
@@ -206,22 +161,17 @@ export const useAutoFlip = ({
     if (autoFlip) setEffectivePlacement(placement);
   }, [autoFlip, placement]);
 
-  // --- clear a flipped placement once the tooltip has fully closed, so the
-  // next open starts from the preferred side instead of the stale flipped one
-  // (which would otherwise reset *while reopening* and play the flip-slide
-  // animation). Deferred until the hide transition ends so the bubble doesn't
-  // visibly jump sides mid-fade; done immediately if it's already hidden, and
-  // cancelled if it reopens first. ---
+  // Reset a flipped side once fully closed, so the next open starts on the
+  // preferred side; wait for the fade-out so it doesn't jump mid-fade.
   useEffect(() => {
     if (!autoFlip || isOpen) return;
-    if (effectivePlacementRef.current === placement) return; // nothing to clear
+    if (effectivePlacementRef.current === placement) return;
     const pop = popoverRef.current;
     const reset = () => setEffectivePlacement(placement);
     if (!pop || !pop.matches(':popover-open')) {
-      reset(); // already hidden (or no element) — safe to snap now
+      reset();
       return;
     }
-    // still fading out: wait for the opacity transition to finish
     const onEnd = (e: TransitionEvent) => {
       if (e.target === pop && e.propertyName === 'opacity') reset();
     };
@@ -233,7 +183,6 @@ export const useAutoFlip = ({
     };
   }, [autoFlip, isOpen, placement, popoverRef]);
 
-  // --- autoFlip on: re-evaluate the side while the tooltip is open ---
   useEffect(() => {
     if (!autoFlip || !isOpen || !supported) return;
     const pop = popoverRef.current;
@@ -244,10 +193,8 @@ export const useAutoFlip = ({
     });
     io.observe(pop);
 
-    // Inside a scroll container the bubble never nears the viewport edge, so
-    // the observer above stays silent. Watch the *anchor* against the
-    // container instead, with the root shrunk by the room the bubble needs:
-    // it fires as the anchor scrolls within bubble-size of a container edge.
+    // In a scroll container the bubble never nears the viewport edge, so also
+    // watch the anchor against the container, shrunk by the bubble's size.
     // Set up a frame later, once the popover is shown and has a size.
     const anchorEl = anchorRef?.current ?? internalAnchorRef.current;
     const container = anchorEl ? findScrollContainer(anchorEl) : null;
@@ -256,9 +203,7 @@ export const useAutoFlip = ({
     const frame = requestAnimationFrame(() => {
       if (!container || !anchorEl) return;
       const { width, height } = pop.getBoundingClientRect();
-      // Inset only the edges on the placement's axis (a vertical flip doesn't
-      // care about the side edges), and keep each inset under half the
-      // container so the observed area can never collapse to nothing — an
+      // Inset only the placement's axis, capped under half the container: an
       // empty root would never report an intersection change.
       const vertical = placement === 'top' || placement === 'bottom';
       const inset = (bubble: number, box: number) =>

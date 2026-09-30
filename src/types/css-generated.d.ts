@@ -1,6 +1,5 @@
-// Ambient declaration for the files emitted by `css-to-js.js`
-// (e.g. `tooltip.css.generated.js`). Kept as a global script file so the
-// wildcard module declaration stays globally visible.
+// Types for the files emitted by css-to-js.js. No imports, so the wildcard
+// declaration stays global.
 declare module '*.css.generated.js' {
   const css: {
     src: string;

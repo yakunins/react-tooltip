@@ -1,6 +1,6 @@
 import { useEffect, type RefObject } from 'react';
 
-/** Drives the native Popover API (`showPopover` / `hidePopover`) from `isOpen`. */
+// Drives the native Popover API from `isOpen`.
 export const usePopover = (
   popoverRef: RefObject<HTMLElement>,
   isOpen: boolean

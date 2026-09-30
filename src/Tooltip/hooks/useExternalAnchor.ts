@@ -3,27 +3,17 @@ import type { ReactNode, RefObject } from 'react';
 import { useIsoLayoutEffect } from '../../hooks';
 
 export interface ExternalAnchorParams {
-  /** False when degraded to the native `title` fallback. */
   supported: boolean;
-  /** The consumer's element (external-by-ref / by-name modes). */
   anchorRef?: RefObject<HTMLElement>;
-  /** Set when the consumer owns the CSS anchor name (external-by-name). */
+  // Set when the consumer owns the CSS anchor name.
   anchorNameProp?: string;
-  /** The resolved anchor name written onto the element. */
   anchorName: string;
-  /** Tooltip content — mirrored as `title` in the fallback when a string. */
   content: ReactNode;
-  /** The popover id, mirrored via `aria-describedby`. */
   tooltipId: string;
 }
 
-/**
- * Wires up an external anchor element (the `anchorRef` mode): writes
- * `anchor-name` and mirrors `aria-describedby` for accessibility while native
- * anchor positioning is available, and surfaces string content through the
- * element's native `title` when it is not. A no-op in wrapping mode (no
- * `anchorRef`). All writes preserve and restore any pre-existing values.
- */
+// Wires an `anchorRef` element: anchor-name and aria-describedby, or a native
+// `title` in the fallback. Every write restores the previous value on cleanup.
 export const useExternalAnchor = ({
   supported,
   anchorRef,
@@ -32,10 +22,7 @@ export const useExternalAnchor = ({
   content,
   tooltipId,
 }: ExternalAnchorParams): void => {
-  // --- external-by-ref: write `anchor-name` onto the consumer's element ---
-  // Skipped when `anchorNameProp` is supplied — then the consumer owns it —
-  // and when native anchor positioning is missing (the title fallback runs
-  // instead of the styled bubble).
+  // anchor-name, unless the consumer supplied their own.
   useIsoLayoutEffect(() => {
     if (!supported || !anchorRef || anchorNameProp) return;
     const el = anchorRef.current;
@@ -48,8 +35,7 @@ export const useExternalAnchor = ({
     };
   }, [supported, anchorRef, anchorName, anchorNameProp]);
 
-  // --- external-by-ref fallback: mirror string content onto the consumer's
-  // element as a native `title` when anchor positioning is unsupported ---
+  // Fallback: string content as the native `title`.
   useIsoLayoutEffect(() => {
     if (supported) return;
     const el = anchorRef?.current;
@@ -62,9 +48,7 @@ export const useExternalAnchor = ({
     };
   }, [supported, anchorRef, content]);
 
-  // --- external-by-ref: mirror aria-describedby for accessibility ---
-  // Preserves any pre-existing tokens; restored on unmount. Skipped without
-  // anchor positioning, where there is no popover for the id to reference.
+  // aria-describedby, keeping any existing ids.
   useIsoLayoutEffect(() => {
     if (!supported || !anchorRef) return;
     const el = anchorRef.current;

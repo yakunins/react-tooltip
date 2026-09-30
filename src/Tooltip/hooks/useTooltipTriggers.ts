@@ -13,60 +13,38 @@ interface TouchMouseEvent extends MouseEvent {
   sourceCapabilities?: { firesTouchEvents?: boolean };
 }
 
-// Browsers fire synthetic mouse events after a touch — those must be ignored
-// so the tooltip is not toggled twice on a single tap.
+// Mouse events synthesized after a touch would toggle the tooltip twice.
 const isSyntheticFromTouch = (e?: Event): boolean =>
   Boolean(
     (e as TouchMouseEvent | undefined)?.sourceCapabilities?.firesTouchEvents
   );
 
 export interface TooltipTriggersParams {
-  /** External anchor element (anchorRef mode), if any. */
   anchorRef?: RefObject<HTMLElement>;
-  /** The wrapper element rendered in wrapping mode. */
   internalAnchorRef: RefObject<HTMLElement>;
-  /** The popover element (kept open while hovered). */
   popoverRef: RefObject<HTMLElement>;
-  /** Interactions that reveal the tooltip. */
   trigger: TooltipTrigger[];
-  /** Delay before showing on hover/focus, ms. */
   delayShow: number;
-  /** Delay before hiding on hover-out/blur, ms. */
   delayHide: number;
-  /** Suppress click-to-close for this many ms after a hover/focus reveal. */
+  // Click-to-close is suppressed this long (ms) after a hover/focus reveal.
   clickCloseGuard: number;
-  /** Keep a hover/focus tooltip visible at least this many ms from opening. */
+  // A hover/focus tooltip stays visible at least this long (ms).
   minVisibleDuration: number;
-  /** False when degraded to the native `title` fallback (no popover to wire). */
+  // False in the title fallback: no popover to wire.
   supported: boolean;
-  /** Current open state — gates Escape / outside-click dismissal. */
   isOpen: boolean;
-  /** Parent owns `open` — a controlled tooltip is not auto-pinned by defaultOpen. */
+  // A controlled tooltip isn't auto-pinned by defaultOpen.
   isControlled: boolean;
-  /** Stable committer that flips the open state. */
   commitRef: MutableRefObject<(next: boolean) => void>;
 }
 
 export interface TooltipTriggersResult {
-  /**
-   * True while the tooltip is held open by focus or a pinning click — the
-   * "non-hover" holds. autoFlip uses this (with `isControlled`) so a tooltip
-   * shown purely by hover is never autoflipped; focus re-enables it.
-   */
+  // Held open by focus or a pin; autoFlip never flips a hover-only tooltip.
   heldRef: MutableRefObject<boolean>;
 }
 
-/**
- * Wires the configured triggers onto the anchor (and the popover for hover):
- *
- *   - hover / focus open and close after `delayShow` / `delayHide`;
- *   - click *toggles* — a shown tooltip hides, a hidden one shows and pins
- *     (surviving hover-out); a pinned tooltip is dismissed by Escape or an
- *     outside (document) click.
- *
- * `focusHold` keeps the tooltip open across a mouseleave while the anchor stays
- * focused; it's released once the tooltip is next hidden or the anchor blurs.
- */
+// Hover/focus open and close after the delays; click toggles and pins, and a
+// pinned tooltip is dismissed by Escape or any document click.
 export const useTooltipTriggers = ({
   anchorRef,
   internalAnchorRef,
@@ -94,31 +72,23 @@ export const useTooltipTriggers = ({
     clickCloseGuard,
     minVisibleDuration,
   };
-  // Timestamp (performance.now) of the last show, for the click-close guard
-  // and the minimum-visible window.
+  // When it last opened, for the click guard and the minimum-visible window.
   const shownAtRef = useRef(0);
 
-  // `pinned` = held open by a click — or, equivalently, open from the start via
-  // an uncontrolled `defaultOpen`. Either way it behaves like a click-opened
-  // tooltip: it suppresses the hover-out close, autoflips (heldRef), and is
-  // dismissed by any document click, a focus-out, or Escape.
+  // Pinned by a click, or by an uncontrolled defaultOpen: survives hover-out,
+  // autoflips, and is dismissed by a document click, focus-out or Escape.
   const [pinned, setPinned] = useState(() => !isControlled && isOpen);
   const pinnedRef = useRef(pinned);
   pinnedRef.current = pinned;
-  // The click that pins the tooltip open also bubbles to the document, where
-  // the dismiss listener lives — remember it so that listener can skip it.
+  // The pinning click also bubbles to the document dismiss listener; skip it.
   const openingClickRef = useRef<Event | null>(null);
 
-  // `focusHold` = focus is *actively* keeping the tooltip open: true from a
-  // focusin until the tooltip is next hidden or the anchor blurs. Plain "anchor
-  // is focused" isn't enough — a hover-shown tooltip must still hide on
-  // mouseleave even while the anchor happens to be focused.
+  // Focus actively holding it open, from focusin until hidden or blurred. Not
+  // just "anchor focused": a hover-shown tooltip must still hide on mouseleave.
   const focusHoldRef = useRef(false);
-  // `held` = focus or pin is holding the tooltip open (the non-hover holds).
   const heldRef = useRef(false);
   heldRef.current = focusHoldRef.current || pinned;
 
-  // Current open state, read by the click toggle without stale closures.
   const openStateRef = useRef(isOpen);
   openStateRef.current = isOpen;
 
@@ -130,13 +100,12 @@ export const useTooltipTriggers = ({
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
-  // Recompute `held` after a focus change (refs don't re-render).
+  // Refs don't re-render, so recompute `held` after a focus change.
   const syncHeld = useCallback(() => {
     heldRef.current = focusHoldRef.current || pinnedRef.current;
   }, []);
 
-  // The delayed open/close paths, used by the hover and focus triggers only.
-  // Click commits immediately, so `delayShow` / `delayHide` never apply to it.
+  // Delayed paths for hover and focus only; click commits immediately.
   const scheduleOpen = useCallback(
     (e?: Event) => {
       if (isSyntheticFromTouch(e)) return;
@@ -153,10 +122,7 @@ export const useTooltipTriggers = ({
     (e?: Event) => {
       if (isSyntheticFromTouch(e)) return;
       clearTimer();
-      // Keep the tooltip visible for at least minVisibleDuration from when it
-      // opened: stretch the hide delay so it never fires before that window
-      // closes. Only this hover-out / focus-out path is held back; click and
-      // Escape commit the close immediately.
+      // Stretch the hide delay so it never fires before minVisibleDuration.
       const { delayHide, minVisibleDuration } = delaysRef.current;
       const elapsed = performance.now() - shownAtRef.current;
       const delay = Math.max(delayHide, minVisibleDuration - elapsed);
@@ -165,14 +131,8 @@ export const useTooltipTriggers = ({
     [clearTimer, commitRef]
   );
 
-  // Click toggles: a shown tooltip hides; a hidden one shows and pins (so it
-  // survives hover-out). A pinned tooltip is also dismissed by an outside click
-  // (document listener below) or Escape.
-  //
-  // Guard: if the tooltip was just revealed by hover/focus (not yet pinned) and
-  // is still within `clickCloseGuard` ms of opening, a click pins it instead of
-  // closing — so a click that lands right after the reveal doesn't accidentally
-  // dismiss it.
+  // Toggle; within clickCloseGuard of a hover/focus reveal a click pins
+  // instead, so a click right after the reveal doesn't dismiss it.
   const onClick = useCallback(
     (e?: Event) => {
       if (isSyntheticFromTouch(e)) return;
@@ -202,9 +162,6 @@ export const useTooltipTriggers = ({
     [clearTimer, commitRef]
   );
 
-  // mouseleave close — suppressed while pinned, or while focus is actively
-  // holding the tooltip open. A hover-shown tooltip still closes on mouseleave
-  // even if the anchor happens to be focused. focus-out still closes.
   const closeOnHover = useCallback(
     (e?: Event) => {
       if (pinnedRef.current || focusHoldRef.current) return;
@@ -213,14 +170,11 @@ export const useTooltipTriggers = ({
     [scheduleClose]
   );
 
-  // clear any pending timer on unmount
   useEffect(() => clearTimer, [clearTimer]);
 
-  // --- wire trigger listeners onto the anchor and the popover ---
   useEffect(() => {
-    if (!supported) return; // no popover to reveal in the title fallback
-    // external-by-ref uses the consumer's element; wrapping uses our own.
-    // external-by-name (no ref of any kind) has no element to listen to.
+    if (!supported) return;
+    // By-name mode has no element to listen to.
     const anchor = anchorRef?.current ?? internalAnchorRef.current;
     const popover = popoverRef.current;
     if (!anchor) return;
@@ -234,18 +188,14 @@ export const useTooltipTriggers = ({
     if (useHover) {
       on(anchor, 'mouseenter', scheduleOpen);
       on(anchor, 'mouseleave', closeOnHover);
-      // keep the tooltip open while the pointer is over the bubble itself
+      // stay open while the pointer is over the bubble
       if (popover) {
         on(popover, 'mouseenter', scheduleOpen);
         on(popover, 'mouseleave', closeOnHover);
       }
     }
-    // Focus holds the tooltip open while focus is anywhere within the
-    // anchor + bubble scope. Tabbing or clicking from the anchor into the
-    // bubble (or back) keeps it open; focus leaving the scope entirely closes
-    // it. The bubble side runs regardless of the focus trigger, so a focusable
-    // element inside the tooltip content (a link, button, ...) is never hidden
-    // out from under the user.
+    // Focus anywhere in anchor + bubble holds it open. The bubble side runs
+    // even without the focus trigger, so focused content is never hidden.
     const inScope = (node: EventTarget | null): boolean =>
       node != null &&
       (anchor.contains(node as Node) ||
@@ -255,12 +205,8 @@ export const useTooltipTriggers = ({
       syncHeld();
     };
     const releaseOnFocusOut = (e: Event) => {
-      // Only act when focus was actually holding the tooltip, and ignore moves
-      // that stay inside the scope (anchor <-> bubble).
       if (!focusHoldRef.current) return;
-      // A pinned (clicked-open) tooltip is sticky: it survives focus leaving the
-      // document, e.g. on window blur / alt-tab. Only an outside click or Escape
-      // dismisses it — matching the hover path, which also bails while pinned.
+      // A pinned tooltip survives focus leaving (e.g. alt-tab).
       if (pinnedRef.current) return;
       if (inScope((e as FocusEvent).relatedTarget)) return;
       focusHoldRef.current = false;
@@ -298,7 +244,6 @@ export const useTooltipTriggers = ({
     popoverRef,
   ]);
 
-  // --- Escape closes the tooltip while it is open ---
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -311,15 +256,12 @@ export const useTooltipTriggers = ({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [isOpen, clearTimer, commitRef]);
 
-  // --- clear the pinned flag whenever the tooltip closes, for any reason ---
   useEffect(() => {
     if (!isOpen) setPinned(false);
   }, [isOpen]);
 
-  // --- release the focus-hold whenever the tooltip is hidden (open -> closed),
-  // so a later hover-shown tooltip closes on mouseleave even while the anchor
-  // stays focused. Falling edge only, to not clobber the focusin during the
-  // open delay (when isOpen is still false). ---
+  // Release the focus-hold on close. Falling edge only, so the focusin during
+  // the open delay (isOpen still false) isn't clobbered.
   const prevOpenRef = useRef(isOpen);
   useEffect(() => {
     if (prevOpenRef.current && !isOpen) {
@@ -329,14 +271,11 @@ export const useTooltipTriggers = ({
     prevOpenRef.current = isOpen;
   }, [isOpen, syncHeld]);
 
-  // --- while pinned, ANY click dismisses ---
-  // Added in an effect (which runs after the opening click has propagated), so
-  // it never catches the click that pinned the tooltip. Clicks inside the
-  // bubble dismiss too, by design.
+  // While pinned any click dismisses, bubble included. Added in an effect, so
+  // it runs after the pinning click has propagated.
   useEffect(() => {
     if (!pinned || !isOpen) return;
     const onDocClick = (e: MouseEvent) => {
-      // skip the click that opened the tooltip (it bubbles here too)
       if (e === openingClickRef.current) {
         openingClickRef.current = null;
         return;

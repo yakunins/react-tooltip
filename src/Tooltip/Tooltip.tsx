@@ -25,10 +25,8 @@ import { useTooltipTriggers } from './hooks/useTooltipTriggers';
 
 export type { TooltipProps };
 
-// The flip animation, owned here and handed to useFlipAnimation. The keyframes
-// read the per-placement `--flip-from` custom property (set in tooltip.css) so
-// the bubble emerges from the anchor side. `duration` is a CSS <time>
-// expression resolved against the popover by the hook (WAAPI needs a number).
+// Keyframes read the per-placement --flip-from (tooltip.css); the hook resolves
+// the CSS <time> duration to ms, since WAAPI needs a number.
 const FLIP_ANIMATION: FlipAnimation = {
   keyframes: [
     { opacity: 0, transform: 'var(--flip-from, none)' },
@@ -41,34 +39,8 @@ const FLIP_ANIMATION: FlipAnimation = {
 };
 
 /**
- * Tooltip — top-layer tooltip built on the Popover API and CSS anchor
- * positioning.
- *
- * Three composition modes:
- *
- *   1. *Wrapping* (default) — pass `children`; Tooltip renders a
- *      `<TooltipAnchor>` wrapper and pins the bubble to it.
- *
- *   2. *External by ref* — pass `anchorRef` (omit `children`); Tooltip
- *      writes `anchor-name` onto the referenced element, wires the
- *      trigger listeners to it, and mirrors `aria-describedby`.
- *
- *   3. *External by name* — pass `anchorName` only (omit both `anchorRef`
- *      and `children`); Tooltip uses that CSS anchor name verbatim and
- *      does *not* wire any trigger listeners — pair with controlled
- *      `open` / `onOpenChange`.
- *
- * The component injects its own stylesheet at runtime, so no CSS import
- * or bundler CSS loader is required.
- *
- * Browsers without native CSS anchor positioning get a graceful fallback
- * rather than a polyfill: the styled bubble is skipped and `content` (when it
- * is a string) is surfaced through the element's native `title` tooltip.
- *
- * The behavior is composed from focused hooks — `useControllableOpen`,
- * `useTooltipTriggers`, `useAutoFlip`, `useAnchorVisibility`,
- * `useExternalAnchor`, `usePopover`, `useFlipAnimation` — leaving this
- * component as an orchestrator + render.
+ * Tooltip on the Popover API and CSS anchor positioning. Wraps `children`, or
+ * attaches via `anchorRef` / `anchorName`; falls back to a native `title`.
  */
 export const Tooltip = ({
   children,
@@ -89,20 +61,16 @@ export const Tooltip = ({
   anchorName: anchorNameProp,
 }: TooltipProps) => {
   useStyleInjector(tooltipCss.content);
-  // Native CSS anchor positioning is required for the styled bubble to track
-  // its anchor. Where it is missing we degrade to a native `title` tooltip
-  // instead of pulling in a positioning polyfill.
+  // Without native anchor positioning, degrade to a `title` (no polyfill).
   const supported = useSupportsAnchorPositioning();
 
   const internalAnchorRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // `anchorNameProp` (if supplied) takes priority — the consumer owns the
-  // CSS contract in that case. Otherwise we generate a CSS-safe dashed-ident.
+  // A supplied anchorName wins; otherwise generate a CSS-safe dashed-ident.
   const safeId = useId().replace(/[^a-zA-Z0-9]/g, '');
   const anchorName = anchorNameProp ?? `--tooltip-${safeId}`;
   const tooltipId = `tooltip-${safeId}`;
-  // wrapping mode = no external anchor source provided
   const wrapping = !anchorRefProp && !anchorNameProp;
 
   const { isOpen, isControlled, commitRef } = useControllableOpen(
@@ -111,8 +79,7 @@ export const Tooltip = ({
     onOpenChange
   );
 
-  // Resolve the timing knobs against their defaults (ignoring explicit
-  // undefined), so a partial `timings` object overrides only what it sets.
+  // A partial `timings` overrides only what it sets (undefined keeps defaults).
   const definedTimings = Object.fromEntries(
     Object.entries(timings ?? {}).filter(([, v]) => v !== undefined)
   );
@@ -121,8 +88,7 @@ export const Tooltip = ({
     ...definedTimings,
   };
 
-  // Triggers (hover/focus/click-toggle + outside-click + Escape). `heldRef`
-  // reports whether focus or a pin is holding the tooltip open.
+  // `heldRef`: focus or a pin is holding the tooltip open.
   const { heldRef } = useTooltipTriggers({
     anchorRef: anchorRefProp,
     internalAnchorRef,
@@ -138,9 +104,7 @@ export const Tooltip = ({
     commitRef,
   });
 
-  // autoFlip → the side the bubble is actually placed on (flips near edges).
-  // A purely hover-shown tooltip is never autoflipped; focus, a pin, or being
-  // controlled re-enables it.
+  // A hover-only tooltip never flips; focus, a pin or `open` enables it.
   const effectivePlacement = useAutoFlip({
     anchorRef: anchorRefProp,
     internalAnchorRef,
@@ -161,8 +125,7 @@ export const Tooltip = ({
     content,
     tooltipId,
   });
-  // Fades the bubble out while its anchor is scrolled out of sight (see the
-  // `anchor-hidden` rule in tooltip.css), and back in when it returns.
+  // Fades the bubble while its anchor is scrolled out of sight.
   const anchorHidden = useAnchorVisibility({
     anchorRef: anchorRefProp,
     internalAnchorRef,
@@ -172,14 +135,12 @@ export const Tooltip = ({
   usePopover(popoverRef, isOpen);
   useFlipAnimation(popoverRef, effectivePlacement, isOpen, FLIP_ANIMATION);
 
-  // Only meaningful in wrapping mode; harmless when the wrapper is absent
-  // (internalAnchorRef.current stays null, hasFocusable stays false).
+  // Wrapping mode only; without the wrapper it stays false.
   const hasFocusable = useHasFocusable(internalAnchorRef);
   const useFocus = trigger.includes('focus');
 
-  // --- fallback: no native anchor positioning -> native `title` tooltip ---
-  // Wrapping mode owns an element to carry the title; external modes attach it
-  // to the consumer's element (by-ref, via useExternalAnchor) or cannot (by-name).
+  // Fallback: wrapping mode carries the title itself; by-ref mode sets it in
+  // useExternalAnchor, and by-name mode has no element for it.
   if (!supported) {
     if (!wrapping) return null;
     const title = typeof content === 'string' ? content : undefined;
@@ -196,10 +157,7 @@ export const Tooltip = ({
     '--tooltip-transition-duration':
       bubbleStyle?.transitionDuration ??
       DEFAULT_BUBBLE_STYLE.transitionDuration,
-    // Mirrored so the popover can compute --tooltip-arrow-inset (the
-    // arrow-start / arrow-end shift) from the same radius / arrow size the
-    // bubble uses. Resolved against DEFAULT_BUBBLE_STYLE (the single source of
-    // defaults) so the value is always concrete — tooltip.css has no fallback.
+    // Mirrored for tooltip.css's --tooltip-arrow-inset, which has no fallback.
     '--tooltip-radius': bubbleStyle?.radius ?? DEFAULT_BUBBLE_STYLE.radius,
     '--tooltip-arrow-size':
       bubbleStyle?.arrowSize ?? DEFAULT_BUBBLE_STYLE.arrowSize,

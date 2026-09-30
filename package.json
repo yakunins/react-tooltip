@@ -1,6 +1,6 @@
 {
   "name": "react-tooltip-contemporary",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "contemporary react tooltip — CSS clip-path shape, native Popover API, CSS anchor positioning",
   "main": "./lib/index.js",
   "files": [
@@ -9,9 +9,9 @@
   "scripts": {
     "build": "npm-run-all clean css-to-js build-ts css-copy",
     "build-storybook": "storybook build",
-    "build-ts": "tsc --project tsconfig.build.json",
+    "build-ts": "tsc --project tsconfig.build.json --removeComments && tsc --project tsconfig.build.json --emitDeclarationOnly",
     "clean": "rimraf lib",
-    "css-copy": "npx cpy src/**/*.css lib && npx cpy src/**/*.css.* lib",
+    "css-copy": "npx cpy src/**/*.css lib && npx cpy src/**/*.css.* lib && node css-to-js --strip-lib",
     "css-to-js-watch": "node css-to-js --watch",
     "css-to-js": "node css-to-js",
     "dev": "npm-run-all --parallel storybook css-to-js-watch",

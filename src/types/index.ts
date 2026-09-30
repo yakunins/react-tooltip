@@ -4,60 +4,33 @@ import type { CSSProperties } from 'react';
 export type Placement = 'top' | 'bottom' | 'left' | 'right';
 
 /**
- * Where the arrow sits along the bubble edge. In every case the arrow keeps
- * pointing at the anchor's center; what changes is which way the bubble body
- * extends from it. `'center'` (default) centers the bubble on the anchor;
- * `'start'` slides the arrow to the bubble's leading edge so the body extends
- * toward the trailing side; `'end'` mirrors that. Handy when the anchor is
- * near a viewport edge and the bubble should grow the other way.
- *
- * The axis follows `placement`: for `top`/`bottom` it runs left→right, for
- * `left`/`right` it runs top→bottom.
+ * Where the arrow sits along the bubble edge; it always points at the anchor.
+ * `'start'` / `'end'` extend the bubble body toward the other side.
  */
 export type ArrowPlacement = 'start' | 'center' | 'end';
 
 /** Interaction that reveals the tooltip. */
 export type TooltipTrigger = 'hover' | 'focus' | 'click';
 
-/**
- * Timing (in ms) for the trigger interactions, passed to Tooltip as the single
- * `timings` prop. Every field is optional; an omitted one falls back to the
- * library default.
- */
+/** Trigger timings in ms; omitted fields keep their defaults. */
 export type TooltipTimings = {
-  /**
-   * Delay before showing on hover/focus. Applies only to the `hover` and
-   * `focus` triggers; a `click` shows instantly. Default `200`.
-   */
+  /** Delay before showing on hover/focus; click is instant. Default `200`. */
   delayShow?: number;
-  /**
-   * Delay before hiding on hover-out/blur. Applies only to the `hover` and
-   * `focus` triggers; a dismissing `click` hides instantly. Default `100`.
-   */
+  /** Delay before hiding on hover-out/blur; click is instant. Default `100`. */
   delayHide?: number;
   /**
-   * With both `hover` and `click` triggers, suppress click-to-close for this
-   * long after a hover/focus reveal — a click within the window pins the
-   * tooltip instead of closing it. Measured from the open commit. `0` disables
-   * it. Default `500`.
+   * After a hover/focus reveal, a click within this window pins the tooltip
+   * instead of closing it. `0` disables it. Default `1000`.
    */
   clickCloseGuard?: number;
   /**
-   * Minimum time a hover/focus-revealed tooltip stays visible once it starts to
-   * appear; a hover-out/blur before the window elapses postpones the hide.
-   * Measured from the open commit. Explicit dismissals (click, Escape) ignore
-   * it. `0` disables it. Default `1000`.
+   * Minimum time a hover/focus-revealed tooltip stays visible; click and Escape
+   * ignore it. `0` disables it. Default `1000`.
    */
   minVisibleDuration?: number;
 };
 
-/**
- * Visual customisation of the tooltip bubble.
- *
- * Most fields map to a CSS custom property consumed by `tooltipBubble.css`;
- * any omitted field falls back to the stylesheet default. The exception is
- * `cornerSegments`, which selects a `.corners-N` class.
- */
+/** Visual customisation of the tooltip bubble. */
 export type TooltipBubbleStyle = {
   /** Bubble background. Default `#000`. */
   background?: CSSProperties['background'];
@@ -77,11 +50,6 @@ export type TooltipBubbleStyle = {
   maxWidth?: CSSProperties['maxWidth'];
   /** Fade in/out duration. Default `0.2s`. */
   transitionDuration?: CSSProperties['transitionDuration'];
-  /**
-   * Straight segments approximating each rounded corner, `3`–`7`. More
-   * segments give a smoother corner at the cost of a few more polygon points;
-   * `5` is the default (`3` matches the original 4-point look). Unlike the
-   * other fields this selects a `.corners-N` class rather than a custom property.
-   */
+  /** Straight segments per rounded corner; more is smoother. Default `5`. */
   cornerSegments?: 3 | 5 | 7;
 };

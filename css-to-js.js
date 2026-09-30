@@ -19,10 +19,8 @@ const css = {
 export default css;
 `;
 
-// Strip CSS comments from the generated content (the source .css keeps them).
-// Shrinks the injected/shipped CSS and removes the backtick-in-comment hazard
-// that would break the template literal. Single spaces are left intact, so
-// calc() expressions stay valid.
+// Drop comments: smaller output, and no backtick in a comment can break the
+// template literal.
 const stripCssComments = css =>
   css
     .replace(/\r\n/g, '\n') // normalize CRLF checkouts
@@ -31,10 +29,8 @@ const stripCssComments = css =>
     .replace(/\n\s*\n/g, '\n') // collapse the blank lines they leave
     .replace(/^\s*\n/, ''); // and any leading blank line
 
-// Minify the comment-free CSS: collapse whitespace and drop it around
-// { } ; , and after ':', but keep the line breaks so the output stays readable.
-// Spaces between tokens (e.g. the operators in `calc(a - b)`, or the
-// descendant combinator) are kept as a single space.
+// Minify but keep line breaks; single spaces between tokens stay, as calc()
+// operators and descendant combinators need them.
 const minifyCss = css =>
   css
     .replace(/[ \t]+/g, ' ')
@@ -52,9 +48,23 @@ const watch = watcherInstance =>
     .on('change', path => handleFile(path, 'change'))
     .on('unlink', path => handleFile(path, 'remove'));
 
-// Run only when invoked as a script; a require() (e.g. from the tests) just
-// gets the exported helpers below.
-if (require.main === module) {
+// `--strip-lib`: remove comments from the CSS files copied into lib/ for release.
+const stripLib = dir => {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const path = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) stripLib(path);
+    else if (path.endsWith('.css')) write(path, stripCssComments(read(path)));
+    else if (path.endsWith('.css.generated.js')) {
+      write(path, read(path).replace(/^\/\*[\s\S]*?\*\/\s*/, ''));
+    }
+  }
+};
+
+// Run only as a script; require() (the tests) just gets the helpers.
+if (require.main === module && process.argv.includes('--strip-lib')) {
+  stripLib('lib');
+  console.log('css-to-js: stripped comments from lib/');
+} else if (require.main === module) {
   console.log(watching ? 'css-to-js: watching...' : 'css-to-js: run once');
   const watcher = chokidar.watch(cfg.watch.paths, {
     ignored: ignorePaths,

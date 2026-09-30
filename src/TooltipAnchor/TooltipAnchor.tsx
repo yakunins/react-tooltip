@@ -12,35 +12,21 @@ import { default as anchorCss } from './tooltipAnchor.css.generated.js';
 type DivProps = HTMLAttributes<HTMLDivElement>;
 
 export type TooltipAnchorProps = DivProps & {
-  /**
-   * CSS anchor name — a `<dashed-ident>` such as `--tooltip-r1`. The tooltip
-   * popover references it through `position-anchor` and `anchor()`.
-   */
+  /** CSS anchor name, a `<dashed-ident>` such as `--tooltip-r1`. */
   anchorName: string;
   /** The trigger element. */
   children?: ReactNode;
 };
 
 /**
- * TooltipAnchor — the "anchor" half of CSS anchor positioning.
- *
- * Wraps the trigger in an `inline-block` box and exposes that box as a
- * positioning anchor via the `anchor-name` property. A fixed-positioned
- * (top-layer) tooltip popover then pins itself to this box with
- * `position-anchor` + `anchor()`, so it tracks the trigger through scroll
- * and layout changes with no JavaScript measuring.
- *
- * It injects its own stylesheet (`tooltipAnchor.css`) at runtime. Browsers
- * without native anchor positioning are handled one level up, in `Tooltip`,
- * which degrades to a native `title` tooltip rather than polyfilling.
- *
- * See https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor
+ * Wraps the trigger in an `inline-block` box exposed as a CSS anchor
+ * (`anchor-name`), which the tooltip popover pins itself to.
  */
 export const TooltipAnchor = forwardRef<HTMLDivElement, TooltipAnchorProps>(
   ({ anchorName, className, style, children, ...rest }, ref) => {
     useStyleInjector(anchorCss.content);
 
-    // `anchorName` is not yet in CSSProperties — set it through a cast.
+    // `anchorName` isn't in CSSProperties yet, hence the cast.
     const vars = {
       anchorName,
       ...style,

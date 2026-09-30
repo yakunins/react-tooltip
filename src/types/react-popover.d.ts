@@ -1,7 +1,5 @@
-// Augments React's JSX attribute types with the Popover API attributes,
-// which are not yet present in this @types/react release. The top-level
-// `import` makes this file a module so the block *merges* into React's
-// types instead of replacing them.
+// Adds the Popover API attributes missing from this @types/react release.
+// The import makes this a module, so the block merges instead of replacing.
 import 'react';
 
 declare module 'react' {

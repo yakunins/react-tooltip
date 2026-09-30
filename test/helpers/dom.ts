@@ -1,7 +1,5 @@
-// Stand-ins for the browser features jsdom lacks: the Popover API, CSS.supports
-// (native anchor positioning), IntersectionObserver, matchMedia and
-// Element.animate. Call `installDom()` in a `beforeEach` of a jsdom spec and
-// `uninstallDom()` in the matching `afterEach`.
+// Mocks for what jsdom lacks (Popover API, CSS.supports, IntersectionObserver,
+// matchMedia, Element.animate): installDom() in beforeEach, uninstallDom() after.
 
 type Anyish = Record<string, unknown>;
 type AnimateMock = jest.Mock<
@@ -12,7 +10,7 @@ type AnimateMock = jest.Mock<
 const OPEN = Symbol('popover-open');
 type PopoverEl = HTMLElement & { [OPEN]?: boolean };
 
-// Called back with an explicit `this` (see the override below).
+// Called with an explicit `this` in the override below.
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const originalMatches = Element.prototype.matches;
 
@@ -36,14 +34,14 @@ export class MockIntersectionObserver {
   takeRecords() {
     return [];
   }
-  /** Fire the observer callback, as the browser would on an intersection change. */
+  // Fire the callback, as the browser does on an intersection change.
   trigger(entries: Partial<IntersectionObserverEntry>[] = []) {
     this.callback(
       entries as IntersectionObserverEntry[],
       this as unknown as IntersectionObserver
     );
   }
-  /** The live observer watching `el`, if any. */
+  // The live observer watching `el`, if any.
   static watching(el: Element): MockIntersectionObserver | undefined {
     return MockIntersectionObserver.instances.find(
       io => !io.disconnected && io.observed.includes(el)
@@ -52,9 +50,9 @@ export class MockIntersectionObserver {
 }
 
 export const dom = {
-  /** What `CSS.supports('anchor-name: ...')` reports. */
+  // What `CSS.supports('anchor-name: ...')` reports.
   anchorPositioning: true,
-  /** What `matchMedia('(prefers-reduced-motion: reduce)')` reports. */
+  // What `matchMedia('(prefers-reduced-motion: reduce)')` reports.
   reducedMotion: false,
   animate: jest.fn() as AnimateMock,
   showPopover: jest.fn(),
@@ -118,7 +116,7 @@ export const uninstallDom = () => {
   document.head.innerHTML = '';
 };
 
-/** Stub an element's box, as getBoundingClientRect would report it. */
+// Stub an element's getBoundingClientRect.
 export const setRect = (
   el: Element,
   r: { top: number; left: number; width: number; height: number }
@@ -134,7 +132,6 @@ export const setRect = (
     }) as DOMRect;
 };
 
-/** Set the viewport size used by useAutoFlip. */
 export const setViewport = (width: number, height: number) => {
   Object.defineProperty(document.documentElement, 'clientWidth', {
     configurable: true,

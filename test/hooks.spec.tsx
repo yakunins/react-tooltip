@@ -105,8 +105,7 @@ describe('useAutoFlip', () => {
   };
 
   const setup = (initial: Props = {}) => {
-    // The fake clock starts at 0, which the throttle would read as "just
-    // evaluated"; move past the window so the first check runs immediately.
+    // The fake clock starts at 0, which the throttle reads as "just evaluated".
     jest.advanceTimersByTime(1000);
     setViewport(800, 600);
     const anchor = element();
@@ -347,8 +346,7 @@ describe('useAutoFlip inside a scroll container', () => {
     );
   });
 
-  // Regression: a bubble wider than half the box used to inset the side edges
-  // past each other, leaving an empty root that never fired.
+  // Regression: a wide bubble once collapsed the observer root to nothing.
   it('ignores a wide bubble for vertical placements', () => {
     const box = makeContainer(); // 300px wide
     const { result, anchor } = setupIn(box, { width: 215 });
@@ -370,7 +368,7 @@ describe('useAutoFlip inside a scroll container', () => {
   it('flips when the anchor nears the container edge, not the viewport', () => {
     const box = makeContainer();
     const { result, anchor } = setupIn(box);
-    // 10px below the box top: plenty of room above in the viewport, not in the box
+    // room above in the viewport, but not in the box
     setRect(anchor, { top: 210, left: 200, width: 50, height: 20 });
     act(() => MockIntersectionObserver.watching(anchor)!.trigger());
     expect(result.current).toBe('bottom');

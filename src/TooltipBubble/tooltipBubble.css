@@ -1,26 +1,15 @@
-/* ============================================================
- * react-tooltip-contemporary - TooltipBubble layer
- *
- * The bubble: its rounded box and its arrow are drawn as a single
- * clip-path: polygon(...) - no borders, pseudo-elements or SVG, so the
- * arrow inherits the bubble background, shadow and corner radius.
- * ============================================================ */
+/* TooltipBubble: box and arrow drawn as one clip-path polygon, so the arrow
+ * shares the background, shadow and corner radius. */
 
 .tooltip-bubble {
-  /* Inputs: the public --tooltip-* custom properties. The component always
-   * sets them (DEFAULT_BUBBLE_STYLE in TooltipBubble.tsx is the single source of
-   * defaults), so this sheet carries no --default-* fallbacks. */
+  /* Inputs: the --tooltip-* properties, always set by the component. */
   --py: var(--tooltip-padding-y);
   --px: var(--tooltip-padding-x);
   --rad: var(--tooltip-radius);
   --arrow-size: var(--tooltip-arrow-size);
 
-  /* Distance from a bubble edge to the arrow tip, for arrow-start / arrow-end:
-   * far enough that the arrow's near foot clears the rounded corner. Inside a
-   * Tooltip the popover overrides this (see the descendant rule in the sibling
-   * tooltip.css) with an absolute length resolved in the popover's font
-   * context, so the bubble's arrow and the popover's shift line up to the
-   * pixel. */
+  /* Edge-to-tip distance for arrow-start / arrow-end, clearing the corner.
+   * Inside a Tooltip, tooltip.css overrides it with a popover-resolved length. */
   --arrow-inset: calc(var(--rad) + var(--arrow-size) * 0.707);
 
   display: inline-block;
@@ -43,19 +32,14 @@
 
   padding: var(--py) var(--px);
 
-  /* arrow-side insets - set per placement below. Consumed (with --rad) by
-   * the rounded-corner rules at the end of this file. */
+  /* arrow-side insets, set per placement below */
   --t: 0%;
   --b: 0%;
   --l: 0%;
   --r: 0%;
 
-  /* The rounded corners --corner1..4 are defined at the end of this file, as a
-   * true quarter-circle approximated by N segments (the .corners-N class).
-   * Between them sits one --arrow-* point list per edge. An edge without the
-   * arrow gets a single point that repeats the preceding corner's last point
-   * (a redundant vertex, so it draws nothing); the placement rules below
-   * replace one of the lists with the three arrow points. */
+  /* One --arrow-* point list per edge between the corners. Arrowless edges
+   * repeat the previous corner point (draws nothing); placement fills one in. */
   --arrow-t: calc(var(--l) + var(--rad)) var(--t);
   --arrow-r: calc(100% - var(--r)) calc(var(--t) + var(--rad));
   --arrow-b: calc(100% - var(--r) - var(--rad)) calc(100% - var(--b));
@@ -76,10 +60,7 @@
   display: none;
 }
 
-/* arrow-placement: slide the arrow along the bubble edge.
- * '--arrow-pos' is the along-edge coordinate the placement rules below read
- * for whichever axis is relevant (--cx for top/bottom, --cy for left/right).
- * 'center' is the default (no class), so --arrow-pos falls back to 50%. */
+/* Arrow position along the edge; center (no class) falls back to 50%. */
 .tooltip-bubble.arrow-start {
   --arrow-pos: var(--arrow-inset);
 }
@@ -87,8 +68,8 @@
   --arrow-pos: calc(100% - var(--arrow-inset));
 }
 
-/* Placement rules: each reserves --arrow-size on the arrow side and lists the
- * arrow's three points (foot, tip, foot) in the polygon's clockwise order. */
+/* Each placement reserves --arrow-size on its side and lists the arrow
+ * points (foot, tip, foot) in the polygon's clockwise order. */
 
 /* placement-top: bubble above the anchor, arrow points down */
 .tooltip-bubble.placement-top {
@@ -138,32 +119,13 @@
   padding-left: calc(var(--l) + var(--px));
 }
 
-/* ============================================================
- * Rounded-corner geometry
- *
- * The bubble's four rounded corners. Each corner is approximated by N
- * straight segments (N+1 points) lying on a TRUE quarter-circle of radius
- * --rad; N is chosen by a .corners-N class (3, 5, 7) - more segments =
- * smoother corner. The placement rules above splice the arrow points between them.
- *
- * Inputs (set on .tooltip-bubble above):
- *   --rad            corner radius (length)
- *   --t --b --l --r  per-placement arrow-side insets (the bubble box edges)
- *
- * Outputs:
- *   --corner1  top-left      (left edge   -> top edge)
- *   --corner2  top-right     (top edge    -> right edge)
- *   --corner3  bottom-right  (right edge  -> bottom edge)
- *   --corner4  bottom-left   (bottom edge -> left edge)
- *
- * Point k (k = 0..N) sits at angle 90deg * k / N around the corner center.
- * --dK = --rad * (1 - cos(90deg * K / N)) is that point's distance from the
- * corner's tangent edge (the constants are precomputed); by symmetry the
- * other coordinate uses --d(N-K). --d0 = 0 and --dN = --rad are inlined.
- * ============================================================ */
+/* Rounded corners: N segments on a true quarter-circle of radius --rad
+ * (.corners-N, N = 3/5/7). Inputs --rad, --t/--b/--l/--r; outputs
+ * --corner1..4 (top-left, top-right, bottom-right, bottom-left, clockwise).
+ * --dK = --rad * (1 - cos(90deg * K / N)), precomputed; the other coordinate
+ * uses --d(N-K) by symmetry, with --d0 = 0 and --dN = --rad inlined. */
 
-/* 3 segments - also the fallback when no .corners-N class is set (the
- * component always sets one; DEFAULT_BUBBLE_STYLE.cornerSegments is 5) */
+/* 3 segments, also the fallback without a .corners-N class */
 .tooltip-bubble,
 .tooltip-bubble.corners-3 {
   --d1: calc(var(--rad) * 0.134);

@@ -9,14 +9,7 @@ import {
 } from '../types';
 import { default as bubbleCss } from './tooltipBubble.css.generated.js';
 
-/**
- * The bubble's default appearance — the single source of truth for every
- * `TooltipBubbleStyle` field. A consumer's `bubbleStyle` is layered on top and
- * each resolved field is applied as a CSS custom property (or, for
- * `cornerSegments`, the `.corners-N` class), so `tooltipBubble.css` no longer
- * carries its own `--default-*` fallbacks. `transitionDuration` is consumed by
- * the popover layer (see `Tooltip.tsx`), the rest by the bubble here.
- */
+/** Default `bubbleStyle`; a consumer's `bubbleStyle` is layered on top. */
 export const DEFAULT_BUBBLE_STYLE: Required<TooltipBubbleStyle> = {
   background: '#000',
   color: '#fff',
@@ -38,28 +31,17 @@ type DivProps = HTMLAttributes<HTMLDivElement>;
 export type TooltipBubbleProps = DivProps & {
   /** Side of the anchor the bubble sits on; the arrow points the other way. */
   placement?: Placement;
-  /**
-   * Where the arrow sits along the bubble edge. `'center'` (default) centers
-   * it; `'start'`/`'end'` slide it toward the leading/trailing edge. Default
-   * `'center'`.
-   */
+  /** Where the arrow sits along the bubble edge. Default `'center'`. */
   arrowPlacement?: ArrowPlacement;
-  /** Visual customisation; each field maps to a CSS custom property. */
+  /** Visual customisation of the bubble. */
   bubbleStyle?: TooltipBubbleStyle;
   /** Bubble content. */
   children?: ReactNode;
 };
 
 /**
- * TooltipBubble — the visual bubble.
- *
- * The rounded rectangle *and* its arrow are drawn as a single
- * `clip-path: polygon(...)` — no borders, no pseudo-elements, no SVG — so
- * the arrow inherits the bubble's background, shadow and corner radius for
- * free. The arrow points back toward the anchor, i.e. opposite `placement`.
- *
- * It injects its own stylesheet (`tooltipBubble.css`) at runtime, so it
- * renders correctly on its own — no CSS import required by the consumer.
+ * The bubble and its arrow, drawn as one `clip-path` polygon. Injects its own
+ * stylesheet, so no CSS import is needed.
  */
 export const TooltipBubble = ({
   placement = 'top',
@@ -72,9 +54,7 @@ export const TooltipBubble = ({
 }: TooltipBubbleProps) => {
   useStyleInjector(bubbleCss.content);
 
-  // Resolve every field against the defaults (ignoring explicit `undefined`),
-  // so the merged style is the single source of truth and tooltipBubble.css
-  // needs no fallbacks of its own.
+  // Explicit `undefined` keeps the default; tooltipBubble.css has no fallbacks.
   const definedStyle = Object.fromEntries(
     Object.entries(bubbleStyle ?? {}).filter(([, v]) => v !== undefined)
   );

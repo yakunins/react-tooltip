@@ -9,36 +9,24 @@ import type {
 } from '../types';
 
 export type TooltipProps = {
-  /**
-   * The trigger element to wrap. Required in *wrapping mode*; omit when
-   * pairing with `anchorRef` or `anchorName` to attach to an existing
-   * element.
-   */
+  /** The trigger to wrap; omit when using `anchorRef` or `anchorName`. */
   children?: ReactNode;
   /** The tooltip bubble content. */
   content: ReactNode;
   /** Side of the anchor the bubble prefers. Default `'top'`. */
   placement?: Placement;
   /**
-   * Where the arrow sits along the bubble edge. The arrow always points at the
-   * anchor's center; `arrowPlacement` only chooses which way the bubble body
-   * extends. `'center'` (default) centers the bubble on the anchor; `'start'`
-   * keeps the arrow near the bubble's leading edge so the body extends toward
-   * the trailing side; `'end'` mirrors that. Default `'center'`.
+   * Where the arrow sits along the bubble edge; `'start'` / `'end'` extend the
+   * bubble toward the other side. Default `'center'`.
    */
   arrowPlacement?: ArrowPlacement;
   /** Interactions that reveal the tooltip. Default `['hover', 'focus']`. */
   trigger?: TooltipTrigger[];
-  /**
-   * Timing knobs (all in ms) for the trigger interactions: `delayShow`,
-   * `delayHide`, `clickCloseGuard`, and `minVisibleDuration`. Pass any subset;
-   * omitted fields keep their defaults (see `TooltipTimings` /
-   * `TOOLTIP_DEFAULTS_TIMINGS`).
-   */
+  /** Trigger timings in ms; pass any subset, the rest keep their defaults. */
   timings?: TooltipTimings;
-  /** Gap between anchor and bubble, any CSS length. Default `'0.25em'`. */
+  /** Gap between anchor and bubble, any CSS length. Default `'0rem'`. */
   offset?: string;
-  /** Flip to the opposite side when the bubble would overflow. Default `true`. */
+  /** Flip to the opposite side when out of room. Default `true`. */
   autoFlip?: boolean;
   /** Initial open state, for uncontrolled usage. Default `false`. */
   defaultOpen?: boolean;
@@ -53,28 +41,18 @@ export type TooltipProps = {
   /** Inline style applied to the popover element. */
   style?: CSSProperties;
   /**
-   * Attach to an existing element by ref instead of wrapping `children`.
-   * Tooltip writes `anchor-name` onto the referenced element (unless you
-   * also supply `anchorName`), wires the configured triggers to it, and
-   * mirrors `aria-describedby` on it for accessibility.
+   * Attach to an existing element instead of wrapping `children`; triggers and
+   * `aria-describedby` are wired onto it.
    */
   anchorRef?: RefObject<HTMLElement>;
   /**
-   * Attach to an existing element by CSS anchor name (a `<dashed-ident>`
-   * you have already applied via `style={{ anchorName: '--x' }}` or in a
-   * stylesheet). When used *without* `anchorRef`, Tooltip cannot wire
-   * trigger listeners — pair with controlled `open` / `onOpenChange`.
+   * Attach by an existing CSS anchor name. Without `anchorRef` no triggers are
+   * wired, so control it with `open` / `onOpenChange`.
    */
   anchorName?: string;
 };
 
-/**
- * Default values for the props that have a concrete fallback. Typed against
- * `TooltipProps` so renaming or removing one of these props breaks the build
- * right here; the remaining props (`open`, `onOpenChange`, `bubbleStyle`,
- * `className`, `style`, `anchorRef`, `anchorName`) intentionally default to
- * `undefined` and are not listed.
- */
+// Typed against TooltipProps: renaming a defaulted prop breaks the build here.
 type TooltipDefaults = Required<
   Pick<
     TooltipProps,
@@ -88,7 +66,7 @@ type TooltipDefaults = Required<
   >
 >;
 
-/** Default trigger timings; a `timings` prop is layered over this. */
+// Default trigger timings; a `timings` prop is layered over these.
 export const TOOLTIP_DEFAULTS_TIMINGS: Required<TooltipTimings> = {
   delayShow: 200,
   delayHide: 100,

@@ -1,9 +1,5 @@
-// A tiny evaluator for the custom-property geometry in tooltipBubble.css — just
-// enough CSS to resolve the `clip-path: polygon(...)` of a `.tooltip-bubble`
-// with a given set of classes into numeric points, for a box of known size.
-// Supports: flat rules (nested rules are skipped), selector lists, class-count
-// specificity with source order, var() with fallbacks, calc() with px / % /
-// deg, cos() / sin().
+// Just enough CSS to resolve the tooltipBubble.css clip-path into numeric points
+// for a box of known size: flat rules, class specificity, var(), calc(), cos/sin.
 
 type Decls = Record<string, string>;
 export type Point = [number, number];
@@ -36,7 +32,7 @@ const parseRules = (css: string): Rule[] => {
   return rules;
 };
 
-/** Split on `sep` at parenthesis depth 0. */
+// Split on `sep` at parenthesis depth 0.
 const splitTop = (s: string, sep: string): string[] => {
   const parts: string[] = [];
   let depth = 0;
@@ -64,7 +60,7 @@ export class BubbleGeometry {
     this.rules = parseRules(css);
   }
 
-  /** Cascaded custom properties / declarations for `.tooltip-bubble.<classes>`. */
+  // Cascaded declarations for `.tooltip-bubble.<classes>`.
   cascade(classes: string[]): Decls {
     const values: Decls = { ...this.inputs };
     const spec: Record<string, number> = {};
@@ -113,12 +109,12 @@ export class BubbleGeometry {
     if (!/^[\d\s.+\-*/()a-zA-Z]*$/.test(js)) {
       throw new Error(`cannot evaluate: ${expr}`);
     }
-    // Safe: `js` was checked above to hold only numbers, operators and Math.*
+    // Safe: `js` holds only numbers, operators and Math.* (checked above).
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     return Number(new Function(`return ${js}`)());
   }
 
-  /** Evaluate a comma-separated point list, e.g. a `polygon()` body. */
+  // Evaluate a comma-separated point list, e.g. a `polygon()` body.
   points(list: string, classes: string[]): Point[] {
     const values = this.cascade(classes);
     return splitTop(this.substitute(list, values), ',').map(p => {
@@ -127,7 +123,6 @@ export class BubbleGeometry {
     });
   }
 
-  /** The bubble's clip-path polygon for the given classes. */
   polygon(classes: string[]): Point[] {
     const clip = this.cascade(classes)['clip-path'];
     const body = clip.replace(/^polygon\(/, '').replace(/\)$/, '');
@@ -139,7 +134,7 @@ export class BubbleGeometry {
   }
 }
 
-/** Shoelace area; positive for a clockwise polygon in screen (y-down) space. */
+// Shoelace area; positive when clockwise in screen (y-down) space.
 export const signedArea = (ps: Point[]): number =>
   ps.reduce((sum, [x1, y1], i) => {
     const [x2, y2] = ps[(i + 1) % ps.length];

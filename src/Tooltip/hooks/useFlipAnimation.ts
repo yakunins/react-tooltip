@@ -3,14 +3,8 @@ import { useRef, type RefObject } from 'react';
 import { useIsoLayoutEffect } from '../../hooks';
 import type { Placement } from '../../types';
 
-/**
- * A Web Animations API description, passed in by Tooltip.
- *
- * `options.duration` may be a number (ms) as usual, **or** a CSS `<time>`
- * string with `var()` / `calc()` (e.g.
- * `'calc(var(--tooltip-transition-duration) * 3)'`). WAAPI itself only accepts
- * a number, so such a string is resolved against the popover before use.
- */
+// A WAAPI animation. `options.duration` may also be a CSS <time> expression
+// (var()/calc()), resolved against the popover since WAAPI needs a number.
 export interface FlipAnimation {
   keyframes: Keyframe[];
   options?: KeyframeAnimationOptions;
@@ -20,7 +14,7 @@ const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-/** Parse a computed CSS `<time>` (`'0.48s'` | `'160ms'`) to milliseconds. */
+// Computed CSS <time> ('0.48s' | '160ms') to ms.
 export const cssTimeToMs = (value: string): number => {
   const v = value.trim();
   if (v.endsWith('ms')) return parseFloat(v);
@@ -28,12 +22,8 @@ export const cssTimeToMs = (value: string): number => {
   return parseFloat(v);
 };
 
-/**
- * Resolve a CSS `<time>` expression (`var()` / `calc()` allowed) to ms by
- * computing it through a throwaway `animation-duration` on the element — there
- * is no other way to evaluate an arbitrary CSS expression to a number, and
- * WAAPI's `duration` won't take the string.
- */
+// Evaluates a CSS <time> expression through a throwaway animation-duration:
+// the only way to turn arbitrary var()/calc() into a number.
 const resolveDurationMs = (el: HTMLElement, value: string): number => {
   const prev = el.style.animationDuration;
   el.style.animationDuration = value;
@@ -42,14 +32,8 @@ const resolveDurationMs = (el: HTMLElement, value: string): number => {
   return cssTimeToMs(computed);
 };
 
-/**
- * Plays `animation` (via the Web Animations API) when the placement changes
- * while the tooltip is already open — a quick cross-fade + slide so the bubble
- * appears to hop to the new side. The whole bubble animates, so the arrow rides
- * along. Skipped on the opening transition (which has its own `@starting-style`
- * fade) and under reduced-motion. `el.animate()` is one-shot, so there is no
- * keyframe-replay hack and nothing to clean up.
- */
+// Plays `animation` when the placement changes while already open. Skipped on
+// open (which has its own @starting-style fade) and under reduced motion.
 export const useFlipAnimation = (
   popoverRef: RefObject<HTMLElement>,
   effectivePlacement: Placement,

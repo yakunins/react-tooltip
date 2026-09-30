@@ -3,9 +3,8 @@ import { join } from 'path';
 
 import { BubbleGeometry, signedArea, type Point } from './helpers/cssEval';
 
-// Regression guard for the clip-path geometry in tooltipBubble.css: evaluates
-// the polygon for every corner count x placement x arrow position on a fixed
-// box and checks its shape against values computed independently here.
+// Checks the tooltipBubble.css clip-path for every corners x placement x arrow
+// combination against geometry computed independently here.
 
 const css = readFileSync(
   join(__dirname, '../src/TooltipBubble/tooltipBubble.css'),
@@ -45,11 +44,11 @@ const classesOf = ({ n, placement, arrow }: (typeof cases)[number]) => [
   `arrow-${arrow}`,
 ];
 
-/** Area cut off one corner: square rad^2 minus the N-triangle fan inside it. */
+// Area cut off one corner: rad^2 minus the N-triangle fan inside it.
 const cornerCut = (n: number) =>
   RAD * RAD - (n / 2) * RAD * RAD * Math.sin(Math.PI / 2 / n);
 
-/** Where the arrow tip should be, from the placement / arrow position alone. */
+// Expected arrow tip, from placement and arrow position alone.
 const expectedTip = (placement: string, arrow: string): Point => {
   const inset = RAD + ARROW * K;
   const along = (size: number) =>
@@ -90,9 +89,8 @@ describe('tooltipBubble.css clip-path geometry', () => {
     }
   );
 
-  // A clockwise, untwisted outline encloses exactly body + arrow. A reversed
-  // arrow (feet listed against the outline direction) subtracts the triangle
-  // instead, and a missing corner or misplaced point changes the body.
+  // A clockwise, untwisted outline encloses exactly body + arrow; a reversed
+  // arrow subtracts the triangle instead.
   it.each(cases)(
     'corners-$n placement-$placement arrow-$arrow: encloses body + arrow, clockwise',
     c => {
