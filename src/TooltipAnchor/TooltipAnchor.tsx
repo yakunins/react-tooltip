@@ -24,7 +24,7 @@ export type TooltipAnchorProps = DivProps & {
  */
 export const TooltipAnchor = forwardRef<HTMLDivElement, TooltipAnchorProps>(
   ({ anchorName, className, style, children, ...rest }, ref) => {
-    useStyleInjector(anchorCss.content);
+    useStyleInjector(anchorCss);
 
     // `anchorName` isn't in CSSProperties yet, hence the cast.
     const vars = {

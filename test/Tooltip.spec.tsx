@@ -4,8 +4,10 @@ import { createRef } from 'react';
 
 import { Tooltip, type TooltipProps } from '../src';
 import {
+  animations,
   dom,
   installDom,
+  mockAnimate,
   isPopoverOpen,
   MockIntersectionObserver,
   uninstallDom,
@@ -54,16 +56,12 @@ describe('Tooltip rendering', () => {
     );
   });
 
-  it('mirrors offset, radius, arrow size and duration onto the popover', () => {
-    renderTooltip({
-      offset: '4px',
-      bubbleStyle: { radius: '2px', transitionDuration: '1s' },
-    });
+  it('mirrors offset, radius and arrow size onto the popover', () => {
+    renderTooltip({ offset: '4px', bubbleStyle: { radius: '2px' } });
     const style = popover()!.style;
     expect(style.getPropertyValue('--tooltip-offset')).toBe('4px');
     expect(style.getPropertyValue('--tooltip-radius')).toBe('2px');
     expect(style.getPropertyValue('--tooltip-arrow-size')).toBe('0.5rem');
-    expect(style.getPropertyValue('--tooltip-transition-duration')).toBe('1s');
   });
 
   it('makes the wrapper focusable only when needed for the focus trigger', () => {
@@ -76,7 +74,7 @@ describe('Tooltip rendering', () => {
   });
 
   it('does not make the wrapper focusable without the focus trigger', () => {
-    renderTooltip({ trigger: ['hover'] });
+    renderTooltip({ triggers: ['hover'] });
     expect(anchor().hasAttribute('tabindex')).toBe(false);
   });
 
@@ -87,7 +85,7 @@ describe('Tooltip rendering', () => {
 });
 
 describe('Tooltip hover trigger', () => {
-  it('opens after delayShow', () => {
+  it('opens after showDelay', () => {
     renderTooltip();
     fireEvent.mouseEnter(anchor());
     advance(199);
@@ -106,7 +104,7 @@ describe('Tooltip hover trigger', () => {
     expect(isOpen()).toBe(false);
   });
 
-  it('stays visible for minVisibleDuration, then hides', () => {
+  it('stays visible for minVisibleTime, then hides', () => {
     renderTooltip();
     fireEvent.mouseEnter(anchor());
     advance(200);
@@ -117,7 +115,7 @@ describe('Tooltip hover trigger', () => {
     expect(isOpen()).toBe(false);
   });
 
-  it('hides after delayHide once the minimum visible time has passed', () => {
+  it('hides after hideDelay once the minimum visible time has passed', () => {
     renderTooltip();
     fireEvent.mouseEnter(anchor());
     advance(200 + 5000);
@@ -139,7 +137,7 @@ describe('Tooltip hover trigger', () => {
   });
 
   it('honors partial timings', () => {
-    renderTooltip({ timings: { delayShow: 0, delayHide: undefined } });
+    renderTooltip({ timings: { showDelay: 0, hideDelay: undefined } });
     fireEvent.mouseEnter(anchor());
     advance(0);
     expect(isOpen()).toBe(true);
@@ -198,11 +196,26 @@ describe('Tooltip focus trigger', () => {
     advance(5000);
     expect(isOpen()).toBe(true);
   });
+
+  it('stops keeping it open by focus on close, so a later hover-out still hides', () => {
+    renderTooltip();
+    fireEvent.focusIn(anchor());
+    advance(200);
+    fireEvent.keyDown(document, { key: 'Escape' }); // closes; anchor stays focused
+    expect(isOpen()).toBe(false);
+
+    fireEvent.mouseEnter(anchor());
+    advance(200);
+    expect(isOpen()).toBe(true);
+    fireEvent.mouseLeave(anchor());
+    advance(1000);
+    expect(isOpen()).toBe(false);
+  });
 });
 
 describe('Tooltip click trigger', () => {
   it('toggles immediately, without delays', () => {
-    renderTooltip({ trigger: ['click'] });
+    renderTooltip({ triggers: ['click'] });
     fireEvent.click(anchor());
     expect(isOpen()).toBe(true);
     fireEvent.click(anchor());
@@ -210,17 +223,17 @@ describe('Tooltip click trigger', () => {
   });
 
   it('is dismissed by a click anywhere else once pinned', () => {
-    renderTooltip({ trigger: ['click'] });
+    renderTooltip({ triggers: ['click'] });
     fireEvent.click(anchor());
     fireEvent.click(document.body);
     expect(isOpen()).toBe(false);
   });
 
   it('pins instead of closing right after a hover reveal', () => {
-    renderTooltip({ trigger: ['hover', 'click'] });
+    renderTooltip({ triggers: ['hover', 'click'] });
     fireEvent.mouseEnter(anchor());
     advance(200);
-    advance(100); // within clickCloseGuard
+    advance(100); // within clickGuard
     fireEvent.click(anchor());
     expect(isOpen()).toBe(true);
     fireEvent.mouseLeave(anchor());
@@ -229,11 +242,23 @@ describe('Tooltip click trigger', () => {
   });
 
   it('closes on click after the guard window', () => {
-    renderTooltip({ trigger: ['hover', 'click'] });
+    renderTooltip({ triggers: ['hover', 'click'] });
     fireEvent.mouseEnter(anchor());
     advance(200 + 1000);
     fireEvent.click(anchor());
     expect(isOpen()).toBe(false);
+  });
+
+  it('without the click trigger, an anchor click also dismisses defaultOpen', () => {
+    renderTooltip({ defaultOpen: true, triggers: ['hover', 'focus'] });
+    fireEvent.click(anchor());
+    expect(isOpen()).toBe(false);
+  });
+
+  it('the opening click does not dismiss it', () => {
+    renderTooltip({ triggers: ['click'] });
+    fireEvent.click(anchor().firstChild as HTMLElement); // bubbles to document
+    expect(isOpen()).toBe(true);
   });
 
   it('a defaultOpen tooltip is pinned: any click dismisses it', () => {
@@ -325,6 +350,15 @@ describe('Tooltip without CSS anchor positioning', () => {
     dom.anchorPositioning = false;
   });
 
+  it('also falls back without the Popover API', () => {
+    dom.anchorPositioning = true;
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>)
+      .showPopover;
+    const { container } = renderTooltip();
+    expect(popover()).toBeNull();
+    expect((container.firstChild as HTMLElement).title).toBe('Tip');
+  });
+
   it('falls back to a native title in wrapping mode', () => {
     const { container } = renderTooltip();
     expect(popover()).toBeNull();
@@ -412,5 +446,218 @@ describe('Tooltip when the anchor is scrolled out of sight', () => {
     });
     expect(popover()!.classList.contains('anchor-hidden')).toBe(true);
     el.remove();
+  });
+});
+
+describe('Tooltip anchor element changes', () => {
+  const button = () =>
+    document.body.appendChild(document.createElement('button'));
+
+  it('wires an anchorRef element that mounts after the tooltip', () => {
+    const ref: { current: HTMLElement | null } = { current: null };
+    const { rerender } = render(<Tooltip content="Tip" anchorRef={ref} />);
+    const el = button();
+    ref.current = el;
+    rerender(<Tooltip content="Tip" anchorRef={ref} />);
+
+    expect(el.getAttribute('aria-describedby')).toBe(popover()!.id);
+    fireEvent.mouseEnter(el);
+    advance(200);
+    expect(isOpen()).toBe(true);
+    el.remove();
+  });
+
+  it('moves everything to a swapped anchorRef element', () => {
+    const a = button();
+    const b = button();
+    const ref: { current: HTMLElement | null } = { current: a };
+    const { rerender } = render(<Tooltip content="Tip" anchorRef={ref} />);
+    ref.current = b;
+    rerender(<Tooltip content="Tip" anchorRef={ref} />);
+
+    expect(a.hasAttribute('aria-describedby')).toBe(false);
+    expect(b.getAttribute('aria-describedby')).toBe(popover()!.id);
+    fireEvent.mouseEnter(a);
+    advance(1000);
+    expect(isOpen()).toBe(false);
+    fireEvent.mouseEnter(b);
+    advance(200);
+    expect(isOpen()).toBe(true);
+    a.remove();
+    b.remove();
+  });
+});
+
+describe('Tooltip Escape handling', () => {
+  const pops = () =>
+    Array.from(document.querySelectorAll<HTMLElement>('[role="tooltip"]'));
+
+  it('closes only the most recently opened tooltip per press', () => {
+    render(
+      <>
+        <Tooltip content="A" defaultOpen>
+          a
+        </Tooltip>
+        <Tooltip content="B" defaultOpen>
+          b
+        </Tooltip>
+      </>
+    );
+    const [a, b] = pops();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect([isPopoverOpen(a), isPopoverOpen(b)]).toEqual([true, false]);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect([isPopoverOpen(a), isPopoverOpen(b)]).toEqual([false, false]);
+  });
+
+  it('keeps the Escape that closes it from other handlers (e.g. a dialog)', () => {
+    const dialogEscape = jest.fn();
+    document.addEventListener('keydown', dialogEscape);
+    renderTooltip({ defaultOpen: true });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(isOpen()).toBe(false);
+    expect(dialogEscape).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(document, { key: 'Escape' }); // nothing open now
+    expect(dialogEscape).toHaveBeenCalledTimes(1);
+    document.removeEventListener('keydown', dialogEscape);
+  });
+});
+
+describe('Tooltip lazy content', () => {
+  it('renders rich content from the first open on, and keeps it', () => {
+    renderTooltip({ content: <b>rich</b>, triggers: ['click'] });
+    expect(popover()!.querySelector('b')).toBeNull();
+    fireEvent.click(anchor());
+    expect(popover()!.querySelector('b')).not.toBeNull();
+    fireEvent.click(anchor());
+    expect(isOpen()).toBe(false);
+    expect(popover()!.querySelector('b')).not.toBeNull();
+  });
+
+  it('always renders plain-text content (the aria description)', () => {
+    renderTooltip();
+    expect(popover()!.textContent).toBe('Tip');
+  });
+});
+
+describe('Tooltip fades (Web Animations)', () => {
+  beforeEach(() => {
+    dom.animate.mockImplementation(mockAnimate);
+  });
+  const fades = () => animations.filter(a => 'opacity' in a.keyframes[0]);
+  const slides = () => animations.filter(a => 'transform' in a.keyframes[0]);
+  const lastFade = () => fades()[fades().length - 1];
+  const opacity = (value: string) => {
+    popover()!.style.opacity = value; // the current (mid-fade) opacity
+  };
+  const tip = (props: Partial<TooltipProps>) => (
+    <Tooltip content="Tip" {...props}>
+      <span>anchor</span>
+    </Tooltip>
+  );
+  const flip = () => {
+    const { rerender } = render(tip({ open: true, placement: 'top' }));
+    rerender(tip({ open: true, placement: 'bottom' }));
+    return rerender;
+  };
+
+  it('uses animationDuration for the fade and twice it for the slide', () => {
+    const { rerender } = render(
+      tip({ open: true, placement: 'top', animationDuration: '300ms' })
+    );
+    expect(fades()[0].options?.duration).toBe(300);
+    rerender(
+      tip({ open: true, placement: 'bottom', animationDuration: '300ms' })
+    );
+    expect(slides()[0].options?.duration).toBe(600);
+  });
+
+  it('fades in on open', () => {
+    renderTooltip({ defaultOpen: true });
+    expect(lastFade().keyframes).toEqual([{ opacity: 0 }, { opacity: 1 }]);
+  });
+
+  it('keeps the popover shown until the fade-out finishes', async () => {
+    renderTooltip({ defaultOpen: true });
+    opacity('1');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(fades()[0].playState).toBe('idle'); // fade-in stopped
+    expect(lastFade().keyframes).toEqual([{ opacity: 1 }, { opacity: 0 }]);
+    expect(isOpen()).toBe(true);
+    await act(() => Promise.resolve(lastFade().finish()));
+    expect(isOpen()).toBe(false);
+  });
+
+  it('reopening mid-fade stops the fade-out and stays shown', async () => {
+    const { rerender } = render(tip({ open: true }));
+    opacity('0.5');
+    rerender(tip({ open: false }));
+    const fadeOut = lastFade();
+    rerender(tip({ open: true }));
+    expect(fadeOut.playState).toBe('idle');
+    expect(lastFade().keyframes).toEqual([{ opacity: 0.5 }, { opacity: 1 }]);
+    await act(() => Promise.resolve());
+    expect(isOpen()).toBe(true);
+  });
+
+  it('a flip fades in from 0 and slides', () => {
+    flip();
+    expect(fades()).toHaveLength(2); // the open fade, then the flip's own
+    expect(fades()[0].playState).toBe('idle');
+    expect(lastFade().keyframes).toEqual([{ opacity: 0 }, { opacity: 1 }]);
+    expect(slides()).toHaveLength(1);
+  });
+
+  it('anchor scrolling out mid-flip stops the fade only; the slide runs on', () => {
+    flip();
+    const flipFade = lastFade();
+    opacity('0.6');
+    act(() => {
+      MockIntersectionObserver.watching(anchor())!.trigger([
+        { isIntersecting: false },
+      ]);
+    });
+    expect(flipFade.playState).toBe('idle');
+    expect(lastFade().keyframes).toEqual([{ opacity: 0.6 }, { opacity: 0 }]);
+    expect(lastFade().options?.duration).toBeCloseTo(120); // 0.6 of 200ms
+    expect(slides()[0].playState).toBe('running');
+    expect(isOpen()).toBe(true); // a hidden anchor fades, it doesn't close
+  });
+
+  it('closing mid-flip fades out from the current opacity, then hides', async () => {
+    const rerender = flip();
+    opacity('0.6');
+    rerender(tip({ open: false, placement: 'bottom' }));
+    expect(lastFade().keyframes).toEqual([{ opacity: 0.6 }, { opacity: 0 }]);
+    expect(slides()[0].playState).toBe('running');
+    expect(isOpen()).toBe(true);
+    await act(() => Promise.resolve(lastFade().finish()));
+    expect(isOpen()).toBe(false);
+  });
+});
+
+describe('Tooltip with optional features missing', () => {
+  it('without Web Animations: still styled, shows and hides instantly', () => {
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>)
+      .animate;
+    renderTooltip({ triggers: ['click'] });
+    expect(popover()).not.toBeNull(); // no title fallback
+    fireEvent.click(anchor());
+    expect(isOpen()).toBe(true);
+    expect(popover()!.style.opacity).toBe('1');
+    fireEvent.click(anchor());
+    expect(isOpen()).toBe(false); // hidden right away, no fade to wait for
+  });
+
+  it('without IntersectionObserver: still styled, no flip or hidden-anchor fade', () => {
+    delete (globalThis as Record<string, unknown>).IntersectionObserver;
+    MockIntersectionObserver.instances = [];
+    renderTooltip({ defaultOpen: true, placement: 'top' });
+    expect(popover()).not.toBeNull();
+    expect(isOpen()).toBe(true);
+    expect(popover()!.className).toContain('placement-top');
+    expect(MockIntersectionObserver.instances).toHaveLength(0);
   });
 });

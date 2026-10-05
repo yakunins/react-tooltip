@@ -1,7 +1,8 @@
 /** @jest-environment jsdom */
 import { render } from '@testing-library/react';
 
-import { StyleInjector, useStyleInjector } from '../src/hooks';
+import { TooltipProvider } from '../src';
+import { useStyleInjector, type GeneratedCss } from '../src/hooks';
 
 const styleTags = () => Array.from(document.head.querySelectorAll('style'));
 
@@ -9,62 +10,62 @@ afterEach(() => {
   document.head.innerHTML = '';
 });
 
-describe('StyleInjector', () => {
-  it('is a singleton', () => {
-    expect(new StyleInjector()).toBe(new StyleInjector());
-  });
-
-  it('adds a <style> on first use and removes it after the last', () => {
-    const injector = new StyleInjector();
-    const style = { id: 'css_id__refcount', content: '.a{color:red}' };
-
-    injector.increase(style);
-    injector.increase(style);
-    expect(styleTags()).toHaveLength(1);
-    expect(document.getElementById('css_id__refcount')?.innerHTML).toBe(
-      '.a{color:red}'
-    );
-
-    injector.reduce(style);
-    expect(styleTags()).toHaveLength(1);
-    injector.reduce(style);
-    expect(styleTags()).toHaveLength(0);
-
-    injector.reduce(style); // extra reduce stays at zero
-    expect(injector.count(style)).toBe(0);
-  });
-
-  it('derives the same id from the same CSS', () => {
-    const injector = new StyleInjector();
-    expect(injector.generateID('.a{}')).toBe(injector.generateID('.a{}'));
-    expect(injector.generateID('.a{}')).not.toBe(injector.generateID('.b{}'));
-  });
-});
+const Styled = ({ css }: { css: GeneratedCss }) => {
+  useStyleInjector(css);
+  return null;
+};
+const a: GeneratedCss = { hash: 'a', content: '.a{}' };
+const b: GeneratedCss = { hash: 'b', content: '.b{}' };
 
 describe('useStyleInjector', () => {
-  const Styled = ({ css, scopeID }: { css: string; scopeID?: string }) => {
-    const attrs = useStyleInjector(css, [], { scopeID });
-    return <div data-testid="el" {...attrs} />;
-  };
+  it('injects the stylesheet into <head>, keyed by its hash', () => {
+    render(<Styled css={a} />);
+    const tag = document.getElementById('css_id__a');
+    expect(tag?.parentNode).toBe(document.head);
+    expect(tag?.textContent).toBe('.a{}');
+  });
 
-  it('injects one shared <style> for many users of the same CSS', () => {
-    const { unmount } = render(
+  it('shares one <style> between users, removed after the last', () => {
+    const { rerender, unmount } = render(
       <>
-        <Styled css=".shared{}" />
-        <Styled css=".shared{}" />
+        <Styled css={a} />
+        <Styled css={a} />
       </>
     );
+    expect(styleTags()).toHaveLength(1);
+    rerender(<Styled css={a} />);
     expect(styleTags()).toHaveLength(1);
     unmount();
     expect(styleTags()).toHaveLength(0);
   });
 
-  it('wraps scoped CSS in an attribute selector and marks the element', () => {
-    const { getByTestId } = render(<Styled css=".x{}" scopeID="demo" />);
-    expect(getByTestId('el').hasAttribute('data-style-scope-demo')).toBe(true);
-    expect(styleTags()[0].innerHTML).toBe(
-      '[data-style-scope-demo] { display: contents; }' +
-        '[data-style-scope-demo] {.x{}}'
+  it('keeps different stylesheets apart', () => {
+    render(
+      <>
+        <Styled css={a} />
+        <Styled css={b} />
+      </>
     );
+    expect(styleTags().map(t => t.textContent)).toEqual(['.a{}', '.b{}']);
+  });
+
+  it('swaps the stylesheet when the module changes', () => {
+    const { rerender } = render(<Styled css={a} />);
+    rerender(<Styled css={b} />);
+    expect(styleTags().map(t => t.textContent)).toEqual(['.b{}']);
+  });
+
+  it('applies a CSP nonce from TooltipProvider', () => {
+    render(
+      <TooltipProvider nonce="abc123">
+        <Styled css={a} />
+      </TooltipProvider>
+    );
+    expect(styleTags()[0].nonce).toBe('abc123');
+  });
+
+  it('sets no nonce without a provider', () => {
+    render(<Styled css={a} />);
+    expect(styleTags()[0].hasAttribute('nonce')).toBe(false);
   });
 });

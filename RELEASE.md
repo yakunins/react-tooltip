@@ -1,5 +1,12 @@
 # Releasing
 
+## 0. One-time setup
+
+```sh
+npx vercel login
+npx vercel link --project react-tooltip-contemporary --scope yakunins
+```
+
 ## 1. Update packages
 
 ```sh
@@ -73,3 +80,11 @@ git push
 ```
 
 - Open https://yakunins.github.io/react-tooltip/ and check the demo works
+
+## 7. Deploy Storybook
+
+```sh
+npm run deploy-storybook
+```
+
+- Open https://react-tooltip-contemporary.vercel.app/ and check it works

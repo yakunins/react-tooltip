@@ -15,7 +15,7 @@
           "react-dom/client": "https://esm.sh/react-dom@19.2.7/client",
           "react/jsx-runtime": "https://esm.sh/react@19.2.7/jsx-runtime",
           "htm": "https://esm.sh/htm@3.1.1",
-          "react-tooltip-contemporary": "https://esm.sh/react-tooltip-contemporary@0.1.5?external=react,react-dom"
+          "react-tooltip-contemporary": "https://esm.sh/react-tooltip-contemporary@0.2.0?external=react,react-dom"
         }
       }
     </script>
@@ -24,6 +24,7 @@
     <header class="header">
       <h1>Contemporary React Tooltip</h1>
       <span class="spacer"></span>
+      <a href="https://react-tooltip-contemporary.vercel.app/">Storybook</a>
       <a href="https://www.npmjs.com/package/react-tooltip-contemporary">npm</a>
       <a href="https://github.com/yakunins/react-tooltip">GitHub</a>
     </header>
@@ -46,10 +47,10 @@
         arrowPlacement: 'center',
         triggers: { hover: true, focus: true, click: true },
         offset: '0.25em',
-        autoFlip: true,
+        flip: true,
         defaultOpen: true,
-        delayShow: 200,
-        delayHide: 100,
+        showDelay: 200,
+        hideDelay: 100,
         // bubbleStyle
         background: '#000000',
         color: '#ffffff',
@@ -59,7 +60,7 @@
         paddingX: '0.7rem',
         paddingY: '0.4rem',
         maxWidth: '16rem',
-        transitionDuration: '0.2s',
+        animationDuration: '0.2s',
         cornerSegments: 5,
       };
 
@@ -187,7 +188,6 @@
             paddingX: s.paddingX,
             paddingY: s.paddingY,
             maxWidth: s.maxWidth,
-            transitionDuration: s.transitionDuration,
             cornerSegments: s.cornerSegments,
           }),
           [s]
@@ -199,11 +199,12 @@
             content=${s.content}
             placement=${s.placement}
             arrowPlacement=${s.arrowPlacement}
-            trigger=${triggerList.length ? triggerList : ['hover']}
+            triggers=${triggerList.length ? triggerList : ['hover']}
             offset=${s.offset}
-            autoFlip=${s.autoFlip}
+            flip=${s.flip}
+            animationDuration=${s.animationDuration}
             defaultOpen=${s.defaultOpen}
-            timings=${{ delayShow: s.delayShow, delayHide: s.delayHide }}
+            timings=${{ showDelay: s.showDelay, hideDelay: s.hideDelay }}
             bubbleStyle=${fullBubble}
             >${children}<//
           >`;
@@ -239,7 +240,7 @@
                 onChange=${v => set({ arrowPlacement: v })}
               />
               <${Checks}
-                label="trigger"
+                label="triggers"
                 value=${s.triggers}
                 onChange=${v => set({ triggers: v })}
               />
@@ -252,11 +253,11 @@
                 <div class="field row">
                   <input
                     type="checkbox"
-                    id="autoflip"
-                    checked=${s.autoFlip}
-                    onChange=${e => set({ autoFlip: e.target.checked })}
+                    id="flip"
+                    checked=${s.flip}
+                    onChange=${e => set({ flip: e.target.checked })}
                   />
-                  <label for="autoflip">autoFlip</label>
+                  <label for="flip">flip</label>
                 </div>
                 <div class="field row">
                   <input
@@ -271,22 +272,22 @@
               </div>
               <br />
               <${Range}
-                label="delayShow"
-                value=${s.delayShow}
+                label="showDelay"
+                value=${s.showDelay}
                 min=${0}
                 max=${1000}
                 step=${50}
                 unit="ms"
-                onChange=${v => set({ delayShow: v })}
+                onChange=${v => set({ showDelay: v })}
               />
               <${Range}
-                label="delayHide"
-                value=${s.delayHide}
+                label="hideDelay"
+                value=${s.hideDelay}
                 min=${0}
                 max=${1000}
                 step=${50}
                 unit="ms"
-                onChange=${v => set({ delayHide: v })}
+                onChange=${v => set({ hideDelay: v })}
               />
 
               <div class="grid3">
@@ -331,9 +332,9 @@
                   onChange=${v => set({ maxWidth: v })}
                 />
                 <${TextField}
-                  label="transitionDuration"
-                  value=${s.transitionDuration}
-                  onChange=${v => set({ transitionDuration: v })}
+                  label="animationDuration"
+                  value=${s.animationDuration}
+                  onChange=${v => set({ animationDuration: v })}
                 />
                 <${Range}
                   label="cornerSegments"

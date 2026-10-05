@@ -1,5 +1,6 @@
 import { type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../utils/cx';
+import { withDefaults } from '../utils/withDefaults';
 
 import { useStyleInjector } from '../hooks';
 import {
@@ -19,7 +20,6 @@ export const DEFAULT_BUBBLE_STYLE: Required<TooltipBubbleStyle> = {
   paddingX: '0.7rem',
   paddingY: '0.4rem',
   maxWidth: '16rem',
-  transitionDuration: '0.2s',
   cornerSegments: 5,
 };
 
@@ -52,16 +52,10 @@ export const TooltipBubble = ({
   children,
   ...rest
 }: TooltipBubbleProps) => {
-  useStyleInjector(bubbleCss.content);
+  useStyleInjector(bubbleCss);
 
-  // Explicit `undefined` keeps the default; tooltipBubble.css has no fallbacks.
-  const definedStyle = Object.fromEntries(
-    Object.entries(bubbleStyle ?? {}).filter(([, v]) => v !== undefined)
-  );
-  const bs: Required<TooltipBubbleStyle> = {
-    ...DEFAULT_BUBBLE_STYLE,
-    ...definedStyle,
-  };
+  // tooltipBubble.css has no fallbacks, so every field resolves here.
+  const bs = withDefaults(DEFAULT_BUBBLE_STYLE, bubbleStyle);
   const segments = CORNER_SEGMENTS.includes(bs.cornerSegments)
     ? bs.cornerSegments
     : DEFAULT_BUBBLE_STYLE.cornerSegments;

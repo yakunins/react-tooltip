@@ -1,7 +1,8 @@
-export { default as useStyleInjector, StyleInjector } from './useStyleInjector';
 export {
-  useSupportsAnchorPositioning,
-  supportsAnchorPositioning,
-} from './useSupportsAnchorPositioning';
-export { useHasFocusable } from './useHasFocusable';
+  useStyleInjector,
+  StyleNonceContext,
+  type GeneratedCss,
+} from './useStyleInjector';
+export { useSupports, detectSupport, type Support } from './useSupports';
+export { useElementHasFocusable } from './useElementHasFocusable';
 export { useIsoLayoutEffect } from './useIsoLayoutEffect';

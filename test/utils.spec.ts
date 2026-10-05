@@ -2,7 +2,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { cx } from '../src/utils/cx';
-import { cssTimeToMs } from '../src/Tooltip/hooks/useFlipAnimation';
+import { withDefaults } from '../src/utils/withDefaults';
+import { cssTimeToMs } from '../src/utils/cssTime';
 import tooltipCss from '../src/Tooltip/tooltip.css.generated.js';
 import anchorCss from '../src/TooltipAnchor/tooltipAnchor.css.generated.js';
 import bubbleCss from '../src/TooltipBubble/tooltipBubble.css.generated.js';
@@ -21,6 +22,22 @@ describe('cx', () => {
 
   it('returns an empty string when nothing is truthy', () => {
     expect(cx(undefined, false)).toBe('');
+  });
+});
+
+describe('withDefaults', () => {
+  const defaults = { a: 1, b: 'x' };
+
+  it('layers the overrides over the defaults', () => {
+    expect(withDefaults(defaults, { b: 'y' })).toEqual({ a: 1, b: 'y' });
+  });
+
+  it('keeps the default for an explicit undefined', () => {
+    expect(withDefaults(defaults, { a: undefined })).toEqual(defaults);
+  });
+
+  it('returns the defaults without overrides', () => {
+    expect(withDefaults(defaults)).toEqual(defaults);
   });
 });
 

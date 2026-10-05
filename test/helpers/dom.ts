@@ -7,6 +7,52 @@ type AnimateMock = jest.Mock<
   [Keyframe[], KeyframeAnimationOptions?]
 >;
 
+// Enough of a WAAPI Animation for useTooltipAnimations: state and `finished`.
+// Opt in per test: `dom.animate.mockImplementation(mockAnimate)`.
+export class MockAnimation {
+  playbackRate = 1;
+  playState: AnimationPlayState = 'running';
+  finished!: Promise<MockAnimation>;
+  private settle!: (ok: boolean) => void;
+
+  constructor(
+    public keyframes: Keyframe[],
+    public options?: KeyframeAnimationOptions
+  ) {
+    this.arm();
+  }
+  private arm() {
+    this.finished = new Promise((resolve, reject) => {
+      this.settle = ok => (ok ? resolve(this) : reject(new Error('abort')));
+    });
+    // Like the browser: a cancel rejection is not reported as unhandled.
+    this.finished.catch(() => undefined);
+  }
+  reverse() {
+    this.playbackRate *= -1;
+    if (this.playState === 'finished') this.arm();
+    this.playState = 'running';
+  }
+  finish() {
+    this.playState = 'finished';
+    this.settle(true);
+  }
+  cancel() {
+    this.playState = 'idle';
+    this.settle(false);
+  }
+}
+
+export const animations: MockAnimation[] = [];
+export const mockAnimate = (
+  keyframes: Keyframe[],
+  options?: KeyframeAnimationOptions
+) => {
+  const anim = new MockAnimation(keyframes, options);
+  animations.push(anim);
+  return anim as unknown as Animation;
+};
+
 const OPEN = Symbol('popover-open');
 type PopoverEl = HTMLElement & { [OPEN]?: boolean };
 
@@ -73,6 +119,7 @@ export const installDom = () => {
     this[OPEN] = false;
   });
   MockIntersectionObserver.instances = [];
+  animations.length = 0;
 
   (globalThis as Anyish).CSS = {
     supports: (q: string) =>

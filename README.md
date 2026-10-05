@@ -2,7 +2,7 @@
 
 # Contemporary React Tooltip [![npm version](https://img.shields.io/npm/v/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary) [![npm downloads](https://img.shields.io/npm/dm/react-tooltip-contemporary.svg)](https://www.npmjs.com/package/react-tooltip-contemporary)
 
-✨ [Demo](https://yakunins.github.io/react-tooltip/)
+✨ [Demo](https://yakunins.github.io/react-tooltip/) · 📖 [Storybook](https://react-tooltip-contemporary.vercel.app/)
 
 [8kB gzipped](https://bundlephobia.com/package/react-tooltip-contemporary@0.1.4), [no dependency](https://www.npmjs.com/package/react-tooltip-contemporary?activeTab=dependencies) React tooltip built on modern web features:
 
@@ -34,25 +34,42 @@ work standalone with no CSS import.
 
 ## `Tooltip` props
 
-| Prop             | Type                                     | Default              | Notes                                                                                      |
-| ---------------- | ---------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
-| `children`       | `ReactNode`                              | –                    | The trigger element (wrapping mode).                                                       |
-| `content`        | `ReactNode`                              | –                    | The bubble content.                                                                        |
-| `placement`      | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                              |
-| `arrowPlacement` | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below).                |
-| `trigger`        | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                      |
-| `delayShow`      | `number`                                 | `200`                | ms before showing (hover/focus only; click is instant).                                    |
-| `delayHide`      | `number`                                 | `100`                | ms before hiding (hover/focus only; click is instant).                                     |
-| `offset`         | `string`                                 | `'0.25em'`           | Gap between anchor and bubble (any CSS length).                                            |
-| `autoFlip`       | `boolean`                                | `true`               | Flip to the opposite side when it would overflow.                                          |
-| `defaultOpen`    | `boolean`                                | `false`              | Initial open state (uncontrolled).                                                         |
-| `open`           | `boolean`                                | –                    | Controlled open state; pair with `onOpenChange`.                                           |
-| `onOpenChange`   | `(open: boolean) => void`                | –                    | Fires when the open state should change.                                                   |
-| `bubbleStyle`    | `TooltipBubbleStyle`                     | –                    | Bubble appearance (see below).                                                             |
-| `className`      | `string`                                 | –                    | Applied to the popover element.                                                            |
-| `style`          | `CSSProperties`                          | –                    | Applied to the popover element.                                                            |
-| `anchorRef`      | `RefObject<HTMLElement>`                 | –                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below. |
-| `anchorName`     | `string`                                 | –                    | Use this CSS anchor name verbatim. See _External anchor_ below.                            |
+| Prop                | Type                                     | Default              | Notes                                                                                      |
+| ------------------- | ---------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
+| `children`          | `ReactNode`                              | –                    | The trigger element (wrapping mode).                                                       |
+| `content`           | `ReactNode`                              | –                    | The bubble content.                                                                        |
+| `placement`         | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                              |
+| `arrowPlacement`    | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below).                |
+| `triggers`          | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                      |
+| `timings`           | `TooltipTimings`                         | see below            | Show/hide delays, click guard, minimum visible time (ms).                                  |
+| `offset`            | `string`                                 | `'0rem'`             | Gap between anchor and bubble (any CSS length).                                            |
+| `flip`              | `boolean`                                | `true`               | Flip to the opposite side when it would overflow.                                          |
+| `animationDuration` | `string`                                 | `'0.2s'`             | Fade duration (CSS time); the flip slide takes twice as long.                              |
+| `defaultOpen`       | `boolean`                                | `false`              | Initial open state (uncontrolled).                                                         |
+| `open`              | `boolean`                                | –                    | Controlled open state; pair with `onOpenChange`.                                           |
+| `onOpenChange`      | `(open: boolean) => void`                | –                    | Fires when the open state should change.                                                   |
+| `bubbleStyle`       | `TooltipBubbleStyle`                     | –                    | Bubble appearance (see below).                                                             |
+| `className`         | `string`                                 | –                    | Applied to the popover element.                                                            |
+| `style`             | `CSSProperties`                          | –                    | Applied to the popover element.                                                            |
+| `anchorRef`         | `RefObject<HTMLElement>`                 | –                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below. |
+| `anchorName`        | `string`                                 | –                    | Use this CSS anchor name verbatim. See _External anchor_ below.                            |
+
+### `timings`
+
+All in ms; pass any subset, the rest keep their defaults.
+
+| Field            | Default | Notes                                                                          |
+| ---------------- | ------- | ------------------------------------------------------------------------------ |
+| `showDelay`      | `200`   | Before showing on hover/focus; click is instant.                               |
+| `hideDelay`      | `100`   | Before hiding on hover-out/blur; click is instant.                             |
+| `clickGuard`     | `1000`  | A click this soon after a hover/focus reveal keeps it open instead of closing. |
+| `minVisibleTime` | `1000`  | A hover/focus-revealed tooltip stays at least this long.                       |
+
+```tsx
+<Tooltip content="Patient" timings={{ showDelay: 500, minVisibleTime: 0 }}>
+  <button>Hover me</button>
+</Tooltip>
+```
 
 ### `arrowPlacement`
 
@@ -77,22 +94,22 @@ the library defaults. Most fields are applied as CSS custom properties on the
 bubble. The one exception is `cornerSegments`, which selects a `.corners-N`
 class.
 
-| Field                | Type          | Default      | Notes                                                     |
-| -------------------- | ------------- | ------------ | --------------------------------------------------------- |
-| `background`         | `string`      | `'#000'`     | Bubble background (any CSS `background`).                 |
-| `color`              | `string`      | `'#fff'`     | Text color.                                               |
-| `fontSize`           | `string`      | `'0.875rem'` | Bubble font size.                                         |
-| `radius`             | `string`      | `'0.5rem'`   | Corner radius (any CSS length).                           |
-| `arrowSize`          | `string`      | `'0.5rem'`   | Arrow size (half-diagonal).                               |
-| `paddingX`           | `string`      | `'0.7rem'`   | Horizontal padding.                                       |
-| `paddingY`           | `string`      | `'0.4rem'`   | Vertical padding.                                         |
-| `maxWidth`           | `string`      | `'16rem'`    | Maximum bubble width.                                     |
-| `transitionDuration` | `string`      | `'0.2s'`     | Fade in/out (and flip) duration.                          |
-| `cornerSegments`     | `3 \| 5 \| 7` | `5`          | Straight segments per rounded corner, higher is smoother. |
+| Field            | Type          | Default      | Notes                                                     |
+| ---------------- | ------------- | ------------ | --------------------------------------------------------- |
+| `background`     | `string`      | `'#000'`     | Bubble background (any CSS `background`).                 |
+| `color`          | `string`      | `'#fff'`     | Text color.                                               |
+| `fontSize`       | `string`      | `'0.875rem'` | Bubble font size.                                         |
+| `radius`         | `string`      | `'0.5rem'`   | Corner radius (any CSS length).                           |
+| `arrowSize`      | `string`      | `'0.5rem'`   | Arrow size (half-diagonal).                               |
+| `paddingX`       | `string`      | `'0.7rem'`   | Horizontal padding.                                       |
+| `paddingY`       | `string`      | `'0.4rem'`   | Vertical padding.                                         |
+| `maxWidth`       | `string`      | `'16rem'`    | Maximum bubble width.                                     |
+| `cornerSegments` | `3 \| 5 \| 7` | `5`          | Straight segments per rounded corner, higher is smoother. |
 
 ```tsx
 <Tooltip
   content="Custom bubble"
+  animationDuration="0.25s"
   bubbleStyle={{
     background: '#2563eb',
     color: '#fff',
@@ -101,7 +118,6 @@ class.
     paddingX: '1rem',
     paddingY: '0.5rem',
     maxWidth: '20rem',
-    transitionDuration: '0.25s',
     cornerSegments: 7,
   }}
 >
@@ -158,6 +174,19 @@ const [open, setOpen] = useState(false);
     content="Saved"
   />
 </>;
+```
+
+## Content Security Policy
+
+The components inject their CSS as `<style>` tags. Under a strict `style-src`
+policy, pass your nonce once through `TooltipProvider`:
+
+```tsx
+import { TooltipProvider } from 'react-tooltip-contemporary';
+
+<TooltipProvider nonce={cspNonce}>
+  <App />
+</TooltipProvider>;
 ```
 
 ## Browser support

@@ -48,12 +48,11 @@ const watch = watcherInstance =>
     .on('change', path => handleFile(path, 'change'))
     .on('unlink', path => handleFile(path, 'remove'));
 
-// `--strip-lib`: remove comments from the CSS files copied into lib/ for release.
+// `--strip-lib`: drop the header comment from the generated CSS modules in lib/.
 const stripLib = dir => {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const path = `${dir}/${entry.name}`;
     if (entry.isDirectory()) stripLib(path);
-    else if (path.endsWith('.css')) write(path, stripCssComments(read(path)));
     else if (path.endsWith('.css.generated.js')) {
       write(path, read(path).replace(/^\/\*[\s\S]*?\*\/\s*/, ''));
     }

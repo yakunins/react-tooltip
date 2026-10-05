@@ -21,13 +21,15 @@ export type TooltipProps = {
    */
   arrowPlacement?: ArrowPlacement;
   /** Interactions that reveal the tooltip. Default `['hover', 'focus']`. */
-  trigger?: TooltipTrigger[];
+  triggers?: TooltipTrigger[];
   /** Trigger timings in ms; pass any subset, the rest keep their defaults. */
   timings?: TooltipTimings;
   /** Gap between anchor and bubble, any CSS length. Default `'0rem'`. */
   offset?: string;
   /** Flip to the opposite side when out of room. Default `true`. */
-  autoFlip?: boolean;
+  flip?: boolean;
+  /** Fade and flip-slide duration, a CSS time (`'0.2s'`, `'200ms'`). Default `'0.2s'`. */
+  animationDuration?: string;
   /** Initial open state, for uncontrolled usage. Default `false`. */
   defaultOpen?: boolean;
   /** Open state, for controlled usage; pair with `onOpenChange`. */
@@ -58,28 +60,30 @@ type TooltipDefaults = Required<
     TooltipProps,
     | 'placement'
     | 'arrowPlacement'
-    | 'trigger'
+    | 'triggers'
     | 'timings'
     | 'offset'
-    | 'autoFlip'
+    | 'flip'
+    | 'animationDuration'
     | 'defaultOpen'
   >
 >;
 
 // Default trigger timings; a `timings` prop is layered over these.
 export const TOOLTIP_DEFAULTS_TIMINGS: Required<TooltipTimings> = {
-  delayShow: 200,
-  delayHide: 100,
-  clickCloseGuard: 1000,
-  minVisibleDuration: 1000,
+  showDelay: 200,
+  hideDelay: 100,
+  clickGuard: 1000,
+  minVisibleTime: 1000,
 };
 
 export const TOOLTIP_DEFAULTS: TooltipDefaults = {
   placement: 'top',
   arrowPlacement: 'center',
-  trigger: ['hover', 'focus'],
+  triggers: ['hover', 'focus'],
   timings: TOOLTIP_DEFAULTS_TIMINGS,
   offset: '0rem',
-  autoFlip: true,
+  flip: true,
+  animationDuration: '0.2s',
   defaultOpen: false,
 };

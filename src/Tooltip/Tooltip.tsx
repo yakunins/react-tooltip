@@ -1,42 +1,31 @@
-import { useId, useRef, type CSSProperties } from 'react';
+import { useId, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '../utils/cx';
+import { withDefaults } from '../utils/withDefaults';
 
 import { TooltipAnchor } from '../TooltipAnchor';
 import { TooltipBubble, DEFAULT_BUBBLE_STYLE } from '../TooltipBubble';
 import {
-  useHasFocusable,
+  useElementHasFocusable,
+  useIsoLayoutEffect,
   useStyleInjector,
-  useSupportsAnchorPositioning,
+  useSupports,
 } from '../hooks';
-import type { TooltipTimings } from '../types';
 import { default as tooltipCss } from './tooltip.css.generated.js';
 import {
   TOOLTIP_DEFAULTS,
   TOOLTIP_DEFAULTS_TIMINGS,
   type TooltipProps,
 } from './TooltipProps';
-import { useAnchorVisibility } from './hooks/useAnchorVisibility';
-import { useAutoFlip } from './hooks/useAutoFlip';
-import { useControllableOpen } from './hooks/useControllableOpen';
-import { useExternalAnchor } from './hooks/useExternalAnchor';
-import { useFlipAnimation, type FlipAnimation } from './hooks/useFlipAnimation';
-import { usePopover } from './hooks/usePopover';
-import { useTooltipTriggers } from './hooks/useTooltipTriggers';
+import { useControllableOpen } from '../hooks/useControllableOpen';
+import { useElementHidden } from '../hooks/useElementHidden';
+import { useExternalAnchor } from '../hooks/useExternalAnchor';
+import { useFlipPlacement } from '../hooks/useFlipPlacement';
+import { usePopover } from '../hooks/usePopover';
+import { useTooltipAnimations } from '../hooks/useTooltipAnimations';
+import { cssTimeToMs } from '../utils/cssTime';
+import { useTooltipInteractions } from '../hooks/interactions';
 
 export type { TooltipProps };
-
-// Keyframes read the per-placement --flip-from (tooltip.css); the hook resolves
-// the CSS <time> duration to ms, since WAAPI needs a number.
-const FLIP_ANIMATION: FlipAnimation = {
-  keyframes: [
-    { opacity: 0, transform: 'var(--flip-from, none)' },
-    { opacity: 1, transform: 'none' },
-  ],
-  options: {
-    duration: 'calc(var(--tooltip-transition-duration) * 2)', // double period, hide here + show there
-    easing: 'ease',
-  },
-};
 
 /**
  * Tooltip on the Popover API and CSS anchor positioning. Wraps `children`, or
@@ -47,10 +36,11 @@ export const Tooltip = ({
   content,
   placement = TOOLTIP_DEFAULTS.placement,
   arrowPlacement = TOOLTIP_DEFAULTS.arrowPlacement,
-  trigger = TOOLTIP_DEFAULTS.trigger,
+  triggers = TOOLTIP_DEFAULTS.triggers,
   timings,
   offset = TOOLTIP_DEFAULTS.offset,
-  autoFlip = TOOLTIP_DEFAULTS.autoFlip,
+  flip = TOOLTIP_DEFAULTS.flip,
+  animationDuration = TOOLTIP_DEFAULTS.animationDuration,
   defaultOpen = TOOLTIP_DEFAULTS.defaultOpen,
   open,
   onOpenChange,
@@ -60,12 +50,23 @@ export const Tooltip = ({
   anchorRef: anchorRefProp,
   anchorName: anchorNameProp,
 }: TooltipProps) => {
-  useStyleInjector(tooltipCss.content);
-  // Without native anchor positioning, degrade to a `title` (no polyfill).
-  const supported = useSupportsAnchorPositioning();
+  useStyleInjector(tooltipCss);
+  // The styled tooltip needs anchor positioning and the Popover API; without
+  // them it degrades to a native `title` (no polyfill). Animations and
+  // IntersectionObserver features switch off on their own.
+  const support = useSupports();
+  const styled = support.anchorPositioning && support.popover;
 
   const internalAnchorRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  // The anchor element (the consumer's anchorRef, else our wrapper), kept in
+  // state and re-read after every commit, so the hooks re-wire when it mounts
+  // late or is swapped for another element.
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  useIsoLayoutEffect(() => {
+    const el = anchorRefProp?.current ?? internalAnchorRef.current;
+    if (el !== anchor) setAnchor(el);
+  });
 
   // A supplied anchorName wins; otherwise generate a CSS-safe dashed-ident.
   const safeId = useId().replace(/[^a-zA-Z0-9]/g, '');
@@ -73,75 +74,103 @@ export const Tooltip = ({
   const tooltipId = `tooltip-${safeId}`;
   const wrapping = !anchorRefProp && !anchorNameProp;
 
-  const { isOpen, isControlled, commitRef } = useControllableOpen(
+  const { isOpen, isControlled, setOpen } = useControllableOpen(
     open,
     defaultOpen,
     onOpenChange
   );
 
-  // A partial `timings` overrides only what it sets (undefined keeps defaults).
-  const definedTimings = Object.fromEntries(
-    Object.entries(timings ?? {}).filter(([, v]) => v !== undefined)
-  );
-  const t: Required<TooltipTimings> = {
-    ...TOOLTIP_DEFAULTS_TIMINGS,
-    ...definedTimings,
-  };
+  // First: a layout effect, so the popover is shown before the hooks below
+  // measure it. Hiding waits for the fade-out (see the fade below).
+  const hidePopover = usePopover(popoverRef, isOpen);
 
-  // `heldRef`: focus or a pin is holding the tooltip open.
-  const { heldRef } = useTooltipTriggers({
-    anchorRef: anchorRefProp,
-    internalAnchorRef,
+  // Rich content renders from the first open on, so closed tooltips stay cheap.
+  // Plain text always renders: it is the aria-describedby description.
+  const [hasOpened, setHasOpened] = useState(isOpen);
+  if (isOpen && !hasOpened) setHasOpened(true);
+  const renderContent =
+    hasOpened || typeof content === 'string' || typeof content === 'number';
+
+  const t = withDefaults(TOOLTIP_DEFAULTS_TIMINGS, timings);
+  // Mirrored onto the popover for tooltip.css (transition, arrow inset).
+  const bs = withDefaults(DEFAULT_BUBBLE_STYLE, bubbleStyle);
+
+  // `keptOpenRef`: focus or a click is keeping the tooltip open.
+  const { keptOpenRef } = useTooltipInteractions({
+    anchor,
     popoverRef,
-    trigger,
-    delayShow: t.delayShow,
-    delayHide: t.delayHide,
-    clickCloseGuard: t.clickCloseGuard,
-    minVisibleDuration: t.minVisibleDuration,
-    supported,
+    triggers,
+    showDelay: t.showDelay,
+    hideDelay: t.hideDelay,
+    clickGuard: t.clickGuard,
+    minVisibleTime: t.minVisibleTime,
+    anchorPositioning: styled,
     isOpen,
     isControlled,
-    commitRef,
+    setOpen,
   });
 
-  // A hover-only tooltip never flips; focus, a pin or `open` enables it.
-  const effectivePlacement = useAutoFlip({
-    anchorRef: anchorRefProp,
-    internalAnchorRef,
+  // A hover-only tooltip never flips; focus, a click or `open` enables it.
+  const effectivePlacement = useFlipPlacement({
+    anchor,
     popoverRef,
     placement,
-    autoFlip,
+    enabled: flip && support.intersectionObserver,
     isOpen,
-    supported,
-    heldRef,
+    anchorPositioning: styled,
+    keptOpenRef,
     isControlled,
   });
 
   useExternalAnchor({
-    supported,
-    anchorRef: anchorRefProp,
+    anchorPositioning: styled,
+    anchor: anchorRefProp ? anchor : null,
     anchorNameProp,
     anchorName,
     content,
     tooltipId,
   });
   // Fades the bubble while its anchor is scrolled out of sight.
-  const anchorHidden = useAnchorVisibility({
-    anchorRef: anchorRefProp,
-    internalAnchorRef,
-    isOpen,
-    supported,
+  const anchorHidden = useElementHidden(anchor, {
+    enabled: isOpen && styled && support.intersectionObserver,
   });
-  usePopover(popoverRef, isOpen);
-  useFlipAnimation(popoverRef, effectivePlacement, isOpen, FLIP_ANIMATION);
 
-  // Wrapping mode only; without the wrapper it stays false.
-  const hasFocusable = useHasFocusable(internalAnchorRef);
-  const useFocus = trigger.includes('focus');
+  const durationMs = cssTimeToMs(animationDuration);
+  const { fade, slide } = useTooltipAnimations(
+    popoverRef,
+    Number.isFinite(durationMs) ? durationMs : 0,
+    { animate: support.webAnimations }
+  );
+
+  // Fade in while open with the anchor in sight; fade out otherwise, and hide
+  // the popover once a close has faded out (a reopen cancels that fade).
+  const visible = isOpen && !anchorHidden;
+  useIsoLayoutEffect(() => {
+    if (visible) return void fade(1);
+    if (!popoverRef.current?.matches(':popover-open')) return;
+    const fadeOut = fade(0);
+    if (isOpen) return; // anchor out of sight: stay open, faded out
+    if (fadeOut) fadeOut.finished.then(hidePopover, () => undefined);
+    else hidePopover();
+  }, [visible, isOpen, fade, hidePopover, popoverRef]);
+
+  // A flip while visible: fade in from 0 and slide from the anchor side.
+  const placementRef = useRef(effectivePlacement);
+  useIsoLayoutEffect(() => {
+    if (placementRef.current === effectivePlacement) return;
+    placementRef.current = effectivePlacement;
+    if (!visible) return;
+    fade(1, 0);
+    slide();
+  }, [effectivePlacement, visible, fade, slide]);
+
+  // Wrapping mode only: decides whether our wrapper needs a tab stop.
+  const hasFocusable = useElementHasFocusable(wrapping ? anchor : null);
+  const useFocus = triggers.includes('focus');
 
   // Fallback: wrapping mode carries the title itself; by-ref mode sets it in
   // useExternalAnchor, and by-name mode has no element for it.
-  if (!supported) {
+  if (!styled) {
     if (!wrapping) return null;
     const title = typeof content === 'string' ? content : undefined;
     return (
@@ -154,13 +183,8 @@ export const Tooltip = ({
   const popoverStyle = {
     positionAnchor: anchorName,
     '--tooltip-offset': offset,
-    '--tooltip-transition-duration':
-      bubbleStyle?.transitionDuration ??
-      DEFAULT_BUBBLE_STYLE.transitionDuration,
-    // Mirrored for tooltip.css's --tooltip-arrow-inset, which has no fallback.
-    '--tooltip-radius': bubbleStyle?.radius ?? DEFAULT_BUBBLE_STYLE.radius,
-    '--tooltip-arrow-size':
-      bubbleStyle?.arrowSize ?? DEFAULT_BUBBLE_STYLE.arrowSize,
+    '--tooltip-radius': bs.radius,
+    '--tooltip-arrow-size': bs.arrowSize,
     ...style,
   } as CSSProperties;
 
@@ -190,13 +214,15 @@ export const Tooltip = ({
         )}
         style={popoverStyle}
       >
-        <TooltipBubble
-          placement={effectivePlacement}
-          arrowPlacement={arrowPlacement}
-          bubbleStyle={bubbleStyle}
-        >
-          {content}
-        </TooltipBubble>
+        {renderContent && (
+          <TooltipBubble
+            placement={effectivePlacement}
+            arrowPlacement={arrowPlacement}
+            bubbleStyle={bubbleStyle}
+          >
+            {content}
+          </TooltipBubble>
+        )}
       </div>
     </>
   );

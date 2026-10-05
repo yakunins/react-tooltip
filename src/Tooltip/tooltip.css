@@ -1,4 +1,4 @@
-/* Tooltip popover: UA reset, anchor() positioning, enter/exit transition. */
+/* Tooltip popover: UA reset and anchor() positioning. Fades are JS (useTooltipAnimations). */
 
 /* Registered <length> so its em resolves here, not against the bubble's
  * smaller font; keeps the popover shift and the arrow offset identical. */
@@ -20,7 +20,7 @@
   width: max-content;
   height: max-content;
 
-  /* --tooltip-radius / -arrow-size / -transition-duration are always set
+  /* --tooltip-radius / -arrow-size are always set
    * inline by Tooltip.tsx, so no fallbacks here. */
   --tooltip-arrow-inset: calc(
     var(--tooltip-radius) + var(--tooltip-arrow-size) * 0.707
@@ -41,38 +41,22 @@
 
   position: fixed;
   /* The default (anchors-visible) hides it instantly when the anchor is
-   * clipped; .anchor-hidden below fades it instead. */
+   * clipped; the JS fade (useTooltipAnimations) handles it instead. */
   position-visibility: always;
-
-  /* enter / exit transition: Popover API + @starting-style */
+  /* Faded in by JS, which holds the visible value while open. */
   opacity: 0;
-  transition:
-    opacity var(--tooltip-transition-duration) ease,
-    overlay var(--tooltip-transition-duration) ease allow-discrete,
-    display var(--tooltip-transition-duration) ease allow-discrete;
 }
 
 .tooltip:popover-open {
   opacity: 1;
   filter: var(--tooltip-outline);
 }
-/* anchor scrolled fully out of sight: fade out but stay open */
-.tooltip.anchor-hidden:popover-open {
-  opacity: 0;
+/* anchor scrolled fully out of sight: faded out (JS), not interactive */
+.tooltip.anchor-hidden {
   pointer-events: none;
 }
-@starting-style {
-  .tooltip:popover-open {
-    opacity: 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tooltip {
-    transition-duration: 0.01ms;
-  }
-}
 
-/* Placement. --flip-from is read by the JS flip animation (useFlipAnimation)
+/* Placement. --flip-from is read by the JS flip slide (useTooltipAnimations),
  * so a flipped bubble emerges from the anchor side. */
 .tooltip.placement-top {
   bottom: anchor(top);

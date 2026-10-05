@@ -138,11 +138,12 @@ const meta = {
       control: 'radio',
       options: ['start', 'center', 'end'],
     },
-    trigger: {
+    triggers: {
       control: 'check',
       options: ['hover', 'focus', 'click'],
     },
-    autoFlip: { control: 'boolean' },
+    flip: { control: 'boolean' },
+    animationDuration: { control: 'text' },
     offset: { control: 'text' },
     timings: { control: 'object' },
   },
@@ -295,7 +296,7 @@ export const Placements: Story = {
 
 // ---------------------------------------------------------------------------
 
-// All placements forced open, autoFlip off so each stays on its side.
+// All placements forced open, flip off so each stays on its side.
 const AllPlacementsDemo = () => (
   <div
     style={{
@@ -311,7 +312,7 @@ const AllPlacementsDemo = () => (
         key={p}
         placement={p}
         open
-        autoFlip={false}
+        flip={false}
         content={<pre>{`placement:\n"${p}"`}</pre>}
         className={gradClasses[i]}
       >
@@ -347,7 +348,7 @@ const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
         placement={placement}
         arrowPlacement={ap}
         open
-        autoFlip={false}
+        flip={false}
         content={<pre>{`arrowPlacement:\n"${ap}"`}</pre>}
         className={gradClasses[i]}
       >
@@ -381,28 +382,28 @@ export const ArrowPlacements: Story = {
 const TriggersDemo = () => (
   <div style={{ display: 'flex', gap: '2rem', padding: '5rem' }}>
     <Tooltip
-      trigger={['hover']}
+      triggers={['hover']}
       content="Shown on hover only"
       className="grad-1"
     >
       <HelpAnchor>hover</HelpAnchor>
     </Tooltip>
     <Tooltip
-      trigger={['focus']}
+      triggers={['focus']}
       content="Shown on keyboard / focus only"
       className="grad-2"
     >
       <HelpAnchor>focus</HelpAnchor>
     </Tooltip>
     <Tooltip
-      trigger={['click']}
+      triggers={['click']}
       content="Click to toggle — Esc to close"
       className="grad-3"
     >
       <HelpAnchor>click</HelpAnchor>
     </Tooltip>
     <Tooltip
-      trigger={['hover', 'focus', 'click']}
+      triggers={['hover', 'focus', 'click']}
       content="All triggers"
       className="grad-4"
     >
@@ -424,12 +425,12 @@ const CustomShapeDemo = () => (
       content="Roomy bubble, slow fade, vivid gradient"
       placement="top"
       className="grad-3"
+      animationDuration="0.3s"
       bubbleStyle={{
         radius: '0.8em',
         arrowSize: '0.7em',
         paddingX: '1em',
         paddingY: '0.55em',
-        transitionDuration: '0.3s',
       }}
     >
       <HelpAnchor>custom bubble</HelpAnchor>
@@ -594,14 +595,14 @@ export const Shape: Story = {
 // ---------------------------------------------------------------------------
 
 // Draggable, forced-open anchors: drag one toward its edge and the bubble
-// flips live (autoFlip is a no-op until the bubble would overflow).
+// flips live (`flip` is a no-op until the bubble would overflow).
 
 // Faint grid so the dragging is visible against the empty canvas.
 const gridBg =
   'repeating-linear-gradient(0deg, #f1f5f9 0 1px, transparent 1px 64px),' +
   'repeating-linear-gradient(90deg, #f1f5f9 0 1px, transparent 1px 64px)';
 
-// Viewport-fixed drag wrapper, clamped to the window, matching the autoFlip math.
+// Viewport-fixed drag wrapper, clamped to the window, matching the flip math.
 const DraggableAnchor = ({
   children,
   initial,
@@ -700,7 +701,7 @@ const AutoFlipDemo = () => (
       <DraggableAnchor key={p} initial={initialSpots[p]}>
         <Tooltip
           placement={p}
-          autoFlip
+          flip
           open
           content={<pre>{`placement="${p}"\ndrag me to the ${p} edge`}</pre>}
           className={gradClasses[i]}
@@ -718,7 +719,7 @@ export const AutoFlip: Story = {
 };
 
 // Anchor inside a scroll container: the bubble fades when the anchor is
-// clipped (useAnchorVisibility) and flips at the container edges.
+// clipped (useElementHidden) and flips at the container edges.
 const ScrollContainerDemo = () => (
   <div style={{ padding: '2rem', background: gridBg, minHeight: '100vh' }}>
     <p style={{ maxWidth: '40rem', marginTop: 0 }}>

@@ -2,7 +2,7 @@
 
 const css = {
   src: `src/Tooltip/tooltip.css`,
-  hash: `2gqycf9gvy`,
+  hash: `1w8p150s4nz`,
   content: `
 @property --tooltip-arrow-inset{
 syntax:'<length>';
@@ -36,28 +36,13 @@ drop-shadow(0 var(--o--s) var(--o-b) var(--o-c));
 position:fixed;
 position-visibility:always;
 opacity:0;
-transition:
-opacity var(--tooltip-transition-duration) ease,
-overlay var(--tooltip-transition-duration) ease allow-discrete,
-display var(--tooltip-transition-duration) ease allow-discrete;
 }
 .tooltip:popover-open{
 opacity:1;
 filter:var(--tooltip-outline);
 }
-.tooltip.anchor-hidden:popover-open{
-opacity:0;
+.tooltip.anchor-hidden{
 pointer-events:none;
-}
-@starting-style{
-.tooltip:popover-open{
-opacity:0;
-}
-}
-@media (prefers-reduced-motion:reduce){
-.tooltip{
-transition-duration:0.01ms;
-}
 }
 .tooltip.placement-top{
 bottom:anchor(top);

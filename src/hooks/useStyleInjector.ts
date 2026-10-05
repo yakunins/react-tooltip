@@ -1,108 +1,35 @@
-import { useInsertionEffect } from 'react';
+import { createContext, useContext, useInsertionEffect } from 'react';
 
-type Style = {
-  id: string;
-  content: string;
-};
+// A css-to-js module; `hash` identifies the stylesheet.
+export type GeneratedCss = { hash: string; content: string };
 
-type InjectorOptions = {
-  scopeID?: string;
-  scopeAttributePrefix?: string;
-  selector?: string;
-};
+// CSP nonce for the injected <style> tags; set through TooltipProvider.
+export const StyleNonceContext = createContext<string | undefined>(undefined);
 
-const defaultInjectorOptions: InjectorOptions = {
-  scopeAttributePrefix: 'data-style-scope-',
-  selector: 'head',
-};
+// One <style> per stylesheet, counted by the components using it.
+const tags = new Map<string, { el: HTMLStyleElement; users: number }>();
 
-// Injects `css` into <head> while mounted, shared across users of the same CSS.
-const useStyleInjector = (
-  css: string,
-  dependencies = [],
-  options?: InjectorOptions
-) => {
-  const injector = new StyleInjector(); // singleton
-  const o = { ...defaultInjectorOptions, ...options };
-  const id = o?.scopeID || injector.generateID(css);
-  const scopeAttribute = `${o.scopeAttributePrefix}${id}`;
-
-  const style: Style = {
-    id: `css_id__${id}`,
-    content: o.scopeID ? wrapWithScope(css, scopeAttribute) : css,
-  };
-
+// Injects a stylesheet into <head> while mounted; components using the same
+// one share a single <style>, removed after the last unmounts.
+export const useStyleInjector = ({ hash, content }: GeneratedCss): void => {
+  const nonce = useContext(StyleNonceContext);
   useInsertionEffect(() => {
-    injector.increase(style);
-    return () => injector.reduce(style);
-  }, dependencies);
-
-  return {
-    [scopeAttribute]: o.scopeID ? true : undefined,
-  };
-};
-
-// Ref-counted <style> tags: added on first use, removed after the last.
-export class StyleInjector {
-  private static instance: StyleInjector;
-  #styles: Map<string, number> = new Map();
-
-  constructor() {
-    if (!StyleInjector.instance) {
-      StyleInjector.instance = this;
+    let entry = tags.get(hash);
+    if (!entry) {
+      const el = document.createElement('style');
+      el.id = `css_id__${hash}`;
+      if (nonce) el.nonce = nonce;
+      el.textContent = content;
+      document.head.appendChild(el);
+      entry = { el, users: 0 };
+      tags.set(hash, entry);
     }
-    return StyleInjector.instance; // singleton
-  }
-
-  increase(s: Style) {
-    if (this.count(s) === 0 && typeof document !== 'undefined')
-      document.head.appendChild(createStyleElement(s));
-    if (this.count(s) >= 0) this.#styles.set(s.id, this.count(s) + 1);
-  }
-  reduce(s: Style) {
-    if (this.count(s) > 0) this.#styles.set(s.id, this.count(s) - 1);
-    if (this.count(s) === 0 && typeof document !== 'undefined')
-      document.head.querySelector(`#${s.id}`)?.remove();
-  }
-  count(s: Style) {
-    if (this.#styles.has(s.id)) return this.#styles.get(s.id) as number;
-    return 0;
-  }
-  generateID = (s: string) => cyrb53string(s);
-}
-
-const createStyleElement = (style: Style) => {
-  const el = document.createElement('style');
-  el.innerHTML = style.content;
-  if (style.id !== '') el.id = style.id;
-  return el;
+    const used = entry;
+    used.users++;
+    return () => {
+      if (--used.users > 0) return;
+      used.el.remove();
+      tags.delete(hash);
+    };
+  }, [hash, content, nonce]);
 };
-
-const wrapWithScope = (css: string, scopeAttribute: string) => {
-  return (
-    `[${scopeAttribute}] { display: contents; }` +
-    `[${scopeAttribute}] {` +
-    `${css}` +
-    '}'
-  );
-};
-
-// https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
-const cyrb53string = (str: string, seed = 0) => {
-  let h1 = 0xdeadbeef ^ seed,
-    h2 = 0x41c6ce57 ^ seed;
-  for (let i = 0, ch; i < str.length; i++) {
-    ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
-  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
-  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-
-  const num = 4294967296 * (2097151 & h2) + (h1 >>> 0);
-  return num.toString(36);
-};
-
-export default useStyleInjector;

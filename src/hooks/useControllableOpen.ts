@@ -1,11 +1,15 @@
-import { useRef, useState, type MutableRefObject } from 'react';
+import { useRef, useState } from 'react';
+
+import { useLatestRef } from './useLatestRef';
+
+export type SetOpen = (next: boolean) => void;
 
 export interface ControllableOpen {
   isOpen: boolean;
   // True when the parent owns `open`.
   isControlled: boolean;
-  // Stable committer, read through a ref so handlers never see stale props.
-  commitRef: MutableRefObject<(next: boolean) => void>;
+  // Requests an open-state change. Stable; reads the latest props via refs.
+  setOpen: SetOpen;
 }
 
 // Controlled/uncontrolled open state: a provided `open` is owned by the parent
@@ -19,15 +23,15 @@ export const useControllableOpen = (
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const isOpen = isControlled ? open : internalOpen;
 
-  const openRef = useRef(isOpen);
-  openRef.current = isOpen;
-  const commitRef = useRef<(next: boolean) => void>(() => {});
-  commitRef.current = (next: boolean) => {
+  const openRef = useLatestRef(isOpen);
+  const controlledRef = useLatestRef(isControlled);
+  const onChangeRef = useLatestRef(onOpenChange);
+  const setOpen = useRef<SetOpen>(next => {
     if (next === openRef.current) return;
     openRef.current = next;
-    if (!isControlled) setInternalOpen(next);
-    onOpenChange?.(next);
-  };
+    if (!controlledRef.current) setInternalOpen(next);
+    onChangeRef.current?.(next);
+  }).current;
 
-  return { isOpen, isControlled, commitRef };
+  return { isOpen, isControlled, setOpen };
 };

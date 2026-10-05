@@ -15,19 +15,19 @@ export type TooltipTrigger = 'hover' | 'focus' | 'click';
 /** Trigger timings in ms; omitted fields keep their defaults. */
 export type TooltipTimings = {
   /** Delay before showing on hover/focus; click is instant. Default `200`. */
-  delayShow?: number;
+  showDelay?: number;
   /** Delay before hiding on hover-out/blur; click is instant. Default `100`. */
-  delayHide?: number;
+  hideDelay?: number;
   /**
    * After a hover/focus reveal, a click within this window pins the tooltip
    * instead of closing it. `0` disables it. Default `1000`.
    */
-  clickCloseGuard?: number;
+  clickGuard?: number;
   /**
    * Minimum time a hover/focus-revealed tooltip stays visible; click and Escape
    * ignore it. `0` disables it. Default `1000`.
    */
-  minVisibleDuration?: number;
+  minVisibleTime?: number;
 };
 
 /** Visual customisation of the tooltip bubble. */
@@ -48,8 +48,6 @@ export type TooltipBubbleStyle = {
   paddingY?: string;
   /** Maximum bubble width. Default `16rem`. */
   maxWidth?: CSSProperties['maxWidth'];
-  /** Fade in/out duration. Default `0.2s`. */
-  transitionDuration?: CSSProperties['transitionDuration'];
   /** Straight segments per rounded corner; more is smoother. Default `5`. */
   cornerSegments?: 3 | 5 | 7;
 };
