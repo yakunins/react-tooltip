@@ -5,7 +5,7 @@ export type GeneratedCss = { hash: string; content: string };
 
 // The page's CSP nonce, if any: Vite's <meta property="csp-nonce">, else any
 // <script nonce>. Read through `.nonce` first, since browsers hide the
-// attribute's value once the page has loaded.
+// attribute's value from scripts once the element is in the document.
 const findNonce = (): string | undefined => {
   const source =
     document.querySelector<HTMLElement>('meta[property="csp-nonce"]') ??

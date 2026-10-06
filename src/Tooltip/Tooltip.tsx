@@ -92,7 +92,8 @@ export const Tooltip = ({
     hasOpened || typeof content === 'string' || typeof content === 'number';
 
   const t = withDefaults(TOOLTIP_DEFAULTS_TIMINGS, timings);
-  // Mirrored onto the popover for tooltip.css (transition, arrow inset).
+  // Radius and arrow size are mirrored onto the popover for tooltip.css's
+  // arrow inset.
   const bs = withDefaults(DEFAULT_BUBBLE_STYLE, bubbleStyle);
 
   // `keptOpenRef`: focus or a click is keeping the tooltip open.

@@ -19,8 +19,8 @@ export type TooltipTimings = {
   /** Delay before hiding on hover-out/blur; click is instant. Default `100`. */
   hideDelay?: number;
   /**
-   * After a hover/focus reveal, a click within this window pins the tooltip
-   * instead of closing it. `0` disables it. Default `1000`.
+   * After a hover/focus reveal, a click within this window keeps the tooltip
+   * open instead of closing it. `0` disables it. Default `1000`.
    */
   clickGuard?: number;
   /**
