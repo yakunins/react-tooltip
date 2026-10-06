@@ -3,7 +3,7 @@ import {
   containerRootMargin,
   FLIP_THRESHOLD,
   type Bounds,
-} from '../src/utils/autoFlipGeometry';
+} from '../src/utils/flipGeometry';
 
 const rect = (top: number, left: number, width: number, height: number) => ({
   top,

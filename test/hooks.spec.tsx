@@ -6,6 +6,7 @@ import { useFlipPlacement } from '../src/hooks/useFlipPlacement';
 import { useControllableOpen } from '../src/hooks/useControllableOpen';
 import { useTooltipAnimations } from '../src/hooks/useTooltipAnimations';
 import { useEscape } from '../src/hooks/useEscape';
+import { useEventListener } from '../src/hooks/useEventListener';
 import { useOutsideClick } from '../src/hooks/useOutsideClick';
 import {
   detectSupport,
@@ -221,7 +222,7 @@ describe('useFlipPlacement', () => {
     placement?: Placement;
     enabled?: boolean;
     isOpen?: boolean;
-    anchorPositioning?: boolean;
+    styled?: boolean;
     keptOpen?: boolean;
     isControlled?: boolean;
   };
@@ -238,7 +239,7 @@ describe('useFlipPlacement', () => {
         placement = 'top',
         enabled = true,
         isOpen = true,
-        anchorPositioning = true,
+        styled = true,
         keptOpen = true,
         isControlled = false,
       }: Props) => {
@@ -249,7 +250,7 @@ describe('useFlipPlacement', () => {
           placement,
           enabled,
           isOpen,
-          anchorPositioning,
+          styled,
           keptOpenRef,
           isControlled,
         });
@@ -394,6 +395,15 @@ describe('useFlipPlacement', () => {
     expect(result.current).toBe('left');
   });
 
+  it('snaps back to the placement when disabled while flipped', () => {
+    const { result, anchor, pop, fire, rerender } = setup();
+    nearTop(anchor, pop);
+    fire();
+    expect(result.current).toBe('bottom');
+    rerender({ enabled: false });
+    expect(result.current).toBe('top');
+  });
+
   it('returns the placement as-is when disabled', () => {
     const { result, rerender } = setup({ enabled: false });
     expect(MockIntersectionObserver.instances).toHaveLength(0);
@@ -401,9 +411,9 @@ describe('useFlipPlacement', () => {
     expect(result.current).toBe('right');
   });
 
-  it('does not observe while closed or without anchor positioning', () => {
+  it('does not observe while closed or unstyled', () => {
     setup({ isOpen: false });
-    setup({ anchorPositioning: false });
+    setup({ styled: false });
     expect(MockIntersectionObserver.instances).toHaveLength(0);
   });
 
@@ -443,7 +453,8 @@ describe('useFlipPlacement inside a scroll container', () => {
         placement,
         enabled: true,
         isOpen: true,
-        anchorPositioning: true,
+        styled: true,
+        keptOpenRef: { current: true },
         isControlled: true,
       })
     );
@@ -634,5 +645,50 @@ describe('useSupports', () => {
     expect(detectSupport()[flag]).toBe(true);
     remove();
     expect(detectSupport()[flag]).toBe(false);
+  });
+});
+
+describe('useEventListener', () => {
+  it('listens on an element while enabled', () => {
+    const el = element();
+    const handler = jest.fn();
+    const { rerender } = renderHook(
+      ({ on }) => useEventListener(el, 'click', handler, on),
+      { initialProps: { on: true } }
+    );
+    el.click();
+    rerender({ on: false });
+    el.click();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts a ref', () => {
+    const el = element();
+    const handler = jest.fn();
+    renderHook(() => useEventListener({ current: el }, 'click', handler));
+    el.click();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls the latest handler without re-subscribing', () => {
+    const el = element();
+    const add = jest.spyOn(el, 'addEventListener');
+    const first = jest.fn();
+    const second = jest.fn();
+    const { rerender } = renderHook(
+      ({ fn }) => useEventListener(el, 'click', fn),
+      { initialProps: { fn: first } }
+    );
+    rerender({ fn: second });
+    el.click();
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(add).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a missing target', () => {
+    expect(() =>
+      renderHook(() => useEventListener(null, 'click', jest.fn()))
+    ).not.toThrow();
   });
 });

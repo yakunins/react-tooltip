@@ -1,4 +1,4 @@
-import { useDocumentEvent } from './useDocumentEvent';
+import { useEventListener } from './useEventListener';
 
 // Calls `onOutside` for document clicks outside `inside` while enabled.
 export const useOutsideClick = (
@@ -6,7 +6,8 @@ export const useOutsideClick = (
   onOutside: (e: MouseEvent) => void,
   enabled: boolean
 ): void =>
-  useDocumentEvent(
+  useEventListener<MouseEvent>(
+    typeof document === 'undefined' ? null : document,
     'click',
     e => {
       const target = e.target as Node | null;

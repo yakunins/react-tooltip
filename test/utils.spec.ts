@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { cx } from '../src/utils/cx';
+import { addToken, setAttribute, setStyle } from '../src/utils/dom';
 import { withDefaults } from '../src/utils/withDefaults';
 import { cssTimeToMs } from '../src/utils/cssTime';
 import tooltipCss from '../src/Tooltip/tooltip.css.generated.js';
@@ -22,6 +23,64 @@ describe('cx', () => {
 
   it('returns an empty string when nothing is truthy', () => {
     expect(cx(undefined, false)).toBe('');
+  });
+});
+
+describe('DOM restore helpers', () => {
+  // A minimal Element stand-in: these tests run in the node environment.
+  const fakeElement = (attrs: Record<string, string> = {}) => {
+    const map = new Map(Object.entries(attrs));
+    const style = new Map<string, string>();
+    return {
+      getAttribute: (n: string) => map.get(n) ?? null,
+      setAttribute: (n: string, v: string) => void map.set(n, v),
+      removeAttribute: (n: string) => void map.delete(n),
+      style: {
+        getPropertyValue: (p: string) => style.get(p) ?? '',
+        setProperty: (p: string, v: string) => void style.set(p, v),
+        removeProperty: (p: string) => void style.delete(p),
+      },
+      attrs: map,
+      styles: style,
+    };
+  };
+  type Fake = ReturnType<typeof fakeElement>;
+  const asEl = (f: Fake) => f as unknown as HTMLElement;
+
+  it('setAttribute restores a previous value, or removes it', () => {
+    const withTitle = fakeElement({ title: 'old' });
+    const restore = setAttribute(asEl(withTitle), 'title', 'new');
+    expect(withTitle.attrs.get('title')).toBe('new');
+    restore();
+    expect(withTitle.attrs.get('title')).toBe('old');
+
+    const bare = fakeElement();
+    setAttribute(asEl(bare), 'title', 'new')();
+    expect(bare.attrs.has('title')).toBe(false);
+  });
+
+  it('setStyle restores a previous value, or removes it', () => {
+    const el = fakeElement();
+    const restore = setStyle(asEl(el), 'anchor-name', '--a');
+    expect(el.styles.get('anchor-name')).toBe('--a');
+    restore();
+    expect(el.styles.has('anchor-name')).toBe(false);
+  });
+
+  it('addToken adds once and removes only its own token', () => {
+    const el = fakeElement({ 'aria-describedby': 'other' });
+    const remove = addToken(asEl(el), 'aria-describedby', 'tip');
+    addToken(asEl(el), 'aria-describedby', 'tip'); // no duplicate
+    expect(el.attrs.get('aria-describedby')).toBe('other tip');
+    el.attrs.set('aria-describedby', 'other tip later'); // another writer
+    remove();
+    expect(el.attrs.get('aria-describedby')).toBe('other later');
+  });
+
+  it('addToken removes the attribute once empty', () => {
+    const el = fakeElement();
+    addToken(asEl(el), 'aria-describedby', 'tip')();
+    expect(el.attrs.has('aria-describedby')).toBe(false);
   });
 });
 

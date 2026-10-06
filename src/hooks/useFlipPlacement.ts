@@ -15,13 +15,13 @@ import {
   FLIP_RATIOS,
   FLIP_THRESHOLD,
   getBounds,
-} from '../utils/autoFlipGeometry';
+} from '../utils/flipGeometry';
 import { observe } from '../utils/dom';
 import { useLatestRef } from './useLatestRef';
 import { useThrottledCallback } from './useThrottledCallback';
 
 // Max re-evaluation rate while open, so fast scrolling can't thrash placement.
-const AUTOFLIP_THROTTLE_MS = 500;
+const FLIP_THROTTLE_MS = 500;
 
 export interface FlipPlacementParams {
   anchor: HTMLElement | null;
@@ -31,11 +31,11 @@ export interface FlipPlacementParams {
   enabled: boolean;
   isOpen: boolean;
   // False in the title fallback: no bubble to flip.
-  anchorPositioning: boolean;
+  styled: boolean;
   // Kept open by focus or a click; a hover-only tooltip never flips.
-  keptOpenRef?: MutableRefObject<boolean>;
+  keptOpenRef: MutableRefObject<boolean>;
   // Parent owns `open`; such a tooltip always flips.
-  isControlled?: boolean;
+  isControlled: boolean;
 }
 
 // Returns `placement`, flipped to the opposite side when it would overflow the
@@ -46,7 +46,7 @@ export const useFlipPlacement = ({
   placement,
   enabled,
   isOpen,
-  anchorPositioning,
+  styled,
   keptOpenRef,
   isControlled,
 }: FlipPlacementParams): Placement => {
@@ -57,7 +57,7 @@ export const useFlipPlacement = ({
   const containerRef = useRef<HTMLElement | null>(null);
 
   const decidePlacement = useCallback(() => {
-    if (!isControlled && keptOpenRef && !keptOpenRef.current) return;
+    if (!isControlled && !keptOpenRef.current) return;
     const pop = popoverRef.current;
     if (!anchor || !pop) return;
     const p = pop.getBoundingClientRect();
@@ -71,19 +71,16 @@ export const useFlipPlacement = ({
     setEffectivePlacement(prev => (prev === next ? prev : next));
   }, [anchor, popoverRef, keptOpenRef, isControlled, effectivePlacementRef]);
 
-  const decide = useThrottledCallback(decidePlacement, AUTOFLIP_THROTTLE_MS);
+  const decide = useThrottledCallback(decidePlacement, FLIP_THROTTLE_MS);
 
+  // Follow the `placement` prop: always while disabled, and on every change.
+  // Not keyed on `isOpen`, so reopening never resets the side (and replays the
+  // flip animation); the ref skips the mount.
+  const prevPlacementRef = useRef(placement);
   useEffect(() => {
-    if (!enabled) setEffectivePlacement(placement);
-  }, [enabled, placement]);
-
-  // A `placement` prop change applies immediately. Not keyed on `isOpen`, so
-  // reopening never replays the flip animation; the ref skips the mount.
-  const settledPlacementRef = useRef(placement);
-  useEffect(() => {
-    if (settledPlacementRef.current === placement) return;
-    settledPlacementRef.current = placement;
-    if (enabled) setEffectivePlacement(placement);
+    const changed = prevPlacementRef.current !== placement;
+    prevPlacementRef.current = placement;
+    if (changed || !enabled) setEffectivePlacement(placement);
   }, [enabled, placement]);
 
   // Reset a flipped side once fully closed, so the next open starts on the
@@ -110,7 +107,7 @@ export const useFlipPlacement = ({
   }, [enabled, isOpen, placement, popoverRef, effectivePlacementRef]);
 
   useEffect(() => {
-    if (!enabled || !isOpen || !anchorPositioning) return;
+    if (!enabled || !isOpen || !styled) return;
     const pop = popoverRef.current;
     if (!pop) return;
     const stopViewport = observe(pop, decide.run, {
@@ -145,7 +142,7 @@ export const useFlipPlacement = ({
   }, [
     enabled,
     isOpen,
-    anchorPositioning,
+    styled,
     decide.run,
     decide.cancel,
     popoverRef,

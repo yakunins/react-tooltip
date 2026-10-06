@@ -1,29 +1,29 @@
 import { useId, useRef, useState, type CSSProperties } from 'react';
-import { cx } from '../utils/cx';
-import { withDefaults } from '../utils/withDefaults';
 
-import { TooltipAnchor } from '../TooltipAnchor';
-import { TooltipBubble, DEFAULT_BUBBLE_STYLE } from '../TooltipBubble';
 import {
+  useControllableOpen,
   useElementHasFocusable,
+  useElementHidden,
+  useExternalAnchor,
+  useFlipPlacement,
   useIsoLayoutEffect,
+  usePopover,
   useStyleInjector,
   useSupports,
+  useTooltipAnimations,
+  useTooltipInteractions,
 } from '../hooks';
+import { TooltipAnchor } from '../TooltipAnchor';
+import { TooltipBubble, DEFAULT_BUBBLE_STYLE } from '../TooltipBubble';
+import { cssTimeToMs } from '../utils/cssTime';
+import { cx } from '../utils/cx';
+import { withDefaults } from '../utils/withDefaults';
 import { default as tooltipCss } from './tooltip.css.generated.js';
 import {
   TOOLTIP_DEFAULTS,
   TOOLTIP_DEFAULTS_TIMINGS,
   type TooltipProps,
 } from './TooltipProps';
-import { useControllableOpen } from '../hooks/useControllableOpen';
-import { useElementHidden } from '../hooks/useElementHidden';
-import { useExternalAnchor } from '../hooks/useExternalAnchor';
-import { useFlipPlacement } from '../hooks/useFlipPlacement';
-import { usePopover } from '../hooks/usePopover';
-import { useTooltipAnimations } from '../hooks/useTooltipAnimations';
-import { cssTimeToMs } from '../utils/cssTime';
-import { useTooltipInteractions } from '../hooks/interactions';
 
 export type { TooltipProps };
 
@@ -104,7 +104,7 @@ export const Tooltip = ({
     hideDelay: t.hideDelay,
     clickGuard: t.clickGuard,
     minVisibleTime: t.minVisibleTime,
-    anchorPositioning: styled,
+    styled,
     isOpen,
     isControlled,
     setOpen,
@@ -117,13 +117,13 @@ export const Tooltip = ({
     placement,
     enabled: flip && support.intersectionObserver,
     isOpen,
-    anchorPositioning: styled,
+    styled,
     keptOpenRef,
     isControlled,
   });
 
   useExternalAnchor({
-    anchorPositioning: styled,
+    styled,
     anchor: anchorRefProp ? anchor : null,
     anchorNameProp,
     anchorName,

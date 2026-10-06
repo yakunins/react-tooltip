@@ -1,17 +1,13 @@
-import {
-  useCallback,
-  useEffect,
-  type MutableRefObject,
-  type RefObject,
-} from 'react';
+import { useCallback, type MutableRefObject, type RefObject } from 'react';
 
 import type { TooltipTrigger } from '../../types';
-import { useClickToggle } from './useClickToggle';
 import type { SetOpen } from '../useControllableOpen';
-import { useKeepOpen } from './useKeepOpen';
-import { useOutsideClick } from '../useOutsideClick';
-import { useDelayedToggle } from './useDelayedToggle';
 import { useEscape } from '../useEscape';
+import { useEventListener } from '../useEventListener';
+import { useOutsideClick } from '../useOutsideClick';
+import { useClickToggle } from './useClickToggle';
+import { useDelayedToggle } from './useDelayedToggle';
+import { useKeepOpen } from './useKeepOpen';
 
 export interface TooltipInteractionsParams {
   anchor: HTMLElement | null;
@@ -22,7 +18,7 @@ export interface TooltipInteractionsParams {
   clickGuard: number;
   minVisibleTime: number;
   // False in the title fallback: no popover to wire.
-  anchorPositioning: boolean;
+  styled: boolean;
   isOpen: boolean;
   isControlled: boolean;
   setOpen: SetOpen;
@@ -42,7 +38,7 @@ export const useTooltipInteractions = ({
   hideDelay,
   clickGuard,
   minVisibleTime,
-  anchorPositioning,
+  styled,
   isOpen,
   isControlled,
   setOpen,
@@ -55,7 +51,6 @@ export const useTooltipInteractions = ({
     setOpen,
   });
   const keepOpen = useKeepOpen({ isOpen, isControlled });
-  const { focusRef, clickRef, set: setKeepOpen } = keepOpen;
   const onClick = useClickToggle({
     isOpen,
     clickGuard,
@@ -64,92 +59,62 @@ export const useTooltipInteractions = ({
     setOpen,
   });
 
-  const useHover = triggers.includes('hover');
-  const useFocus = triggers.includes('focus');
-  const useClick = triggers.includes('click');
+  // Nothing to wire in the title fallback, or by-name (no anchor element).
+  const wired = styled && anchor !== null;
+  const hoverTrigger = wired && triggers.includes('hover');
+  const focusTrigger = wired && triggers.includes('focus');
+  const clickTrigger = wired && triggers.includes('click');
 
   const closeOnHover = useCallback(
-    (e?: Event) => {
+    (e: Event) => {
       if (keepOpen.ref.current) return;
       delayed.close(e);
     },
-    [delayed.close, keepOpen.ref]
+    [delayed, keepOpen.ref]
   );
 
-  useEffect(() => {
-    if (!anchorPositioning) return;
-    // By-name mode has no element to listen to.
-    const popover = popoverRef.current;
-    if (!anchor) return;
+  // Hover: the bubble counts too, so the pointer can move onto it.
+  useEventListener(anchor, 'mouseenter', delayed.open, hoverTrigger);
+  useEventListener(anchor, 'mouseleave', closeOnHover, hoverTrigger);
+  useEventListener(popoverRef, 'mouseenter', delayed.open, hoverTrigger);
+  useEventListener(popoverRef, 'mouseleave', closeOnHover, hoverTrigger);
 
-    const cleanups: Array<() => void> = [];
-    const on = (el: HTMLElement, type: string, fn: (e: Event) => void) => {
-      el.addEventListener(type, fn);
-      cleanups.push(() => el.removeEventListener(type, fn));
-    };
-
-    if (useHover) {
-      on(anchor, 'mouseenter', delayed.open);
-      on(anchor, 'mouseleave', closeOnHover);
-      // stay open while the pointer is over the bubble
-      if (popover) {
-        on(popover, 'mouseenter', delayed.open);
-        on(popover, 'mouseleave', closeOnHover);
-      }
-    }
-    // Focus anywhere in anchor + bubble holds it open. The bubble side runs
-    // even without the focus trigger, so focused content is never hidden.
-    const inScope = (node: EventTarget | null): boolean =>
-      node != null &&
-      (anchor.contains(node as Node) ||
-        Boolean(popover?.contains(node as Node)));
-    const keepOpenOnFocus = () => setKeepOpen('focus', true);
-    const releaseOnFocusOut = (e: Event) => {
-      // A pinned tooltip survives focus leaving (e.g. alt-tab).
-      if (!focusRef.current || clickRef.current) return;
-      if (inScope((e as FocusEvent).relatedTarget)) return;
-      setKeepOpen('focus', false);
-      delayed.close(e);
-    };
-
-    if (useFocus) {
-      on(anchor, 'focusin', (e: Event) => {
-        keepOpenOnFocus();
-        delayed.open(e);
-      });
-    }
-    on(anchor, 'focusout', releaseOnFocusOut);
-    if (popover) {
-      on(popover, 'focusin', keepOpenOnFocus);
-      on(popover, 'focusout', releaseOnFocusOut);
-    }
-    if (useClick) on(anchor, 'click', onClick);
-    return () => cleanups.forEach(fn => fn());
-  }, [
-    anchorPositioning,
-    useHover,
-    useFocus,
-    useClick,
-    delayed.open,
-    delayed.close,
-    closeOnHover,
-    onClick,
-    setKeepOpen,
-    focusRef,
-    clickRef,
+  // Focus anywhere in anchor + bubble keeps it open. The bubble side runs
+  // even without the focus trigger, so focused content is never hidden.
+  const keepOpenOnFocus = () => keepOpen.set('focus', true);
+  const releaseOnFocusOut = (e: FocusEvent) => {
+    // A tooltip kept open by a click survives focus leaving (e.g. alt-tab).
+    if (!keepOpen.focusRef.current || keepOpen.clickRef.current) return;
+    const next = e.relatedTarget as Node | null;
+    if (next && (anchor?.contains(next) || popoverRef.current?.contains(next)))
+      return;
+    keepOpen.set('focus', false);
+    delayed.close(e);
+  };
+  useEventListener(
     anchor,
-    popoverRef,
-  ]);
+    'focusin',
+    (e: Event) => {
+      keepOpenOnFocus();
+      delayed.open(e);
+    },
+    focusTrigger
+  );
+  useEventListener(anchor, 'focusout', releaseOnFocusOut, wired);
+  useEventListener(popoverRef, 'focusin', keepOpenOnFocus, wired);
+  useEventListener(popoverRef, 'focusout', releaseOnFocusOut, wired);
+
+  useEventListener(anchor, 'click', onClick, clickTrigger);
 
   const dismiss = () => {
     delayed.cancel();
     setOpen(false);
   };
   useEscape(isOpen, dismiss);
-  // While kept open by a click, any other click dismisses, bubble included. Anchor
-  // clicks are left to the click trigger's own toggle.
+  // While kept open by a click, any other click dismisses, bubble included.
+  // Anchor clicks are left to the click toggle.
   useOutsideClick(
-    useClick ? [anchor] : [],
+    clickTrigger ? [anchor] : [],
     dismiss,
     keepOpen.byClick && isOpen
   );
