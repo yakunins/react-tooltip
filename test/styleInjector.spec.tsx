@@ -1,13 +1,13 @@
 /** @jest-environment jsdom */
 import { render } from '@testing-library/react';
 
-import { TooltipProvider } from '../src';
 import { useStyleInjector, type GeneratedCss } from '../src/hooks';
 
 const styleTags = () => Array.from(document.head.querySelectorAll('style'));
 
 afterEach(() => {
   document.head.innerHTML = '';
+  document.body.innerHTML = '';
 });
 
 const Styled = ({ css }: { css: GeneratedCss }) => {
@@ -54,17 +54,36 @@ describe('useStyleInjector', () => {
     rerender(<Styled css={b} />);
     expect(styleTags().map(t => t.textContent)).toEqual(['.b{}']);
   });
+});
 
-  it('applies a CSP nonce from TooltipProvider', () => {
-    render(
-      <TooltipProvider nonce="abc123">
-        <Styled css={a} />
-      </TooltipProvider>
-    );
-    expect(styleTags()[0].nonce).toBe('abc123');
+describe('useStyleInjector CSP nonce', () => {
+  const addNonceTag = (tag: 'meta' | 'script', nonce: string) => {
+    const el = document.createElement(tag);
+    if (tag === 'meta') el.setAttribute('property', 'csp-nonce');
+    el.setAttribute('nonce', nonce);
+    (tag === 'meta' ? document.head : document.body).appendChild(el);
+  };
+
+  it('takes the nonce from <meta property="csp-nonce">', () => {
+    addNonceTag('meta', 'from-meta');
+    render(<Styled css={a} />);
+    expect(styleTags()[0].nonce).toBe('from-meta');
   });
 
-  it('sets no nonce without a provider', () => {
+  it('falls back to a <script nonce>', () => {
+    addNonceTag('script', 'from-script');
+    render(<Styled css={a} />);
+    expect(styleTags()[0].nonce).toBe('from-script');
+  });
+
+  it('prefers the meta over a script', () => {
+    addNonceTag('script', 'from-script');
+    addNonceTag('meta', 'from-meta');
+    render(<Styled css={a} />);
+    expect(styleTags()[0].nonce).toBe('from-meta');
+  });
+
+  it('sets no nonce when the page has none', () => {
     render(<Styled css={a} />);
     expect(styleTags()[0].hasAttribute('nonce')).toBe(false);
   });

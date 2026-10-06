@@ -179,15 +179,9 @@ const [open, setOpen] = useState(false);
 ## Content Security Policy
 
 The components inject their CSS as `<style>` tags. Under a strict `style-src`
-policy, pass your nonce once through `TooltipProvider`:
-
-```tsx
-import { TooltipProvider } from 'react-tooltip-contemporary';
-
-<TooltipProvider nonce={cspNonce}>
-  <App />
-</TooltipProvider>;
-```
+policy they pick up the page's nonce automatically, from
+`<meta property="csp-nonce" nonce="…">` (what Vite's `html.cspNonce` adds) or
+else from any `<script nonce="…">`. Nothing to configure.
 
 ## Browser support
 
