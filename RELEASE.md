@@ -1,12 +1,5 @@
 # Releasing
 
-## 0. One-time setup
-
-```sh
-npx vercel login
-npx vercel link --project react-tooltip-contemporary --scope yakunins
-```
-
 ## 1. Update packages
 
 ```sh
@@ -25,17 +18,26 @@ npm test
 npm run dev
 ```
 
-- Click through Storybook: placements, arrow positions, triggers, Scroll Container
 - Commit any changes made by `npm run lint`
+- Click through Storybook in a real browser: placements, arrow positions, triggers, flip near an edge (fade + slide), Escape, Scroll Container
 
-## 3. Bump version
+## 3. Version and release notes
 
 - Check the version is free: `npm view react-tooltip-contemporary versions`
 - Change `"version"` in `package.json` to `X.Y.Z`
+- List the changes since the last release:
+
+```sh
+git fetch --tags
+git log --pretty="- %s" vPREV..HEAD
+```
+
+- Write `release-notes/vX.Y.Z.md`: Breaking changes (old → new), Features, Fixes, Internal
 
 ```sh
 npm install
-git commit -am "release X.Y.Z"
+git add package.json package-lock.json release-notes/vX.Y.Z.md
+git commit -m "release X.Y.Z"
 git push
 ```
 
@@ -46,7 +48,7 @@ npm run build
 npm pack --dry-run
 ```
 
-- Check the list has `lib/index.js` and no `lib/src/` or `lib/test/`
+- Check the list has `lib/index.js`, and no `lib/src/`, `lib/test/` or `.css` files
 
 ```sh
 npm publish
@@ -55,16 +57,6 @@ npm publish
 ## 5. GitHub Release
 
 ```sh
-git fetch --tags
-git log --pretty="- %s" vPREV..HEAD
-```
-
-- Write `release-notes/vX.Y.Z.md` from that list: Features, Changes, Fixes, Internal
-
-```sh
-git add release-notes/vX.Y.Z.md
-git commit -m "docs: release notes X.Y.Z"
-git push
 gh release create vX.Y.Z --target master --title "X.Y.Z" --notes-file release-notes/vX.Y.Z.md
 ```
 
