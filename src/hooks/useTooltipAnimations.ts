@@ -60,7 +60,7 @@ export const useTooltipAnimations = (
     [popoverRef, run, durationRef, animateRef]
   );
 
-  // The flip slide, from the anchor side (--flip-from, set in tooltip.css).
+  // The flip slide, from the anchor side (--flip-from, set in tooltipPopover.css).
   const slide = useCallback(
     () =>
       run(

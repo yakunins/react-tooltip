@@ -65,3 +65,11 @@ export const addToken = (
     else el.removeAttribute(name);
   };
 };
+
+const FOCUSABLE_SELECTOR =
+  'a[href],area[href],button,input,select,textarea,iframe,' +
+  '[tabindex],[contenteditable="true"]';
+
+// The first focusable descendant of `element`, if any.
+export const findFocusable = (element: Element): HTMLElement | null =>
+  element.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);

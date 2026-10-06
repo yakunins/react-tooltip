@@ -5,7 +5,7 @@ import { cx } from '../src/utils/cx';
 import { addToken, setAttribute, setStyle } from '../src/utils/dom';
 import { withDefaults } from '../src/utils/withDefaults';
 import { cssTimeToMs } from '../src/utils/cssTime';
-import tooltipCss from '../src/Tooltip/tooltip.css.generated.js';
+import popoverCss from '../src/TooltipPopover/tooltipPopover.css.generated.js';
 import anchorCss from '../src/TooltipAnchor/tooltipAnchor.css.generated.js';
 import bubbleCss from '../src/TooltipBubble/tooltipBubble.css.generated.js';
 
@@ -154,7 +154,7 @@ describe('css-to-js', () => {
 
   // Guards against editing a .css file without re-running `npm run css-to-js`.
   it.each([
-    ['src/Tooltip/tooltip.css', tooltipCss],
+    ['src/TooltipPopover/tooltipPopover.css', popoverCss],
     ['src/TooltipAnchor/tooltipAnchor.css', anchorCss],
     ['src/TooltipBubble/tooltipBubble.css', bubbleCss],
   ])('%s.generated.js is up to date', (src, generated) => {

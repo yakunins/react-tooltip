@@ -1,4 +1,4 @@
-import { Tooltip, TooltipBubble, TooltipAnchor } from '../src';
+import { Tooltip, TooltipBubble, TooltipAnchor, TooltipPopover } from '../src';
 
 describe('react-tooltip-contemporary', () => {
   describe('public exports', () => {
@@ -14,6 +14,10 @@ describe('react-tooltip-contemporary', () => {
       // forwardRef components are exotic objects, not plain functions
       expect(typeof TooltipAnchor).toBe('object');
       expect(TooltipAnchor).not.toBeNull();
+    });
+
+    it('exports the TooltipPopover subcomponent (forwardRef)', () => {
+      expect(typeof TooltipPopover).toBe('object');
     });
   });
 });

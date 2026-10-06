@@ -2,7 +2,7 @@
 
 const css = {
   src: `src/TooltipBubble/tooltipBubble.css`,
-  hash: `24gwiti2meh`,
+  hash: `1lmm8gf622r`,
   content: `
 .tooltip-bubble{
 --py:var(--tooltip-padding-y);
@@ -47,13 +47,13 @@ var(--arrow-l)
 .tooltip-bubble:empty{
 display:none;
 }
-.tooltip-bubble.arrow-start{
+.tooltip-bubble[data-arrow='start']{
 --arrow-pos:var(--arrow-inset);
 }
-.tooltip-bubble.arrow-end{
+.tooltip-bubble[data-arrow='end']{
 --arrow-pos:calc(100% - var(--arrow-inset));
 }
-.tooltip-bubble.placement-top{
+.tooltip-bubble[data-placement='top']{
 --b:var(--arrow-size);
 --cx:var(--arrow-pos,50%);
 --cy:calc(100% - var(--arrow-size));
@@ -63,7 +63,7 @@ var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707),
 calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy);
 padding-bottom:calc(var(--b) + var(--py));
 }
-.tooltip-bubble.placement-bottom{
+.tooltip-bubble[data-placement='bottom']{
 --t:var(--arrow-size);
 --cx:var(--arrow-pos,50%);
 --cy:calc(0% + var(--arrow-size));
@@ -73,7 +73,7 @@ var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707),
 calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy);
 padding-top:calc(var(--t) + var(--py));
 }
-.tooltip-bubble.placement-left{
+.tooltip-bubble[data-placement='left']{
 --r:var(--arrow-size);
 --cx:calc(100% - var(--arrow-size));
 --cy:var(--arrow-pos,50%);
@@ -83,7 +83,7 @@ calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
 var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707);
 padding-right:calc(var(--r) + var(--px));
 }
-.tooltip-bubble.placement-right{
+.tooltip-bubble[data-placement='right']{
 --l:var(--arrow-size);
 --cx:calc(0% + var(--arrow-size));
 --cy:var(--arrow-pos,50%);
@@ -94,7 +94,7 @@ var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707);
 padding-left:calc(var(--l) + var(--px));
 }
 .tooltip-bubble,
-.tooltip-bubble.corners-3{
+.tooltip-bubble[data-corners='3']{
 --d1:calc(var(--rad) * 0.134);
 --d2:calc(var(--rad) * 0.5);
 --corner1:
@@ -118,7 +118,7 @@ calc(var(--l) + var(--d2)) calc(100% - var(--b) - var(--d1)),
 calc(var(--l) + var(--d1)) calc(100% - var(--b) - var(--d2)),
 var(--l) calc(100% - var(--b) - var(--rad));
 }
-.tooltip-bubble.corners-5{
+.tooltip-bubble[data-corners='5']{
 --d1:calc(var(--rad) * 0.0489);
 --d2:calc(var(--rad) * 0.191);
 --d3:calc(var(--rad) * 0.4122);
@@ -152,7 +152,7 @@ calc(var(--l) + var(--d2)) calc(100% - var(--b) - var(--d3)),
 calc(var(--l) + var(--d1)) calc(100% - var(--b) - var(--d4)),
 var(--l) calc(100% - var(--b) - var(--rad));
 }
-.tooltip-bubble.corners-7{
+.tooltip-bubble[data-corners='7']{
 --d1:calc(var(--rad) * 0.0251);
 --d2:calc(var(--rad) * 0.099);
 --d3:calc(var(--rad) * 0.2182);

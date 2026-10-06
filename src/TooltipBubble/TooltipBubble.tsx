@@ -72,13 +72,10 @@ export const TooltipBubble = ({
   return (
     <div
       {...rest}
-      className={cx(
-        'tooltip-bubble',
-        `placement-${placement}`,
-        `arrow-${arrowPlacement}`,
-        `corners-${segments}`,
-        className
-      )}
+      className={cx('tooltip-bubble', className)}
+      data-placement={placement}
+      data-arrow={arrowPlacement}
+      data-corners={segments}
       style={vars}
     >
       {children}

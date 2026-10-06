@@ -8,7 +8,7 @@
   initial-value: 0px;
 }
 
-.tooltip {
+.tooltip-popover {
   /* reset user-agent popover styles */
   inset: auto;
   margin: 0;
@@ -46,38 +46,38 @@
   opacity: 0;
 }
 
-.tooltip:popover-open {
+.tooltip-popover:popover-open {
   opacity: 1;
   filter: var(--tooltip-outline);
 }
 /* anchor scrolled fully out of sight: faded out (JS), not interactive */
-.tooltip.anchor-hidden {
+.tooltip-popover[data-anchor-hidden] {
   pointer-events: none;
 }
 
 /* Placement; --flip-from starts the JS flip slide from the anchor side. */
-.tooltip.placement-top {
+.tooltip-popover[data-placement='top'] {
   bottom: anchor(top);
   left: anchor(center);
   translate: -50% 0;
   margin-bottom: var(--tooltip-offset, 0.25em);
   --flip-from: translateY(8px);
 }
-.tooltip.placement-bottom {
+.tooltip-popover[data-placement='bottom'] {
   top: anchor(bottom);
   left: anchor(center);
   translate: -50% 0;
   margin-top: var(--tooltip-offset, 0.25em);
   --flip-from: translateY(-8px);
 }
-.tooltip.placement-left {
+.tooltip-popover[data-placement='left'] {
   right: anchor(left);
   top: anchor(center);
   translate: 0 -50%;
   margin-right: var(--tooltip-offset, 0.25em);
   --flip-from: translateX(8px);
 }
-.tooltip.placement-right {
+.tooltip-popover[data-placement='right'] {
   left: anchor(right);
   top: anchor(center);
   translate: 0 -50%;
@@ -87,25 +87,25 @@
 
 /* Inside a popover the bubble uses the popover-resolved inset, so the arrow
  * tip and the popover shift match; a standalone bubble keeps its own. */
-.tooltip .tooltip-bubble {
+.tooltip-popover .tooltip-bubble {
   --arrow-inset: var(--tooltip-arrow-inset);
 }
 
 /* Arrow placement: shift the bubble so the arrow tip, not the bubble's
  * middle, lands on the anchor center ('center' keeps -50%). */
-.tooltip.placement-top.arrow-start,
-.tooltip.placement-bottom.arrow-start {
+.tooltip-popover[data-placement='top'][data-arrow='start'],
+.tooltip-popover[data-placement='bottom'][data-arrow='start'] {
   translate: calc(-1 * var(--tooltip-arrow-inset)) 0;
 }
-.tooltip.placement-top.arrow-end,
-.tooltip.placement-bottom.arrow-end {
+.tooltip-popover[data-placement='top'][data-arrow='end'],
+.tooltip-popover[data-placement='bottom'][data-arrow='end'] {
   translate: calc(-100% + var(--tooltip-arrow-inset)) 0;
 }
-.tooltip.placement-left.arrow-start,
-.tooltip.placement-right.arrow-start {
+.tooltip-popover[data-placement='left'][data-arrow='start'],
+.tooltip-popover[data-placement='right'][data-arrow='start'] {
   translate: 0 calc(-1 * var(--tooltip-arrow-inset));
 }
-.tooltip.placement-left.arrow-end,
-.tooltip.placement-right.arrow-end {
+.tooltip-popover[data-placement='left'][data-arrow='end'],
+.tooltip-popover[data-placement='right'][data-arrow='end'] {
   translate: 0 calc(-100% + var(--tooltip-arrow-inset));
 }

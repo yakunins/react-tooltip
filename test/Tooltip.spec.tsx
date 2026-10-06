@@ -44,16 +44,19 @@ describe('Tooltip rendering', () => {
     const pop = popover()!;
     expect(pop.getAttribute('popover')).toBe('manual');
     expect(anchor().getAttribute('aria-describedby')).toBe(pop.id);
-    expect(pop.className).toBe('tooltip placement-top arrow-center mine');
+    expect(pop.className).toBe('tooltip-popover mine');
+    expect(pop.dataset.placement).toBe('top');
+    expect(pop.dataset.arrow).toBe('center');
     expect(pop.querySelector('.tooltip-bubble')?.textContent).toBe('Tip');
   });
 
   it('passes placement and arrowPlacement to the popover and bubble', () => {
     renderTooltip({ placement: 'right', arrowPlacement: 'start' });
-    expect(popover()!.className).toBe('tooltip placement-right arrow-start');
-    expect(popover()!.querySelector('.placement-right.arrow-start')).not.toBe(
-      null
-    );
+    expect(popover()!.dataset.placement).toBe('right');
+    expect(popover()!.dataset.arrow).toBe('start');
+    expect(
+      popover()!.querySelector('[data-placement="right"][data-arrow="start"]')
+    ).not.toBe(null);
   });
 
   it('mirrors offset, radius and arrow size onto the popover', () => {
@@ -411,10 +414,10 @@ describe('Tooltip when the anchor is scrolled out of sight', () => {
   it('fades out while the anchor is clipped and back in when it returns', () => {
     renderTooltip({ open: true });
     intersect(false);
-    expect(popover()!.classList.contains('anchor-hidden')).toBe(true);
+    expect(popover()!.hasAttribute('data-anchor-hidden')).toBe(true);
     expect(isOpen()).toBe(true); // still open, just faded
     intersect(true);
-    expect(popover()!.classList.contains('anchor-hidden')).toBe(false);
+    expect(popover()!.hasAttribute('data-anchor-hidden')).toBe(false);
   });
 
   it('only watches the anchor while open, and forgets on close', () => {
@@ -433,7 +436,7 @@ describe('Tooltip when the anchor is scrolled out of sight', () => {
       </Tooltip>
     );
     expect(MockIntersectionObserver.watching(anchor())).toBeUndefined();
-    expect(popover()!.classList.contains('anchor-hidden')).toBe(false);
+    expect(popover()!.hasAttribute('data-anchor-hidden')).toBe(false);
   });
 
   it('watches an external anchorRef element', () => {
@@ -444,7 +447,7 @@ describe('Tooltip when the anchor is scrolled out of sight', () => {
         { isIntersecting: false },
       ]);
     });
-    expect(popover()!.classList.contains('anchor-hidden')).toBe(true);
+    expect(popover()!.hasAttribute('data-anchor-hidden')).toBe(true);
     el.remove();
   });
 });
@@ -657,7 +660,47 @@ describe('Tooltip with optional features missing', () => {
     renderTooltip({ defaultOpen: true, placement: 'top' });
     expect(popover()).not.toBeNull();
     expect(isOpen()).toBe(true);
-    expect(popover()!.className).toContain('placement-top');
+    expect(popover()!.dataset.placement).toBe('top');
     expect(MockIntersectionObserver.instances).toHaveLength(0);
+  });
+});
+
+describe('Tooltip aria-describedby', () => {
+  it('goes on a focusable child, which is what screen readers announce', () => {
+    renderTooltip({ children: <button>btn</button> });
+    const button = anchor().querySelector('button')!;
+    expect(button.getAttribute('aria-describedby')).toBe(popover()!.id);
+    expect(anchor().hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('goes on the wrapper when nothing inside is focusable', () => {
+    renderTooltip({ children: <span>text</span> });
+    expect(anchor().getAttribute('aria-describedby')).toBe(popover()!.id);
+  });
+
+  it('moves when the children change, and is removed on unmount', () => {
+    const { rerender, unmount } = render(
+      <Tooltip content="Tip">
+        <span>text</span>
+      </Tooltip>
+    );
+    rerender(
+      <Tooltip content="Tip">
+        <button>btn</button>
+      </Tooltip>
+    );
+    const button = anchor().querySelector('button')!;
+    expect(button.getAttribute('aria-describedby')).toBe(popover()!.id);
+    expect(anchor().hasAttribute('aria-describedby')).toBe(false);
+    unmount();
+    expect(button.hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('keeps the child’s own description ids', () => {
+    renderTooltip({ children: <button aria-describedby="own">btn</button> });
+    const button = anchor().querySelector('button')!;
+    expect(button.getAttribute('aria-describedby')).toBe(
+      `own ${popover()!.id}`
+    );
   });
 });

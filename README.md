@@ -23,14 +23,15 @@
 
 ## Components
 
-Each component injects its own stylesheet slice at runtime, so all three
-work standalone with no CSS import.
+Each component injects its own stylesheet slice at runtime, so each one
+works standalone with no CSS import.
 
-| Export          | Role                                          |
-| --------------- | --------------------------------------------- |
-| `Tooltip`       | Behavior, triggers, positioning.              |
-| `TooltipBubble` | The bubble, i.e. the clip-path shape + arrow. |
-| `TooltipAnchor` | The anchor part of CSS anchor positioning.    |
+| Export           | Role                                          |
+| ---------------- | --------------------------------------------- |
+| `Tooltip`        | Behavior, triggers, positioning.              |
+| `TooltipBubble`  | The bubble, i.e. the clip-path shape + arrow. |
+| `TooltipAnchor`  | The anchor part of CSS anchor positioning.    |
+| `TooltipPopover` | The top-layer popover that holds the bubble.  |
 
 ## `Tooltip` props
 
@@ -91,8 +92,8 @@ top→bottom for `left`/`right`.
 
 Per-instance look of the bubble. Pass any subset; omitted fields fall back to
 the library defaults. Most fields are applied as CSS custom properties on the
-bubble. The one exception is `cornerSegments`, which selects a `.corners-N`
-class.
+bubble. The one exception is `cornerSegments`, which sets a `data-corners`
+attribute.
 
 | Field            | Type          | Default      | Notes                                                     |
 | ---------------- | ------------- | ------------ | --------------------------------------------------------- |
@@ -174,6 +175,23 @@ const [open, setOpen] = useState(false);
     content="Saved"
   />
 </>;
+```
+
+## Styling hooks
+
+Each part has one class, and its state is in data attributes, so custom CSS
+can target them without colliding with other libraries:
+
+| Element        | Class             | Data attributes                                      |
+| -------------- | ----------------- | ---------------------------------------------------- |
+| Popover        | `tooltip-popover` | `data-placement`, `data-arrow`, `data-anchor-hidden` |
+| Bubble         | `tooltip-bubble`  | `data-placement`, `data-arrow`, `data-corners`       |
+| Anchor wrapper | `tooltip-anchor`  |                                                      |
+
+```css
+.tooltip-popover[data-placement='bottom'] .tooltip-bubble {
+  font-weight: 600;
+}
 ```
 
 ## Content Security Policy

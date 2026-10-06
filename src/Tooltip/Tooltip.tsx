@@ -2,23 +2,22 @@ import { useId, useRef, useState, type CSSProperties } from 'react';
 
 import {
   useControllableOpen,
+  useDescribedBy,
   useElementHasFocusable,
   useElementHidden,
   useExternalAnchor,
   useFlipPlacement,
   useIsoLayoutEffect,
   usePopover,
-  useStyleInjector,
   useSupports,
   useTooltipAnimations,
   useTooltipInteractions,
 } from '../hooks';
 import { TooltipAnchor } from '../TooltipAnchor';
 import { TooltipBubble, DEFAULT_BUBBLE_STYLE } from '../TooltipBubble';
+import { TooltipPopover } from '../TooltipPopover';
 import { cssTimeToMs } from '../utils/cssTime';
-import { cx } from '../utils/cx';
 import { withDefaults } from '../utils/withDefaults';
-import { default as tooltipCss } from './tooltip.css.generated.js';
 import {
   TOOLTIP_DEFAULTS,
   TOOLTIP_DEFAULTS_TIMINGS,
@@ -50,7 +49,6 @@ export const Tooltip = ({
   anchorRef: anchorRefProp,
   anchorName: anchorNameProp,
 }: TooltipProps) => {
-  useStyleInjector(tooltipCss);
   // Needs anchor positioning + the Popover API, else a native `title` (no
   // polyfill); animation and IntersectionObserver features switch off alone.
   const support = useSupports();
@@ -89,7 +87,7 @@ export const Tooltip = ({
     hasOpened || typeof content === 'string' || typeof content === 'number';
 
   const t = withDefaults(TOOLTIP_DEFAULTS_TIMINGS, timings);
-  // Radius and arrow size feed tooltip.css's arrow inset.
+  // Radius and arrow size feed tooltipPopover.css's arrow inset.
   const bs = withDefaults(DEFAULT_BUBBLE_STYLE, bubbleStyle);
 
   // `keptOpenRef`: focus or a click is keeping the tooltip open.
@@ -163,6 +161,8 @@ export const Tooltip = ({
 
   // Wrapping mode only: decides whether our wrapper needs a tab stop.
   const hasFocusable = useElementHasFocusable(wrapping ? anchor : null);
+  // Described where focus lands: the focusable child, else the wrapper.
+  useDescribedBy(wrapping && styled ? anchor : null, tooltipId);
   const useFocus = triggers.includes('focus');
 
   // Fallback: wrapping mode carries the title; by-ref sets it in
@@ -191,24 +191,18 @@ export const Tooltip = ({
         <TooltipAnchor
           ref={internalAnchorRef}
           anchorName={anchorName}
-          aria-describedby={tooltipId}
           tabIndex={!hasFocusable && useFocus ? 0 : undefined}
         >
           {children}
         </TooltipAnchor>
       )}
-      <div
+      <TooltipPopover
         ref={popoverRef}
-        popover="manual"
         id={tooltipId}
-        role="tooltip"
-        className={cx(
-          'tooltip',
-          `placement-${effectivePlacement}`,
-          `arrow-${arrowPlacement}`,
-          anchorHidden && 'anchor-hidden',
-          className
-        )}
+        placement={effectivePlacement}
+        arrowPlacement={arrowPlacement}
+        anchorHidden={anchorHidden}
+        className={className}
         style={popoverStyle}
       >
         {renderContent && (
@@ -220,7 +214,7 @@ export const Tooltip = ({
             {content}
           </TooltipBubble>
         )}
-      </div>
+      </TooltipPopover>
     </>
   );
 };

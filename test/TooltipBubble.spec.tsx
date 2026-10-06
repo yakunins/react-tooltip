@@ -6,6 +6,7 @@ import {
   DEFAULT_BUBBLE_STYLE,
   TooltipAnchor,
   TooltipBubble,
+  TooltipPopover,
   type TooltipBubbleStyle,
 } from '../src';
 
@@ -17,11 +18,15 @@ const bubbleOf = (container: HTMLElement) =>
   container.querySelector('.tooltip-bubble') as HTMLElement;
 
 describe('TooltipBubble', () => {
-  it('renders the default classes', () => {
+  it('renders the defaults as data attributes', () => {
     const { container } = render(<TooltipBubble>hi</TooltipBubble>);
-    expect(bubbleOf(container).className).toBe(
-      'tooltip-bubble placement-top arrow-center corners-5'
-    );
+    const el = bubbleOf(container);
+    expect(el.className).toBe('tooltip-bubble');
+    expect(el.dataset).toMatchObject({
+      placement: 'top',
+      arrow: 'center',
+      corners: '5',
+    });
   });
 
   it('reflects placement, arrowPlacement and className', () => {
@@ -30,9 +35,9 @@ describe('TooltipBubble', () => {
         hi
       </TooltipBubble>
     );
-    expect(bubbleOf(container).className).toBe(
-      'tooltip-bubble placement-left arrow-end corners-5 mine'
-    );
+    const el = bubbleOf(container);
+    expect(el.className).toBe('tooltip-bubble mine');
+    expect(el.dataset).toMatchObject({ placement: 'left', arrow: 'end' });
   });
 
   it('applies every default as a --tooltip-* property', () => {
@@ -79,10 +84,10 @@ describe('TooltipBubble', () => {
   });
 
   it.each([
-    [3, 'corners-3'],
-    [7, 'corners-7'],
-    [4, 'corners-5'], // unsupported -> default
-  ])('cornerSegments %p -> %s', (n, cls) => {
+    [3, '3'],
+    [7, '7'],
+    [4, '5'], // unsupported -> default
+  ])('cornerSegments %p -> data-corners %s', (n, corners) => {
     const { container } = render(
       <TooltipBubble
         bubbleStyle={{ cornerSegments: n } as unknown as TooltipBubbleStyle}
@@ -90,7 +95,7 @@ describe('TooltipBubble', () => {
         hi
       </TooltipBubble>
     );
-    expect(bubbleOf(container).classList.contains(cls)).toBe(true);
+    expect(bubbleOf(container).dataset.corners).toBe(corners);
   });
 
   it('passes other props through', () => {
@@ -106,7 +111,7 @@ describe('TooltipBubble', () => {
     const { unmount } = render(<TooltipBubble>hi</TooltipBubble>);
     const css = () => document.head.textContent ?? '';
     expect(css()).toContain('.tooltip-bubble{');
-    expect(css()).toContain('.tooltip-bubble.corners-7{');
+    expect(css()).toContain(".tooltip-bubble[data-corners='7']{");
     unmount();
     expect(css()).toBe('');
   });
@@ -129,5 +134,48 @@ describe('TooltipAnchor', () => {
   it('injects its stylesheet', () => {
     render(<TooltipAnchor anchorName="--a">x</TooltipAnchor>);
     expect(document.head.textContent).toContain('.tooltip-anchor');
+  });
+});
+
+describe('TooltipPopover', () => {
+  it('renders a manual popover with role tooltip and placement classes', () => {
+    const { getByRole } = render(
+      <TooltipPopover
+        id="p"
+        placement="left"
+        arrowPlacement="end"
+        className="x"
+      >
+        hi
+      </TooltipPopover>
+    );
+    const el = getByRole('tooltip', { hidden: true });
+    expect(el.getAttribute('popover')).toBe('manual');
+    expect(el.id).toBe('p');
+    expect(el.className).toBe('tooltip-popover x');
+    expect(el.dataset.placement).toBe('left');
+    expect(el.dataset.arrow).toBe('end');
+  });
+
+  it('marks a hidden anchor', () => {
+    const { getByRole } = render(
+      <TooltipPopover placement="top" anchorHidden>
+        hi
+      </TooltipPopover>
+    );
+    expect(
+      getByRole('tooltip', { hidden: true }).hasAttribute('data-anchor-hidden')
+    ).toBe(true);
+  });
+
+  it('forwards the ref and injects its stylesheet', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(
+      <TooltipPopover ref={ref} placement="top">
+        hi
+      </TooltipPopover>
+    );
+    expect(ref.current?.getAttribute('role')).toBe('tooltip');
+    expect(document.head.textContent).toContain('.tooltip-popover{');
   });
 });

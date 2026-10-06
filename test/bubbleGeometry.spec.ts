@@ -69,7 +69,7 @@ const near = (a: Point, b: Point, eps = 1e-6) =>
 
 describe('tooltipBubble.css clip-path geometry', () => {
   it.each(cases)(
-    'corners-$n placement-$placement arrow-$arrow: stays inside the box',
+    'corners $n, $placement, arrow $arrow: stays inside the box',
     c => {
       for (const [x, y] of geo.polygon(classesOf(c))) {
         expect(x).toBeGreaterThanOrEqual(-1e-9);
@@ -81,7 +81,7 @@ describe('tooltipBubble.css clip-path geometry', () => {
   );
 
   it.each(cases)(
-    'corners-$n placement-$placement arrow-$arrow: has the arrow tip in place',
+    'corners $n, $placement, arrow $arrow: has the arrow tip in place',
     c => {
       const tip = expectedTip(c.placement, c.arrow);
       expect(geo.polygon(classesOf(c)).some(p => near(p, tip))).toBe(true);
@@ -90,7 +90,7 @@ describe('tooltipBubble.css clip-path geometry', () => {
 
   // A clockwise outline encloses body + arrow; a reversed arrow subtracts it.
   it.each(cases)(
-    'corners-$n placement-$placement arrow-$arrow: encloses body + arrow, clockwise',
+    'corners $n, $placement, arrow $arrow: encloses body + arrow, clockwise',
     c => {
       const vertical = c.placement === 'top' || c.placement === 'bottom';
       const body =
@@ -127,7 +127,7 @@ describe('tooltipBubble.css clip-path geometry', () => {
     }
   );
 
-  it('falls back to 3 segments without a corners-N class', () => {
+  it('falls back to 3 segments without data-corners', () => {
     expect(geo.points('var(--corner1)', ['placement-top'])).toHaveLength(4);
   });
 

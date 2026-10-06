@@ -26,7 +26,12 @@ const parseRules = (css: string): Rule[] => {
           .replace(/\s+/g, ' ');
       }
     }
-    rules.push({ selectors: m[1].split(',').map(s => s.trim()), decls });
+    // [data-placement='top'] is matched like a .placement-top class.
+    const selectors = m[1]
+      .replace(/\[data-([\w-]+)='([^']+)'\]/g, '.$1-$2')
+      .split(',')
+      .map(s => s.trim());
+    rules.push({ selectors, decls });
   }
   return rules;
 };
