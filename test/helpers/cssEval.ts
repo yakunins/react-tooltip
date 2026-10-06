@@ -1,5 +1,4 @@
-// Just enough CSS to resolve the tooltipBubble.css clip-path into numeric points
-// for a box of known size: flat rules, class specificity, var(), calc(), cos/sin.
+// Just enough CSS (specificity, var, calc, cos/sin) to evaluate the clip-path.
 
 type Decls = Record<string, string>;
 export type Point = [number, number];

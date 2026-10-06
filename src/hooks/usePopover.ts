@@ -14,9 +14,8 @@ const toggle = (el: HTMLElement | null, show: boolean) => {
   }
 };
 
-// Shows the native popover on open, in a layout effect so it is measurable
-// before the other hooks' effects run. Returns `hide`: the caller hides it once
-// the fade-out has finished.
+// Shows the popover on open, in a layout effect so other hooks can measure
+// it. Returns `hide`, for the caller to use after the fade-out.
 export const usePopover = (
   popoverRef: RefObject<HTMLElement>,
   isOpen: boolean

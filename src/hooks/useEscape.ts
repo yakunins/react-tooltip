@@ -10,9 +10,9 @@ interface Entry {
 // Enabled handlers, most recent last; one window listener while any exist.
 const stack: Entry[] = [];
 
-// Escape runs every `topmostOnly: false` handler and lets the key through, and
-// only the most recent `topmostOnly` handler, stopping the key there (window
-// capture runs first) so a surrounding dialog closes on the next press.
+// Escape runs every `topmostOnly: false` handler, plus the most recent
+// `topmostOnly` one, which stops the key (window capture runs first), so a
+// surrounding dialog closes on the next press.
 const onKeyDown = (e: KeyboardEvent) => {
   if (e.key !== 'Escape') return;
   const entries = [...stack];

@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 
-// Runs `fn` at most once per `ms`, leading and trailing. `cancel` drops a
-// pending trailing call.
+// Runs `fn` at most once per `ms` (leading + trailing); `cancel` drops the
+// trailing call.
 export const useThrottledCallback = (
   fn: () => void,
   ms: number

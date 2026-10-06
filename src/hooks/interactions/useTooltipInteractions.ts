@@ -79,8 +79,8 @@ export const useTooltipInteractions = ({
   useEventListener(popoverRef, 'mouseenter', delayed.open, hoverTrigger);
   useEventListener(popoverRef, 'mouseleave', closeOnHover, hoverTrigger);
 
-  // Focus anywhere in anchor + bubble keeps it open. The bubble side runs
-  // even without the focus trigger, so focused content is never hidden.
+  // Focus in anchor + bubble keeps it open; the bubble side runs even without
+  // the focus trigger, so focused content is never hidden.
   const keepOpenOnFocus = () => keepOpen.set('focus', true);
   const releaseOnFocusOut = (e: FocusEvent) => {
     // A tooltip kept open by a click survives focus leaving (e.g. alt-tab).
@@ -111,8 +111,7 @@ export const useTooltipInteractions = ({
     setOpen(false);
   };
   useEscape(isOpen, dismiss);
-  // While kept open by a click, any other click dismisses, bubble included.
-  // Anchor clicks are left to the click toggle.
+  // Kept open by a click: any other click dismisses (anchor: the toggle's job).
   useOutsideClick(
     clickTrigger ? [anchor] : [],
     dismiss,

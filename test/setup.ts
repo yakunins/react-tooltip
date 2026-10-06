@@ -1,5 +1,4 @@
-// jsdom can't parse modern CSS (nesting, anchor(), @property) and logs
-// an error per injected stylesheet; styles aren't applied in jsdom anyway.
+// jsdom can't parse modern CSS and logs an error per stylesheet; silence it.
 const originalError = console.error.bind(console);
 console.error = (...args: unknown[]) => {
   const first = args[0];

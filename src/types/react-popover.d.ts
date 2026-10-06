@@ -1,5 +1,5 @@
-// Adds the Popover API attributes missing from this @types/react release.
-// The import makes this a module, so the block merges instead of replacing.
+// Popover API attributes missing from this @types/react; the import makes this
+// a module, so the block merges instead of replacing.
 import 'react';
 
 declare module 'react' {

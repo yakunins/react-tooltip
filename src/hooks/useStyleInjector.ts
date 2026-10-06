@@ -3,9 +3,8 @@ import { useInsertionEffect } from 'react';
 // A css-to-js module; `hash` identifies the stylesheet.
 export type GeneratedCss = { hash: string; content: string };
 
-// The page's CSP nonce, if any: Vite's <meta property="csp-nonce">, else any
-// <script nonce>. Read through `.nonce` first, since browsers hide the
-// attribute's value from scripts once the element is in the document.
+// The page's CSP nonce: <meta property="csp-nonce"> (Vite), else <script
+// nonce>. Read via `.nonce`: browsers hide the attribute value from scripts.
 const findNonce = (): string | undefined => {
   const source =
     document.querySelector<HTMLElement>('meta[property="csp-nonce"]') ??
@@ -16,9 +15,8 @@ const findNonce = (): string | undefined => {
 // One <style> per stylesheet, counted by the components using it.
 const tags = new Map<string, { el: HTMLStyleElement; users: number }>();
 
-// Injects a stylesheet into <head> while mounted; components using the same
-// one share a single <style>, removed after the last unmounts. Under a strict
-// CSP the tag gets the page's nonce automatically.
+// Injects a stylesheet into <head> while mounted, one shared <style> per
+// stylesheet (removed after the last user), with the page's CSP nonce.
 export const useStyleInjector = ({ hash, content }: GeneratedCss): void => {
   useInsertionEffect(() => {
     let entry = tags.get(hash);

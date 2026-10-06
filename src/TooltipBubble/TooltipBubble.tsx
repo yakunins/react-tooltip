@@ -29,20 +29,17 @@ const CORNER_SEGMENTS = [3, 5, 7] as const;
 type DivProps = HTMLAttributes<HTMLDivElement>;
 
 export type TooltipBubbleProps = DivProps & {
-  /** Side of the anchor the bubble sits on; the arrow points the other way. */
+  /** Side of the anchor the bubble sits on. Default `'top'`. */
   placement?: Placement;
   /** Where the arrow sits along the bubble edge. Default `'center'`. */
   arrowPlacement?: ArrowPlacement;
-  /** Visual customisation of the bubble. */
+  /** Visual customization of the bubble. */
   bubbleStyle?: TooltipBubbleStyle;
   /** Bubble content. */
   children?: ReactNode;
 };
 
-/**
- * The bubble and its arrow, drawn as one `clip-path` polygon. Injects its own
- * stylesheet, so no CSS import is needed.
- */
+/** The bubble and its arrow as one `clip-path` polygon; injects its own CSS. */
 export const TooltipBubble = ({
   placement = 'top',
   arrowPlacement = 'center',

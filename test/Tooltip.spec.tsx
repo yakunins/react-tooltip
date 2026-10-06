@@ -238,7 +238,7 @@ describe('Tooltip click trigger', () => {
     expect(isOpen()).toBe(true);
     fireEvent.mouseLeave(anchor());
     advance(5000);
-    expect(isOpen()).toBe(true); // pinned: hover-out doesn't close it
+    expect(isOpen()).toBe(true); // kept open: hover-out doesn't close it
   });
 
   it('closes on click after the guard window', () => {

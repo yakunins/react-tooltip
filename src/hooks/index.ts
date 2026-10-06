@@ -1,5 +1,4 @@
-// Hooks used by the components. Generic helpers (useLatestRef,
-// useEventListener, ...) are imported by path inside src/hooks.
+// Hooks used by the components; internal helpers are imported by path.
 export { useControllableOpen, type SetOpen } from './useControllableOpen';
 export { useElementHasFocusable } from './useElementHasFocusable';
 export { useElementHidden } from './useElementHidden';

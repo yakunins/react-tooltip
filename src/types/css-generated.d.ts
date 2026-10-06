@@ -1,5 +1,4 @@
-// Types for the files emitted by css-to-js.js. No imports, so the wildcard
-// declaration stays global.
+// Types for css-to-js.js output; no imports, so the declaration stays global.
 declare module '*.css.generated.js' {
   const css: {
     src: string;

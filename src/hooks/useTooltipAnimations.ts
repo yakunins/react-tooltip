@@ -5,10 +5,9 @@ import { useLatestRef } from './useLatestRef';
 const prefersReducedMotion = (): boolean =>
   Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
 
-// Two independent channels on the popover: fade (opacity) and slide
-// (transform). A new animation stops only its own channel's previous one, so a
-// fade-out mid-flip leaves the slide running. With `animate` off (no Web
-// Animations API) the fade sets the opacity instantly and the slide is skipped.
+// Independent fade (opacity) and slide (transform) channels: a new animation
+// stops only its own channel, so a mid-flip fade-out leaves the slide running.
+// With `animate` off, the fade sets the opacity instantly and slides skip.
 export const useTooltipAnimations = (
   popoverRef: RefObject<HTMLElement>,
   durationMs: number,
@@ -40,9 +39,8 @@ export const useTooltipAnimations = (
     [popoverRef, animateRef]
   );
 
-  // Fades to `to` from `from` (default: the current opacity, mid-fade
-  // included), at a duration proportional to the distance. `fill` holds the
-  // end value: the popover's base opacity is 0.
+  // Fades from `from` (default: current opacity) to `to`, timed by distance;
+  // `fill` holds the end value, as the base opacity is 0.
   const fade = useCallback(
     (to: number, from?: number) => {
       const el = popoverRef.current;
@@ -62,8 +60,7 @@ export const useTooltipAnimations = (
     [popoverRef, run, durationRef, animateRef]
   );
 
-  // The flip slide: the bubble emerges from the anchor side (--flip-from, set
-  // per placement in tooltip.css).
+  // The flip slide, from the anchor side (--flip-from, set in tooltip.css).
   const slide = useCallback(
     () =>
       run(

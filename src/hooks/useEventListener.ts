@@ -7,9 +7,9 @@ type Target = EventTarget | RefObject<EventTarget> | null | undefined;
 const resolve = (target: Target): EventTarget | null | undefined =>
   target && 'current' in target ? target.current : target;
 
-// Listens to `type` on `target` (an element, document, window, or a ref to one)
-// while `enabled`. The handler may change freely between renders. Added in an
-// effect, so it never sees the event that caused the render enabling it.
+// Listens on `target` (element, document, window or a ref) while `enabled`,
+// calling the latest handler. Added in an effect, so it never sees the event
+// that caused the render enabling it.
 export const useEventListener = <E extends Event = Event>(
   target: Target,
   type: string,

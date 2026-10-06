@@ -1,5 +1,4 @@
-// CSS <time> ('0.2s' | '160ms') to ms. A bare number is taken as ms; NaN if
-// it doesn't start with a number.
+// CSS <time> ('0.2s' | '160ms', or a bare number) to ms; NaN if unparsable.
 export const cssTimeToMs = (value: string): number => {
   const v = value.trim();
   if (v.endsWith('ms')) return parseFloat(v);

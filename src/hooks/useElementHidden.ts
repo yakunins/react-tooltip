@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { observe } from '../utils/dom';
 
-// True while `element` is scrolled fully out of sight. A viewport-rooted
-// observer sees the clipping of every scrolling ancestor. Resets to false when
-// disabled.
+// True while `element` is scrolled fully out of sight (a viewport-rooted
+// observer sees every scrolling ancestor's clipping); false when disabled.
 export const useElementHidden = (
   element: HTMLElement | null,
   { enabled }: { enabled: boolean }

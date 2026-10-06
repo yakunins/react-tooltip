@@ -1,4 +1,4 @@
-/* Tooltip popover: UA reset and anchor() positioning. Fades are JS (useTooltipAnimations). */
+/* Tooltip popover: UA reset and anchor() positioning; fades are JS. */
 
 /* Registered <length> so its em resolves here, not against the bubble's
  * smaller font; keeps the popover shift and the arrow offset identical. */
@@ -20,8 +20,7 @@
   width: max-content;
   height: max-content;
 
-  /* --tooltip-radius / -arrow-size are always set
-   * inline by Tooltip.tsx, so no fallbacks here. */
+  /* --tooltip-radius / -arrow-size are set inline by Tooltip.tsx. */
   --tooltip-arrow-inset: calc(
     var(--tooltip-radius) + var(--tooltip-arrow-size) * 0.707
   );
@@ -56,8 +55,7 @@
   pointer-events: none;
 }
 
-/* Placement. --flip-from is read by the JS flip slide (useTooltipAnimations),
- * so a flipped bubble emerges from the anchor side. */
+/* Placement; --flip-from starts the JS flip slide from the anchor side. */
 .tooltip.placement-top {
   bottom: anchor(top);
   left: anchor(center);

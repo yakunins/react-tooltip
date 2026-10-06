@@ -174,8 +174,7 @@ describe('useOutsideClick', () => {
     expect(onOutside).toHaveBeenCalledTimes(1);
   });
 
-  // Covers the opening click: in a browser the listener can already be attached
-  // when the anchor click reaches the document.
+  // The opening click: a browser may attach this listener before it bubbles up.
   it('ignores clicks inside them, including descendants', () => {
     const { child, onOutside } = setup(true);
     child.click();

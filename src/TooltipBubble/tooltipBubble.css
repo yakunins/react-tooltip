@@ -8,8 +8,8 @@
   --rad: var(--tooltip-radius);
   --arrow-size: var(--tooltip-arrow-size);
 
-  /* Edge-to-tip distance for arrow-start / arrow-end, clearing the corner.
-   * Inside a Tooltip, tooltip.css overrides it with a popover-resolved length. */
+  /* Edge-to-tip distance for arrow-start / -end, clearing the corner; inside
+   * a Tooltip, tooltip.css overrides it. */
   --arrow-inset: calc(var(--rad) + var(--arrow-size) * 0.707);
 
   display: inline-block;
@@ -38,8 +38,8 @@
   --l: 0%;
   --r: 0%;
 
-  /* One --arrow-* point list per edge between the corners. Arrowless edges
-   * repeat the previous corner point (draws nothing); placement fills one in. */
+  /* One --arrow-* point list per edge; arrowless edges repeat the previous
+   * corner point (draws nothing), and each placement fills one in. */
   --arrow-t: calc(var(--l) + var(--rad)) var(--t);
   --arrow-r: calc(100% - var(--r)) calc(var(--t) + var(--rad));
   --arrow-b: calc(100% - var(--r) - var(--rad)) calc(100% - var(--b));
@@ -119,11 +119,10 @@
   padding-left: calc(var(--l) + var(--px));
 }
 
-/* Rounded corners: N segments on a true quarter-circle of radius --rad
- * (.corners-N, N = 3/5/7). Inputs --rad, --t/--b/--l/--r; outputs
- * --corner1..4 (top-left, top-right, bottom-right, bottom-left, clockwise).
- * --dK = --rad * (1 - cos(90deg * K / N)), precomputed; the other coordinate
- * uses --d(N-K) by symmetry, with --d0 = 0 and --dN = --rad inlined. */
+/* Rounded corners (.corners-N, N = 3/5/7): N segments on a quarter-circle of
+ * radius --rad, from --rad and --t/--b/--l/--r to --corner1..4 (clockwise
+ * from top-left). --dK = --rad * (1 - cos(90deg * K / N)), precomputed; the
+ * other coordinate uses --d(N-K), with --d0 = 0 and --dN = --rad inlined. */
 
 /* 3 segments, also the fallback without a .corners-N class */
 .tooltip-bubble,

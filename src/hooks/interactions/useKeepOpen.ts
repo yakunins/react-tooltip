@@ -19,10 +19,9 @@ export interface KeepOpen {
   set: (reason: KeepOpenReason, on: boolean) => void;
 }
 
-// What keeps the tooltip open besides hover: focus (from focusin until it
-// leaves, so a hover-shown tooltip still hides on mouseleave) or a click.
-// An uncontrolled defaultOpen starts as kept open by a click. Both release on
-// close.
+// What keeps the tooltip open besides hover: focus (until it leaves, not just
+// "anchor focused") or a click; uncontrolled defaultOpen counts as a click.
+// Both release on close.
 export const useKeepOpen = ({
   isOpen,
   isControlled,

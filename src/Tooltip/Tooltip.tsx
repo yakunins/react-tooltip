@@ -51,17 +51,15 @@ export const Tooltip = ({
   anchorName: anchorNameProp,
 }: TooltipProps) => {
   useStyleInjector(tooltipCss);
-  // The styled tooltip needs anchor positioning and the Popover API; without
-  // them it degrades to a native `title` (no polyfill). Animations and
-  // IntersectionObserver features switch off on their own.
+  // Needs anchor positioning + the Popover API, else a native `title` (no
+  // polyfill); animation and IntersectionObserver features switch off alone.
   const support = useSupports();
   const styled = support.anchorPositioning && support.popover;
 
   const internalAnchorRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-  // The anchor element (the consumer's anchorRef, else our wrapper), kept in
-  // state and re-read after every commit, so the hooks re-wire when it mounts
-  // late or is swapped for another element.
+  // The anchor element (anchorRef, else our wrapper), re-read after every
+  // commit so the hooks re-wire when it mounts late or is swapped.
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   useIsoLayoutEffect(() => {
     const el = anchorRefProp?.current ?? internalAnchorRef.current;
@@ -80,8 +78,7 @@ export const Tooltip = ({
     onOpenChange
   );
 
-  // First: a layout effect, so the popover is shown before the hooks below
-  // measure it. Hiding waits for the fade-out (see the fade below).
+  // First: shown in a layout effect, before the hooks below measure it.
   const hidePopover = usePopover(popoverRef, isOpen);
 
   // Rich content renders from the first open on, so closed tooltips stay cheap.
@@ -92,8 +89,7 @@ export const Tooltip = ({
     hasOpened || typeof content === 'string' || typeof content === 'number';
 
   const t = withDefaults(TOOLTIP_DEFAULTS_TIMINGS, timings);
-  // Radius and arrow size are mirrored onto the popover for tooltip.css's
-  // arrow inset.
+  // Radius and arrow size feed tooltip.css's arrow inset.
   const bs = withDefaults(DEFAULT_BUBBLE_STYLE, bubbleStyle);
 
   // `keptOpenRef`: focus or a click is keeping the tooltip open.
@@ -143,8 +139,8 @@ export const Tooltip = ({
     { animate: support.webAnimations }
   );
 
-  // Fade in while open with the anchor in sight; fade out otherwise, and hide
-  // the popover once a close has faded out (a reopen cancels that fade).
+  // Fade in while open with the anchor in sight, else out; a close hides the
+  // popover after its fade-out (a reopen cancels that).
   const visible = isOpen && !anchorHidden;
   useIsoLayoutEffect(() => {
     if (visible) return void fade(1);
@@ -169,8 +165,8 @@ export const Tooltip = ({
   const hasFocusable = useElementHasFocusable(wrapping ? anchor : null);
   const useFocus = triggers.includes('focus');
 
-  // Fallback: wrapping mode carries the title itself; by-ref mode sets it in
-  // useExternalAnchor, and by-name mode has no element for it.
+  // Fallback: wrapping mode carries the title; by-ref sets it in
+  // useExternalAnchor; by-name has no element for it.
   if (!styled) {
     if (!wrapping) return null;
     const title = typeof content === 'string' ? content : undefined;

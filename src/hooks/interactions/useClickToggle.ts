@@ -15,9 +15,8 @@ export interface ClickToggleParams {
   setOpen: SetOpen;
 }
 
-// The anchor's click handler: opens and keeps it open, or closes. Within
-// clickGuard of a hover/focus reveal a click keeps it open instead of closing,
-// so a click right after the reveal doesn't dismiss it.
+// The anchor's click handler: opens and keeps open, or closes. Within
+// clickGuard of a hover/focus reveal it keeps the tooltip open instead.
 export const useClickToggle = ({
   isOpen,
   clickGuard,

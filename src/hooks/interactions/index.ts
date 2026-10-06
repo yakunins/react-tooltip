@@ -1,5 +1,4 @@
-// The tooltip's hover / focus / click behavior; the other files here are its
-// private parts.
+// Hover / focus / click behavior; the other files here are private.
 export {
   useTooltipInteractions,
   type TooltipInteractionsParams,

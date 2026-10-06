@@ -1,5 +1,4 @@
-// Mocks for what jsdom lacks (Popover API, CSS.supports, IntersectionObserver,
-// matchMedia, Element.animate): installDom() in beforeEach, uninstallDom() after.
+// Mocks for what jsdom lacks; installDom() in beforeEach, uninstallDom() after.
 
 type Anyish = Record<string, unknown>;
 type AnimateMock = jest.Mock<
@@ -7,8 +6,7 @@ type AnimateMock = jest.Mock<
   [Keyframe[], KeyframeAnimationOptions?]
 >;
 
-// Enough of a WAAPI Animation for useTooltipAnimations: state and `finished`.
-// Opt in per test: `dom.animate.mockImplementation(mockAnimate)`.
+// Minimal WAAPI Animation; opt in: dom.animate.mockImplementation(mockAnimate).
 export class MockAnimation {
   playbackRate = 1;
   playState: AnimationPlayState = 'running';
@@ -87,7 +85,6 @@ export class MockIntersectionObserver {
       this as unknown as IntersectionObserver
     );
   }
-  // The live observer watching `el`, if any.
   static watching(el: Element): MockIntersectionObserver | undefined {
     return MockIntersectionObserver.instances.find(
       io => !io.disconnected && io.observed.includes(el)
@@ -163,7 +160,6 @@ export const uninstallDom = () => {
   document.head.innerHTML = '';
 };
 
-// Stub an element's getBoundingClientRect.
 export const setRect = (
   el: Element,
   r: { top: number; left: number; width: number; height: number }

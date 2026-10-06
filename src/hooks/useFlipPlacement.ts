@@ -73,9 +73,8 @@ export const useFlipPlacement = ({
 
   const decide = useThrottledCallback(decidePlacement, FLIP_THROTTLE_MS);
 
-  // Follow the `placement` prop: always while disabled, and on every change.
-  // Not keyed on `isOpen`, so reopening never resets the side (and replays the
-  // flip animation); the ref skips the mount.
+  // Follow `placement` while disabled and on every change; not on reopen,
+  // which would replay the flip animation. The ref skips the mount.
   const prevPlacementRef = useRef(placement);
   useEffect(() => {
     const changed = prevPlacementRef.current !== placement;
@@ -83,9 +82,8 @@ export const useFlipPlacement = ({
     if (changed || !enabled) setEffectivePlacement(placement);
   }, [enabled, placement]);
 
-  // Reset a flipped side once fully closed, so the next open starts on the
-  // preferred side. The popover stays open while it fades out, so wait for
-  // its toggle to closed; otherwise the bubble would jump sides mid-fade.
+  // Reset a flipped side once fully closed, so the next open starts on
+  // `placement`. Wait for the toggle to closed: it fades out while still open.
   useEffect(() => {
     if (!enabled || isOpen) return;
     if (effectivePlacementRef.current === placement) return;
@@ -116,8 +114,7 @@ export const useFlipPlacement = ({
     });
 
     // In a scroll container the bubble never nears the viewport edge, so also
-    // watch the anchor against the container. usePopover (a layout effect) has
-    // already shown the popover, so it has a size here.
+    // watch the anchor against it. The popover is already shown (usePopover).
     const container = anchor ? findScrollContainer(anchor) : null;
     containerRef.current = container;
     const stopContainer =

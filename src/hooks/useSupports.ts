@@ -29,8 +29,7 @@ const SERVER: Support = {
   intersectionObserver: true,
 };
 
-// useSyncExternalStore needs a stable snapshot: keep the last object until a
-// flag actually changes.
+// useSyncExternalStore needs a stable snapshot: reuse it until a flag changes.
 let last: Support = SERVER;
 const getSnapshot = (): Support => {
   const next = detectSupport();

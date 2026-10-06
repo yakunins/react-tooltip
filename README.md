@@ -8,8 +8,8 @@
 
 - **CSS anchor positioning**: the bubble pins itself to its trigger with
   `anchor-name` / `position-anchor` / `anchor()`; no JS measuring on scroll.
-  Old browsers degrade gracefully to `title` tooltip, no polyfill, no extra dependency.
-- **Popover API**: the bubble lives in browser's top layer, it escapes `overflow: hidden` and `z-index` stacking with no portal.
+  Old browsers degrade gracefully to a native `title` tooltip, no polyfill, no extra dependency.
+- **Popover API**: the bubble lives in the browser's top layer, it escapes `overflow: hidden` and `z-index` stacking with no portal.
 - **Pure CSS shape**: the rounded bubble _and_ its arrow are one
   `clip-path: polygon(...)`, no borders, no pseudo-elements or SVG.
 - **Zero-config styling**: each component injects its own stylesheet slice
@@ -26,11 +26,11 @@
 Each component injects its own stylesheet slice at runtime, so all three
 work standalone with no CSS import.
 
-| Export          | Role                                         |
-| --------------- | -------------------------------------------- |
-| `Tooltip`       | Behaviour, triggers, positioning.            |
-| `TooltipShape`  | The bubble, e.g the clip-path shape + arrow. |
-| `TooltipAnchor` | The anchor part of CSS anchor positioning.   |
+| Export          | Role                                          |
+| --------------- | --------------------------------------------- |
+| `Tooltip`       | Behavior, triggers, positioning.              |
+| `TooltipBubble` | The bubble, i.e. the clip-path shape + arrow. |
+| `TooltipAnchor` | The anchor part of CSS anchor positioning.    |
 
 ## `Tooltip` props
 
@@ -39,7 +39,7 @@ work standalone with no CSS import.
 | `children`          | `ReactNode`                              | –                    | The trigger element (wrapping mode).                                                       |
 | `content`           | `ReactNode`                              | –                    | The bubble content.                                                                        |
 | `placement`         | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                              |
-| `arrowPlacement`    | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor centre (see below).                |
+| `arrowPlacement`    | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor center (see below).                |
 | `triggers`          | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                      |
 | `timings`           | `TooltipTimings`                         | see below            | Show/hide delays, click guard, minimum visible time (ms).                                  |
 | `offset`            | `string`                                 | `'0rem'`             | Gap between anchor and bubble (any CSS length).                                            |
@@ -73,8 +73,8 @@ All in ms; pass any subset, the rest keep their defaults.
 
 ### `arrowPlacement`
 
-The arrow always points at the **anchor's centre**, `arrowPlacement` only
-chooses which way the bubble body extends from it. `'center'` (default) centres
+The arrow always points at the **anchor's center**, `arrowPlacement` only
+chooses which way the bubble body extends from it. `'center'` (default) centers
 the bubble on the anchor; `'start'` keeps the arrow near the bubble's leading
 edge so the body grows toward the trailing side; `'end'` mirrors that. Handy
 when the anchor sits near a viewport edge and you want the bubble to grow the
@@ -137,8 +137,8 @@ const [open, setOpen] = useState(false);
 
 ## External anchor (skip the wrapper)
 
-When you'd rather attach the tooltip to an element you already render.
-Without `Tooltip` wrapping it in an extra `<div>`. Pass `anchorRef` and
+When you'd rather attach the tooltip to an element you already render,
+without `Tooltip` wrapping it in an extra `<div>`, pass `anchorRef` and
 omit `children`. `Tooltip` writes `anchor-name` onto the referenced
 element, wires the configured triggers to it, and mirrors
 `aria-describedby` on it for accessibility:
@@ -185,16 +185,18 @@ else from any `<script nonce="…">`. Nothing to configure.
 
 ## Browser support
 
-Where CSS anchor positioning is missing, there is no polyfill and no extra dependency.
-The styled bubble is skipped and string `content` is surfaced through the
-element's native `title` tooltip instead.
+Where CSS anchor positioning or the Popover API is missing, there is no polyfill
+and no extra dependency. The styled bubble is skipped and string `content` is
+surfaced through the element's native `title` tooltip instead. Without the Web
+Animations API the bubble shows and hides instantly; without
+`IntersectionObserver`, flipping and the hidden-anchor fade are off.
 
 ## Development
 
 ```bash
 npm install
 npm run dev        # Storybook + css-to-js watcher
-npm run build      # type-check, build to lib/, generate + copy CSS
+npm run build      # type-check, build to lib/, generate CSS modules
 npm test
 ```
 

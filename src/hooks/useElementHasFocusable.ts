@@ -4,9 +4,8 @@ const FOCUSABLE_SELECTOR =
   'a[href],area[href],button,input,select,textarea,iframe,' +
   '[tabindex],[contenteditable="true"]';
 
-// Whether `element` contains a focusable descendant; if not, the anchor wrapper
-// needs tabIndex={0} for the focus trigger to fire. Re-checked after every
-// render, since the wrapped children can change.
+// Whether `element` contains a focusable descendant (else the wrapper needs
+// a tab stop). Re-checked every render, as the children can change.
 export const useElementHasFocusable = (
   element: HTMLElement | null
 ): boolean => {

@@ -15,9 +15,8 @@ export interface ExternalAnchorParams {
   tooltipId: string;
 }
 
-// Wires an `anchorRef` element: anchor-name and aria-describedby, or a native
-// `title` in the fallback. Every write is undone on cleanup, including when
-// the element is swapped for another.
+// Wires an `anchorRef` element: anchor-name and aria-describedby, or `title`
+// in the fallback. Every write is undone on cleanup (including a swap).
 export const useExternalAnchor = ({
   styled,
   anchor,

@@ -9,8 +9,8 @@ export const OPPOSITE: Record<Placement, Placement> = {
 
 // Edge slack (px), used both as the observer margin and in the fit test.
 export const FLIP_THRESHOLD = 10;
-// Graded ratios re-run the decision as the bubble clips; [0, 1] alone would
-// only fire once it has fully left the edge.
+// Graded ratios re-run the decision as the bubble clips; [0, 1] alone fires
+// only once it has fully left.
 export const FLIP_RATIOS = Array.from({ length: 21 }, (_, i) => i / 20);
 
 export interface Bounds {
@@ -28,8 +28,8 @@ type Rect = Pick<
 export const isVertical = (p: Placement): boolean =>
   p === 'top' || p === 'bottom';
 
-// Nearest scrolling ancestor (null = scrolls with the page). It can't clip the
-// top-layer bubble, but a bubble sticking out past its edge looks detached.
+// Nearest scrolling ancestor (null = the page). It can't clip the top-layer
+// bubble, but a bubble past its edge looks detached.
 export const findScrollContainer = (el: HTMLElement): HTMLElement | null => {
   const root = document.documentElement;
   for (let p = el.parentElement; p && p !== root; p = p.parentElement) {
@@ -81,9 +81,8 @@ export const choosePlacement = (
   return space[current] >= space[opp] ? current : opp;
 };
 
-// Root margin for watching the anchor inside `container`: inset by the bubble
-// size on the placement's axis only, capped under half the container (an empty
-// root would never report an intersection change).
+// Root margin for watching the anchor in `container`: inset by the bubble on
+// the placement's axis, under half the container (an empty root never fires).
 export const containerRootMargin = (
   placement: Placement,
   bubble: Pick<DOMRect, 'width' | 'height'>,

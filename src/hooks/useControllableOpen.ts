@@ -12,8 +12,8 @@ export interface ControllableOpen {
   setOpen: SetOpen;
 }
 
-// Controlled/uncontrolled open state: a provided `open` is owned by the parent
-// (changes only reported via `onOpenChange`), otherwise seeded from defaultOpen.
+// Open state: owned by the parent when `open` is given (changes are only
+// reported), otherwise internal, seeded from defaultOpen.
 export const useControllableOpen = (
   open: boolean | undefined,
   defaultOpen: boolean,

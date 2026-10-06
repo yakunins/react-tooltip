@@ -4,8 +4,8 @@ import type { CSSProperties } from 'react';
 export type Placement = 'top' | 'bottom' | 'left' | 'right';
 
 /**
- * Where the arrow sits along the bubble edge; it always points at the anchor.
- * `'start'` / `'end'` extend the bubble body toward the other side.
+ * Arrow position along the bubble edge (it always points at the anchor);
+ * `'start'` / `'end'` extend the bubble the other way.
  */
 export type ArrowPlacement = 'start' | 'center' | 'end';
 
@@ -19,18 +19,18 @@ export type TooltipTimings = {
   /** Delay before hiding on hover-out/blur; click is instant. Default `100`. */
   hideDelay?: number;
   /**
-   * After a hover/focus reveal, a click within this window keeps the tooltip
-   * open instead of closing it. `0` disables it. Default `1000`.
+   * A click this soon after a hover/focus reveal keeps it open instead of
+   * closing. `0` disables. Default `1000`.
    */
   clickGuard?: number;
   /**
-   * Minimum time a hover/focus-revealed tooltip stays visible; click and Escape
-   * ignore it. `0` disables it. Default `1000`.
+   * Minimum visible time after a hover/focus reveal; click and Escape ignore
+   * it. `0` disables. Default `1000`.
    */
   minVisibleTime?: number;
 };
 
-/** Visual customisation of the tooltip bubble. */
+/** Visual customization of the tooltip bubble. */
 export type TooltipBubbleStyle = {
   /** Bubble background. Default `#000`. */
   background?: CSSProperties['background'];

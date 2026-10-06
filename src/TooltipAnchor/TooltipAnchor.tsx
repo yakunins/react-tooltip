@@ -18,10 +18,7 @@ export type TooltipAnchorProps = DivProps & {
   children?: ReactNode;
 };
 
-/**
- * Wraps the trigger in an `inline-block` box exposed as a CSS anchor
- * (`anchor-name`), which the tooltip popover pins itself to.
- */
+/** Wraps the trigger in an `inline-block` box exposed as a CSS anchor. */
 export const TooltipAnchor = forwardRef<HTMLDivElement, TooltipAnchorProps>(
   ({ anchorName, className, style, children, ...rest }, ref) => {
     useStyleInjector(anchorCss);

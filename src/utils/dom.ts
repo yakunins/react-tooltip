@@ -47,9 +47,8 @@ export const setStyle = (
   };
 };
 
-// Adds a token to a space-separated attribute (e.g. aria-describedby) and
-// returns its removal. Only this token is removed, so other writers' tokens
-// survive; the attribute goes away once empty.
+// Adds a token to a space-separated attribute (e.g. aria-describedby); the
+// returned removal keeps other tokens and drops the attribute once empty.
 export const addToken = (
   el: Element,
   name: string,

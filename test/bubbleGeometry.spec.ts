@@ -3,8 +3,7 @@ import { join } from 'path';
 
 import { BubbleGeometry, signedArea, type Point } from './helpers/cssEval';
 
-// Checks the tooltipBubble.css clip-path for every corners x placement x arrow
-// combination against geometry computed independently here.
+// Checks the clip-path for every corners x placement x arrow combination.
 
 const css = readFileSync(
   join(__dirname, '../src/TooltipBubble/tooltipBubble.css'),
@@ -89,8 +88,7 @@ describe('tooltipBubble.css clip-path geometry', () => {
     }
   );
 
-  // A clockwise, untwisted outline encloses exactly body + arrow; a reversed
-  // arrow subtracts the triangle instead.
+  // A clockwise outline encloses body + arrow; a reversed arrow subtracts it.
   it.each(cases)(
     'corners-$n placement-$placement arrow-$arrow: encloses body + arrow, clockwise',
     c => {
