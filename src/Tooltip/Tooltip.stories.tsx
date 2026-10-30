@@ -10,6 +10,7 @@ import {
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { Tooltip } from './';
+import { TOOLTIP_DEFAULTS, type TooltipProps } from './TooltipProps';
 import { TooltipBubble } from '../TooltipBubble';
 import { type ArrowPlacement, type Placement } from '../types';
 
@@ -143,6 +144,7 @@ const meta = {
       options: ['hover', 'focus', 'click'],
     },
     flip: { control: 'boolean' },
+    flipBack: { control: 'boolean' },
     animationDuration: { control: 'text' },
     offset: { control: 'text' },
     timings: { control: 'object' },
@@ -166,6 +168,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const placements: Placement[] = ['top', 'bottom', 'left', 'right'];
+
+// Demos read only the args their story's controls expose.
+type DemoArgs = Partial<TooltipProps>;
+const controls = (...include: (keyof TooltipProps)[]) => ({
+  controls: include.length ? { include } : { disable: true },
+});
 
 const LoremIpsum = () => (
   <p className="lorem-ipsum">
@@ -266,7 +274,7 @@ export const NoStylePlayground: Story = {
 
 // ---------------------------------------------------------------------------
 
-const PlacementsDemo = () => (
+const PlacementsDemo = ({ triggers, offset, animationDuration }: DemoArgs) => (
   <div
     style={{
       display: 'grid',
@@ -280,6 +288,9 @@ const PlacementsDemo = () => (
       <Tooltip
         key={p}
         placement={p}
+        triggers={triggers}
+        offset={offset}
+        animationDuration={animationDuration}
         content={`placement = "${p}"`}
         className={gradClasses[i]}
       >
@@ -290,14 +301,17 @@ const PlacementsDemo = () => (
 );
 
 export const Placements: Story = {
-  render: () => <PlacementsDemo />,
-  parameters: { layout: 'fullscreen' },
+  render: args => <PlacementsDemo {...args} />,
+  parameters: {
+    layout: 'fullscreen',
+    ...controls('triggers', 'offset', 'animationDuration'),
+  },
 };
 
 // ---------------------------------------------------------------------------
 
 // All placements forced open, flip off so each stays on its side.
-const AllPlacementsDemo = () => (
+const AllPlacementsDemo = ({ arrowPlacement, offset }: DemoArgs) => (
   <div
     style={{
       display: 'flex',
@@ -311,6 +325,8 @@ const AllPlacementsDemo = () => (
       <Tooltip
         key={p}
         placement={p}
+        arrowPlacement={arrowPlacement}
+        offset={offset}
         open
         flip={false}
         content={<pre>{`placement:\n"${p}"`}</pre>}
@@ -323,8 +339,11 @@ const AllPlacementsDemo = () => (
 );
 
 export const AllPlacements: Story = {
-  render: () => <AllPlacementsDemo />,
-  parameters: { layout: 'fullscreen' },
+  render: args => <AllPlacementsDemo {...args} />,
+  parameters: {
+    layout: 'fullscreen',
+    ...controls('arrowPlacement', 'offset'),
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -333,7 +352,13 @@ export const AllPlacements: Story = {
 // both axes.
 const arrowPlacements: ArrowPlacement[] = ['start', 'center', 'end'];
 
-const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
+const ArrowPlacementRow = ({
+  placement,
+  offset,
+}: {
+  placement: Placement;
+  offset?: string;
+}) => (
   <div
     style={{
       display: 'flex',
@@ -347,6 +372,7 @@ const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
         key={ap}
         placement={placement}
         arrowPlacement={ap}
+        offset={offset}
         open
         flip={false}
         content={<pre>{`arrowPlacement:\n"${ap}"`}</pre>}
@@ -358,7 +384,7 @@ const ArrowPlacementRow = ({ placement }: { placement: Placement }) => (
   </div>
 );
 
-const ArrowPlacementsDemo = () => (
+const ArrowPlacementsDemo = ({ offset }: DemoArgs) => (
   <div
     style={{
       display: 'flex',
@@ -367,22 +393,24 @@ const ArrowPlacementsDemo = () => (
       padding: '6rem',
     }}
   >
-    <ArrowPlacementRow placement="top" />
-    <ArrowPlacementRow placement="left" />
+    <ArrowPlacementRow placement="top" offset={offset} />
+    <ArrowPlacementRow placement="left" offset={offset} />
   </div>
 );
 
 export const ArrowPlacements: Story = {
-  render: () => <ArrowPlacementsDemo />,
-  parameters: { layout: 'fullscreen' },
+  render: args => <ArrowPlacementsDemo {...args} />,
+  parameters: { layout: 'fullscreen', ...controls('offset') },
 };
 
 // ---------------------------------------------------------------------------
 
-const TriggersDemo = () => (
+const TriggersDemo = ({ timings, animationDuration }: DemoArgs) => (
   <div style={{ display: 'flex', gap: '2rem', padding: '5rem' }}>
     <Tooltip
       triggers={['hover']}
+      timings={timings}
+      animationDuration={animationDuration}
       content="Shown on hover only"
       className="grad-1"
     >
@@ -390,6 +418,8 @@ const TriggersDemo = () => (
     </Tooltip>
     <Tooltip
       triggers={['focus']}
+      timings={timings}
+      animationDuration={animationDuration}
       content="Shown on keyboard / focus only"
       className="grad-2"
     >
@@ -397,6 +427,8 @@ const TriggersDemo = () => (
     </Tooltip>
     <Tooltip
       triggers={['click']}
+      timings={timings}
+      animationDuration={animationDuration}
       content="Click to toggle — Esc to close"
       className="grad-3"
     >
@@ -404,6 +436,8 @@ const TriggersDemo = () => (
     </Tooltip>
     <Tooltip
       triggers={['hover', 'focus', 'click']}
+      timings={timings}
+      animationDuration={animationDuration}
       content="All triggers"
       className="grad-4"
     >
@@ -413,8 +447,11 @@ const TriggersDemo = () => (
 );
 
 export const Triggers: Story = {
-  render: () => <TriggersDemo />,
-  parameters: { layout: 'fullscreen' },
+  render: args => <TriggersDemo {...args} />,
+  parameters: {
+    layout: 'fullscreen',
+    ...controls('timings', 'animationDuration'),
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -451,12 +488,12 @@ const CustomShapeDemo = () => (
 
 export const CustomShape: Story = {
   render: () => <CustomShapeDemo />,
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', ...controls() },
 };
 
 // ---------------------------------------------------------------------------
 
-const ControlledDemo = () => {
+const ControlledDemo = ({ placement, triggers }: DemoArgs) => {
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -477,7 +514,8 @@ const ControlledDemo = () => {
       <Tooltip
         open={open}
         onOpenChange={setOpen}
-        placement="bottom"
+        placement={placement}
+        triggers={triggers}
         content="open is owned by the parent — hover still works too"
         className="grad-4"
       >
@@ -488,13 +526,14 @@ const ControlledDemo = () => {
 };
 
 export const Controlled: Story = {
-  render: () => <ControlledDemo />,
-  parameters: { layout: 'fullscreen' },
+  args: { placement: 'bottom' },
+  render: args => <ControlledDemo {...args} />,
+  parameters: { layout: 'fullscreen', ...controls('placement', 'triggers') },
 };
 
 // ---------------------------------------------------------------------------
 
-const ExternalAnchorRefDemo = () => {
+const ExternalAnchorRefDemo = ({ placement }: DemoArgs) => {
   const termRef = useRef<HTMLSpanElement>(null);
   return (
     <div
@@ -508,6 +547,7 @@ const ExternalAnchorRefDemo = () => {
       <HelpAnchor ref={termRef}>external trigger (anchorRef)</HelpAnchor>
       <Tooltip
         anchorRef={termRef}
+        placement={placement}
         content="anchorRef — no wrapping div; Tooltip writes anchor-name onto the element"
         className="grad-1"
       />
@@ -515,7 +555,7 @@ const ExternalAnchorRefDemo = () => {
   );
 };
 
-const ExternalAnchorNameDemo = () => {
+const ExternalAnchorNameDemo = ({ placement }: DemoArgs) => {
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -537,6 +577,7 @@ const ExternalAnchorNameDemo = () => {
       </HelpAnchor>
       <Tooltip
         anchorName="--external-by-name"
+        placement={placement}
         open={open}
         onOpenChange={setOpen}
         content="anchorName-only — no triggers wired; parent owns open state"
@@ -547,13 +588,13 @@ const ExternalAnchorNameDemo = () => {
 };
 
 export const ExternalAnchor: Story = {
-  render: () => (
+  render: ({ placement }) => (
     <div>
-      <ExternalAnchorRefDemo />
-      <ExternalAnchorNameDemo />
+      <ExternalAnchorRefDemo placement={placement} />
+      <ExternalAnchorNameDemo placement={placement} />
     </div>
   ),
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', ...controls('placement') },
 };
 
 // ---------------------------------------------------------------------------
@@ -589,13 +630,14 @@ const ShapeDemo = () => (
 
 export const Shape: Story = {
   render: () => <ShapeDemo />,
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', ...controls() },
 };
 
 // ---------------------------------------------------------------------------
 
-// Draggable, forced-open anchors: drag one toward its edge and the bubble
-// flips live (`flip` is a no-op until the bubble would overflow).
+// A draggable, forced-open anchor: drag it toward its edge and the bubble
+// flips live (`flip` is a no-op until the bubble would overflow), then back
+// with `flipBack`.
 
 // Faint grid so the dragging is visible against the empty canvas.
 const gridBg =
@@ -663,64 +705,87 @@ const DraggableAnchor = ({
   );
 };
 
-// Start near the centre, offset toward the edge each one demonstrates.
-const initialSpots: Record<Placement, CSSProperties> = {
-  top: { left: 'calc(50% - 1.5rem)', top: 'calc(50% - 6rem)' },
-  bottom: { left: 'calc(50% - 1.5rem)', top: 'calc(50% + 5rem)' },
-  left: { left: 'calc(50% - 11rem)', top: '50%' },
-  right: { left: 'calc(50% + 7rem)', top: '50%' },
-};
-
-const AutoFlipDemo = () => (
-  <div
-    style={{
-      position: 'fixed',
-      inset: 0,
-      background: gridBg,
-    }}
-  >
+export const Flip: Story = {
+  args: {
+    placement: 'top',
+    arrowPlacement: 'center',
+    flip: true,
+    flipBack: false,
+    animationDuration: '0.2s',
+    offset: '0rem',
+  },
+  argTypes: {
+    // Control values are strings; 'undefined' maps to omitting the prop.
+    placement: {
+      control: 'radio',
+      options: ['undefined', ...placements],
+      mapping: { undefined: undefined },
+    },
+  },
+  parameters: {
+    layout: 'fullscreen',
+    ...controls(
+      'placement',
+      'arrowPlacement',
+      'flip',
+      'flipBack',
+      'animationDuration',
+      'offset'
+    ),
+  },
+  render: args => (
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        padding: '0.75rem 1rem',
-        pointerEvents: 'none',
-        maxWidth: '40rem',
-        textAlign: 'center',
+        inset: 0,
+        background: gridBg,
       }}
     >
-      Drag an anchor toward the matching viewport edge (up for <code>top</code>,
-      down for <code>bottom</code>, left for <code>left</code>, right for{' '}
-      <code>right</code>) — its bubble flips to the opposite side live as it
-      nears the edge, and flips back when there's room again.
-    </div>
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '0.75rem 1rem',
+          pointerEvents: 'none',
+          maxWidth: '40rem',
+          textAlign: 'center',
+        }}
+      >
+        Drag the anchor toward the{' '}
+        <code>{args.placement ?? TOOLTIP_DEFAULTS.placement}</code> edge: with{' '}
+        <code>flip</code> the bubble moves to the opposite side as it runs out
+        of room. Drag it back: it stays flipped until closed, or with{' '}
+        <code>flipBack</code> returns as soon as it fits.
+      </div>
 
-    {placements.map((p, i) => (
-      <DraggableAnchor key={p} initial={initialSpots[p]}>
+      <DraggableAnchor
+        initial={{ left: 'calc(50% - 1.5rem)', top: 'calc(50% - 0.75rem)' }}
+      >
         <Tooltip
-          placement={p}
-          flip
+          {...args}
           open
-          content={<pre>{`placement="${p}"\ndrag me to the ${p} edge`}</pre>}
-          className={gradClasses[i]}
+          content={
+            <pre>{`placement=${args.placement ? `"${args.placement}"` : '{undefined}'}\nflip={${args.flip}}\nflipBack={${args.flipBack}}`}</pre>
+          }
+          className="grad-1"
         >
-          <HelpAnchor>{p}</HelpAnchor>
+          <HelpAnchor>drag me</HelpAnchor>
         </Tooltip>
       </DraggableAnchor>
-    ))}
-  </div>
-);
-
-export const AutoFlip: Story = {
-  render: () => <AutoFlipDemo />,
-  parameters: { layout: 'fullscreen' },
+    </div>
+  ),
 };
 
 // Anchor inside a scroll container: the bubble fades when the anchor is
 // clipped (useElementHidden) and flips at the container edges.
-const ScrollContainerDemo = () => (
+const ScrollContainerDemo = ({
+  placement,
+  flip,
+  flipBack,
+  offset,
+}: DemoArgs) => (
   <div style={{ padding: '2rem', background: gridBg, minHeight: '100vh' }}>
     <p style={{ maxWidth: '40rem', marginTop: 0 }}>
       Scroll the box below until the anchor leaves it: the bubble (drawn in the
@@ -753,7 +818,14 @@ const ScrollContainerDemo = () => (
           placeItems: 'center',
         }}
       >
-        <Tooltip open content="scroll my anchor out of the box">
+        <Tooltip
+          open
+          placement={placement}
+          flip={flip}
+          flipBack={flipBack}
+          offset={offset}
+          content="scroll my anchor out of the box"
+        >
           <HelpAnchor>anchor</HelpAnchor>
         </Tooltip>
       </div>
@@ -762,6 +834,10 @@ const ScrollContainerDemo = () => (
 );
 
 export const ScrollContainer: Story = {
-  render: () => <ScrollContainerDemo />,
-  parameters: { layout: 'fullscreen' },
+  args: { placement: 'top', flip: true, flipBack: false },
+  render: args => <ScrollContainerDemo {...args} />,
+  parameters: {
+    layout: 'fullscreen',
+    ...controls('placement', 'flip', 'flipBack', 'offset'),
+  },
 };

@@ -61,12 +61,14 @@ export const getBounds = (container: HTMLElement | null): Bounds => {
 };
 
 // Sticky on the current side: flip only when it runs out of room, so a side
-// regaining space never pulls the bubble back (no oscillation).
+// regaining space never pulls the bubble back. With `preferred` (`flipBack`),
+// a flipped bubble returns there as soon as it fits again.
 export const choosePlacement = (
   current: Placement,
   anchor: Rect,
   bubble: Rect,
-  bounds: Bounds
+  bounds: Bounds,
+  preferred?: Placement
 ): Placement => {
   const space: Record<Placement, number> = {
     top: anchor.top - bounds.top,
@@ -76,6 +78,7 @@ export const choosePlacement = (
   };
   const need = isVertical(current) ? bubble.height : bubble.width;
   const opp = OPPOSITE[current];
+  if (preferred === opp && space[opp] >= need + FLIP_THRESHOLD) return opp;
   if (space[current] >= need + FLIP_THRESHOLD) return current;
   if (space[opp] >= need + FLIP_THRESHOLD) return opp;
   return space[current] >= space[opp] ? current : opp;

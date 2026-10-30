@@ -220,6 +220,7 @@ describe('useFlipPlacement', () => {
   type Props = {
     placement?: Placement;
     enabled?: boolean;
+    flipBack?: boolean;
     isOpen?: boolean;
     styled?: boolean;
     keptOpen?: boolean;
@@ -237,6 +238,7 @@ describe('useFlipPlacement', () => {
       ({
         placement = 'top',
         enabled = true,
+        flipBack = false,
         isOpen = true,
         styled = true,
         keptOpen = true,
@@ -248,6 +250,7 @@ describe('useFlipPlacement', () => {
           popoverRef: { current: pop },
           placement,
           enabled,
+          flipBack,
           isOpen,
           styled,
           keptOpenRef,
@@ -310,6 +313,21 @@ describe('useFlipPlacement', () => {
     });
     fire();
     expect(result.current).toBe('bottom');
+  });
+
+  it('with flipBack, watches the anchor and returns once room is back', () => {
+    const { result, anchor, pop } = setup({ flipBack: true });
+    const io = MockIntersectionObserver.watching(anchor)!;
+    expect(io.options?.root).toBeUndefined();
+    nearTop(anchor, pop);
+    act(() => io.trigger());
+    expect(result.current).toBe('bottom');
+    setRect(anchor, { top: 300, left: 100, width: 50, height: 20 });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    act(() => io.trigger());
+    expect(result.current).toBe('top');
   });
 
   it('throttles re-evaluation to one per 500ms (trailing call kept)', () => {

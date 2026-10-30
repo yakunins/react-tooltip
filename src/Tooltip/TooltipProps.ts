@@ -28,6 +28,11 @@ export type TooltipProps = {
   offset?: string;
   /** Flip to the opposite side when out of room. Default `true`. */
   flip?: boolean;
+  /**
+   * Return a flipped bubble to `placement` once it has room again, instead of
+   * staying flipped until closed. Default `false`.
+   */
+  flipBack?: boolean;
   /** Fade duration (CSS time); the flip slide takes 2x. Default `'0.2s'`. */
   animationDuration?: string;
   /** Initial open state, for uncontrolled usage. Default `false`. */
@@ -58,6 +63,7 @@ type TooltipDefaults = Required<
     | 'timings'
     | 'offset'
     | 'flip'
+    | 'flipBack'
     | 'animationDuration'
     | 'defaultOpen'
   >
@@ -78,6 +84,7 @@ export const TOOLTIP_DEFAULTS: TooltipDefaults = {
   timings: TOOLTIP_DEFAULTS_TIMINGS,
   offset: '0rem',
   flip: true,
+  flipBack: false,
   animationDuration: '0.2s',
   defaultOpen: false,
 };

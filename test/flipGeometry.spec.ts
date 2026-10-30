@@ -43,6 +43,17 @@ describe('choosePlacement', () => {
     ).toBe('bottom');
   });
 
+  it('with a preferred side, returns there once it fits again', () => {
+    const roomy = rect(300, 100, 50, 20);
+    expect(choosePlacement('bottom', roomy, bubble, viewport, 'top')).toBe(
+      'top'
+    );
+    const justShort = rect(40 + FLIP_THRESHOLD - 1, 100, 50, 20);
+    expect(choosePlacement('bottom', justShort, bubble, viewport, 'top')).toBe(
+      'bottom'
+    );
+  });
+
   it('measures left / right against the bubble width', () => {
     expect(
       choosePlacement('left', rect(300, 50, 20, 20), bubble, viewport)

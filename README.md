@@ -35,25 +35,26 @@ works standalone with no CSS import.
 
 ## `Tooltip` props
 
-| Prop                | Type                                     | Default              | Notes                                                                                      |
-| ------------------- | ---------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
-| `children`          | `ReactNode`                              | –                    | The trigger element (wrapping mode).                                                       |
-| `content`           | `ReactNode`                              | –                    | The bubble content.                                                                        |
-| `placement`         | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                              |
-| `arrowPlacement`    | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor center (see below).                |
-| `triggers`          | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                      |
-| `timings`           | `TooltipTimings`                         | see below            | Show/hide delays, click guard, minimum visible time (ms).                                  |
-| `offset`            | `string`                                 | `'0rem'`             | Gap between anchor and bubble (any CSS length).                                            |
-| `flip`              | `boolean`                                | `true`               | Flip to the opposite side when it would overflow.                                          |
-| `animationDuration` | `string`                                 | `'0.2s'`             | Fade duration (CSS time); the flip slide takes twice as long.                              |
-| `defaultOpen`       | `boolean`                                | `false`              | Initial open state (uncontrolled).                                                         |
-| `open`              | `boolean`                                | –                    | Controlled open state; pair with `onOpenChange`.                                           |
-| `onOpenChange`      | `(open: boolean) => void`                | –                    | Fires when the open state should change.                                                   |
-| `bubbleStyle`       | `TooltipBubbleStyle`                     | –                    | Bubble appearance (see below).                                                             |
-| `className`         | `string`                                 | –                    | Applied to the popover element.                                                            |
-| `style`             | `CSSProperties`                          | –                    | Applied to the popover element.                                                            |
-| `anchorRef`         | `RefObject<HTMLElement>`                 | –                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below. |
-| `anchorName`        | `string`                                 | –                    | Use this CSS anchor name verbatim. See _External anchor_ below.                            |
+| Prop                | Type                                     | Default              | Notes                                                                                       |
+| ------------------- | ---------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `children`          | `ReactNode`                              | –                    | The trigger element (wrapping mode).                                                        |
+| `content`           | `ReactNode`                              | –                    | The bubble content.                                                                         |
+| `placement`         | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`              | Preferred side of the anchor.                                                               |
+| `arrowPlacement`    | `'start' \| 'center' \| 'end'`           | `'center'`           | Which way the bubble extends; arrow stays on the anchor center (see below).                 |
+| `triggers`          | `('hover' \| 'focus' \| 'click')[]`      | `['hover', 'focus']` | Interactions that reveal the tooltip.                                                       |
+| `timings`           | `TooltipTimings`                         | see below            | Show/hide delays, click guard, minimum visible time (ms).                                   |
+| `offset`            | `string`                                 | `'0rem'`             | Gap between anchor and bubble (any CSS length).                                             |
+| `flip`              | `boolean`                                | `true`               | Flip to the opposite side when it would overflow.                                           |
+| `flipBack`          | `boolean`                                | `false`              | Return a flipped bubble to `placement` once it has room again (else it stays until closed). |
+| `animationDuration` | `string`                                 | `'0.2s'`             | Fade duration (CSS time); the flip slide takes twice as long.                               |
+| `defaultOpen`       | `boolean`                                | `false`              | Initial open state (uncontrolled).                                                          |
+| `open`              | `boolean`                                | –                    | Controlled open state; pair with `onOpenChange`.                                            |
+| `onOpenChange`      | `(open: boolean) => void`                | –                    | Fires when the open state should change.                                                    |
+| `bubbleStyle`       | `TooltipBubbleStyle`                     | –                    | Bubble appearance (see below).                                                              |
+| `className`         | `string`                                 | –                    | Applied to the popover element.                                                             |
+| `style`             | `CSSProperties`                          | –                    | Applied to the popover element.                                                             |
+| `anchorRef`         | `RefObject<HTMLElement>`                 | –                    | Attach to an existing element instead of wrapping `children`. See _External anchor_ below.  |
+| `anchorName`        | `string`                                 | –                    | Use this CSS anchor name verbatim. See _External anchor_ below.                             |
 
 ### `timings`
 

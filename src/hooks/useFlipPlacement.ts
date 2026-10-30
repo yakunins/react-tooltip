@@ -29,6 +29,8 @@ export interface FlipPlacementParams {
   placement: Placement;
   // The `flip` prop; off, the placement is returned as-is.
   enabled: boolean;
+  // The `flipBack` prop: return to `placement` once it has room again.
+  flipBack?: boolean;
   isOpen: boolean;
   // False in the title fallback: no bubble to flip.
   styled: boolean;
@@ -39,12 +41,14 @@ export interface FlipPlacementParams {
 }
 
 // Returns `placement`, flipped to the opposite side when it would overflow the
-// viewport or the anchor's scroll container. Sticky, reset after close.
+// viewport or the anchor's scroll container. Sticky unless `flipBack`, reset
+// after close.
 export const useFlipPlacement = ({
   anchor,
   popoverRef,
   placement,
   enabled,
+  flipBack = false,
   isOpen,
   styled,
   keptOpenRef,
@@ -66,10 +70,19 @@ export const useFlipPlacement = ({
       effectivePlacementRef.current,
       anchor.getBoundingClientRect(),
       p,
-      getBounds(containerRef.current)
+      getBounds(containerRef.current),
+      flipBack ? placement : undefined
     );
     setEffectivePlacement(prev => (prev === next ? prev : next));
-  }, [anchor, popoverRef, keptOpenRef, isControlled, effectivePlacementRef]);
+  }, [
+    anchor,
+    popoverRef,
+    keptOpenRef,
+    isControlled,
+    effectivePlacementRef,
+    flipBack,
+    placement,
+  ]);
 
   const decide = useThrottledCallback(decidePlacement, FLIP_THROTTLE_MS);
 
@@ -130,9 +143,25 @@ export const useFlipPlacement = ({
           })
         : undefined;
 
+    // A flipped bubble sits clear of the viewport edge, so the popover watch
+    // can't see room return on the preferred side; watch the anchor instead.
+    const root = document.documentElement;
+    const stopFlipBack =
+      anchor && flipBack
+        ? observe(anchor, decide.run, {
+            rootMargin: containerRootMargin(
+              placement,
+              pop.getBoundingClientRect(),
+              root
+            ),
+            threshold: FLIP_RATIOS,
+          })
+        : undefined;
+
     return () => {
       stopViewport();
       stopContainer?.();
+      stopFlipBack?.();
       containerRef.current = null;
       decide.cancel();
     };
@@ -145,6 +174,7 @@ export const useFlipPlacement = ({
     popoverRef,
     anchor,
     placement,
+    flipBack,
   ]);
 
   return effectivePlacement;
