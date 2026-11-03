@@ -1,6 +1,13 @@
 /* TooltipBubble: box and arrow drawn as one clip-path polygon, so the arrow
  * shares the background, shadow and corner radius. */
 
+/* Registered so the arrow shift (useTooltipAnimations) can animate it. */
+@property --tooltip-arrow-pos {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+
 .tooltip-bubble {
   /* Inputs: the --tooltip-* properties, always set by the component. */
   --py: var(--tooltip-padding-y);
@@ -60,12 +67,12 @@
   display: none;
 }
 
-/* Arrow position along the edge; center (no class) falls back to 50%. */
+/* Arrow position along the edge; center falls back to 50%. */
 .tooltip-bubble[data-arrow='start'] {
-  --arrow-pos: var(--arrow-inset);
+  --tooltip-arrow-pos: var(--arrow-inset);
 }
 .tooltip-bubble[data-arrow='end'] {
-  --arrow-pos: calc(100% - var(--arrow-inset));
+  --tooltip-arrow-pos: calc(100% - var(--arrow-inset));
 }
 
 /* Each placement reserves --arrow-size on its side and lists the arrow
@@ -74,7 +81,7 @@
 /* top: bubble above the anchor, arrow points down */
 .tooltip-bubble[data-placement='top'] {
   --b: var(--arrow-size);
-  --cx: var(--arrow-pos, 50%);
+  --cx: var(--tooltip-arrow-pos, 50%);
   --cy: calc(100% - var(--arrow-size));
   --arrow-b:
     calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
@@ -86,7 +93,7 @@
 /* bottom: bubble below the anchor, arrow points up */
 .tooltip-bubble[data-placement='bottom'] {
   --t: var(--arrow-size);
-  --cx: var(--arrow-pos, 50%);
+  --cx: var(--tooltip-arrow-pos, 50%);
   --cy: calc(0% + var(--arrow-size));
   --arrow-t:
     calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy),
@@ -99,7 +106,7 @@
 .tooltip-bubble[data-placement='left'] {
   --r: var(--arrow-size);
   --cx: calc(100% - var(--arrow-size));
-  --cy: var(--arrow-pos, 50%);
+  --cy: var(--tooltip-arrow-pos, 50%);
   --arrow-r:
     var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707),
     calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
@@ -111,7 +118,7 @@
 .tooltip-bubble[data-placement='right'] {
   --l: var(--arrow-size);
   --cx: calc(0% + var(--arrow-size));
-  --cy: var(--arrow-pos, 50%);
+  --cy: var(--tooltip-arrow-pos, 50%);
   --arrow-l:
     var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707),
     calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy),

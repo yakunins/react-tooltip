@@ -86,7 +86,11 @@ export class MockIntersectionObserver {
     );
   }
   static watching(el: Element): MockIntersectionObserver | undefined {
-    return MockIntersectionObserver.instances.find(
+    return MockIntersectionObserver.watchingAll(el)[0];
+  }
+  // Several hooks may watch one element (hidden-anchor fade, arrow shift).
+  static watchingAll(el: Element): MockIntersectionObserver[] {
+    return MockIntersectionObserver.instances.filter(
       io => !io.disconnected && io.observed.includes(el)
     );
   }

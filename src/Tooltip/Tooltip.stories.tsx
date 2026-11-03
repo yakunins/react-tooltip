@@ -757,7 +757,8 @@ export const Flip: Story = {
         <code>{args.placement ?? TOOLTIP_DEFAULTS.placement}</code> edge: with{' '}
         <code>flip</code> the bubble moves to the opposite side as it runs out
         of room. Drag it back: it stays flipped until closed, or with{' '}
-        <code>flipBack</code> returns as soon as it fits.
+        <code>flipBack</code> returns as soon as it fits. Near a side edge the
+        arrow moves the same way, the bubble gliding along.
       </div>
 
       <DraggableAnchor

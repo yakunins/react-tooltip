@@ -18,10 +18,11 @@ import {
 } from '../utils/flipGeometry';
 import { observe } from '../utils/dom';
 import { useLatestRef } from './useLatestRef';
+import { useOnPopoverHidden } from './useOnPopoverHidden';
 import { useThrottledCallback } from './useThrottledCallback';
 
 // Max re-evaluation rate while open, so fast scrolling can't thrash placement.
-const FLIP_THROTTLE_MS = 500;
+export const FLIP_THROTTLE_MS = 500;
 
 export interface FlipPlacementParams {
   anchor: HTMLElement | null;
@@ -96,26 +97,12 @@ export const useFlipPlacement = ({
   }, [enabled, placement]);
 
   // Reset a flipped side once fully closed, so the next open starts on
-  // `placement`. Wait for the toggle to closed: it fades out while still open.
-  useEffect(() => {
-    if (!enabled || isOpen) return;
-    if (effectivePlacementRef.current === placement) return;
-    const pop = popoverRef.current;
-    const reset = () => setEffectivePlacement(placement);
-    if (!pop || !pop.matches(':popover-open')) {
-      reset();
-      return;
-    }
-    const onToggle = (e: Event) => {
-      if ((e as ToggleEvent).newState === 'closed') reset();
-    };
-    pop.addEventListener('toggle', onToggle);
-    const fallback = setTimeout(reset, 1000); // in case toggle never fires
-    return () => {
-      pop.removeEventListener('toggle', onToggle);
-      clearTimeout(fallback);
-    };
-  }, [enabled, isOpen, placement, popoverRef, effectivePlacementRef]);
+  // `placement`.
+  useOnPopoverHidden(
+    popoverRef,
+    enabled && !isOpen && effectivePlacement !== placement,
+    () => setEffectivePlacement(placement)
+  );
 
   useEffect(() => {
     if (!enabled || !isOpen || !styled) return;
@@ -145,14 +132,16 @@ export const useFlipPlacement = ({
 
     // A flipped bubble sits clear of the viewport edge, so the popover watch
     // can't see room return on the preferred side; watch the anchor instead.
-    const root = document.documentElement;
+    // Against `document`: the default root is the top-level viewport inside
+    // an iframe, which the margins, measured here, don't match.
     const stopFlipBack =
       anchor && flipBack
         ? observe(anchor, decide.run, {
+            root: document,
             rootMargin: containerRootMargin(
               placement,
               pop.getBoundingClientRect(),
-              root
+              document.documentElement
             ),
             threshold: FLIP_RATIOS,
           })

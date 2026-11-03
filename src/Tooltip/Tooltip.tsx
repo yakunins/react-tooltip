@@ -5,6 +5,7 @@ import {
   useDescribedBy,
   useElementHasFocusable,
   useElementHidden,
+  useFlipArrowPlacement,
   useExternalAnchor,
   useFlipPlacement,
   useIsoLayoutEffect,
@@ -118,6 +119,19 @@ export const Tooltip = ({
     keptOpenRef,
     isControlled,
   });
+  // The same on the cross axis: the arrow moves to keep the bubble in.
+  const effectiveArrow = useFlipArrowPlacement({
+    anchor,
+    popoverRef,
+    placement,
+    arrowPlacement,
+    enabled: flip && support.intersectionObserver,
+    flipBack,
+    isOpen,
+    styled,
+    keptOpenRef,
+    isControlled,
+  });
 
   useExternalAnchor({
     styled,
@@ -133,10 +147,12 @@ export const Tooltip = ({
   });
 
   const durationMs = cssTimeToMs(animationDuration);
-  const { fade, slide } = useTooltipAnimations(
+  const { fade, slideAcross, slideAlong } = useTooltipAnimations(
     popoverRef,
-    Number.isFinite(durationMs) ? durationMs : 0,
-    { animate: support.webAnimations }
+    durationMs,
+    {
+      animate: support.webAnimations,
+    }
   );
 
   // Fade in while open with the anchor in sight, else out; a close hides the
@@ -151,15 +167,28 @@ export const Tooltip = ({
     else hidePopover();
   }, [visible, isOpen, fade, hidePopover, popoverRef]);
 
+  // The placement and arrow the effects below last applied to the bubble.
+  const appliedRef = useRef({
+    placement: effectivePlacement,
+    arrow: effectiveArrow,
+  });
+
   // A flip while visible: fade in from 0 and slide from the anchor side.
-  const placementRef = useRef(effectivePlacement);
   useIsoLayoutEffect(() => {
-    if (placementRef.current === effectivePlacement) return;
-    placementRef.current = effectivePlacement;
+    if (appliedRef.current.placement === effectivePlacement) return;
+    appliedRef.current.placement = effectivePlacement;
     if (!visible) return;
     fade(1, 0);
-    slide();
-  }, [effectivePlacement, visible, fade, slide]);
+    slideAcross();
+  }, [effectivePlacement, visible, fade, slideAcross]);
+
+  // An arrow shift while visible: the bubble glides, arrow tip on the anchor.
+  useIsoLayoutEffect(() => {
+    const from = appliedRef.current.arrow;
+    if (from === effectiveArrow) return;
+    appliedRef.current.arrow = effectiveArrow;
+    if (visible) slideAlong(effectivePlacement, from, effectiveArrow);
+  }, [effectiveArrow, effectivePlacement, visible, slideAlong]);
 
   // Wrapping mode only: decides whether our wrapper needs a tab stop.
   const hasFocusable = useElementHasFocusable(wrapping ? anchor : null);
@@ -202,7 +231,7 @@ export const Tooltip = ({
         ref={popoverRef}
         id={tooltipId}
         placement={effectivePlacement}
-        arrowPlacement={arrowPlacement}
+        arrowPlacement={effectiveArrow}
         anchorHidden={anchorHidden}
         className={className}
         style={popoverStyle}
@@ -210,7 +239,7 @@ export const Tooltip = ({
         {renderContent && (
           <TooltipBubble
             placement={effectivePlacement}
-            arrowPlacement={arrowPlacement}
+            arrowPlacement={effectiveArrow}
             bubbleStyle={bubbleStyle}
           >
             {content}

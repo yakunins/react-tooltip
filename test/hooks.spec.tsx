@@ -1,7 +1,8 @@
 /** @jest-environment jsdom */
 import { act, renderHook } from '@testing-library/react';
 
-import type { Placement } from '../src';
+import type { ArrowPlacement, Placement } from '../src';
+import { useFlipArrowPlacement } from '../src/hooks/useFlipArrowPlacement';
 import { useFlipPlacement } from '../src/hooks/useFlipPlacement';
 import { useControllableOpen } from '../src/hooks/useControllableOpen';
 import { useTooltipAnimations } from '../src/hooks/useTooltipAnimations';
@@ -318,7 +319,7 @@ describe('useFlipPlacement', () => {
   it('with flipBack, watches the anchor and returns once room is back', () => {
     const { result, anchor, pop } = setup({ flipBack: true });
     const io = MockIntersectionObserver.watching(anchor)!;
-    expect(io.options?.root).toBeUndefined();
+    expect(io.options?.root).toBe(document);
     nearTop(anchor, pop);
     act(() => io.trigger());
     expect(result.current).toBe('bottom');
@@ -394,18 +395,6 @@ describe('useFlipPlacement', () => {
     expect(result.current).toBe('top');
   });
 
-  it('resets after a timeout if toggle never fires', () => {
-    const { result, anchor, pop, fire, rerender } = setup();
-    nearTop(anchor, pop);
-    fire();
-    pop.showPopover();
-    rerender({ isOpen: false });
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(result.current).toBe('top');
-  });
-
   it('follows a placement prop change immediately', () => {
     const { result, rerender } = setup();
     rerender({ placement: 'left' });
@@ -439,6 +428,166 @@ describe('useFlipPlacement', () => {
     const io = observer();
     rerender({ isOpen: false });
     expect(io.disconnected).toBe(true);
+  });
+});
+
+describe('useFlipArrowPlacement', () => {
+  type Props = {
+    placement?: Placement;
+    arrowPlacement?: ArrowPlacement;
+    enabled?: boolean;
+    flipBack?: boolean;
+    isOpen?: boolean;
+    keptOpen?: boolean;
+  };
+
+  // A 20px anchor centered at x, an 80x40 bubble, a 12px arrow inset.
+  const placeAnchor = (anchor: Element, x: number) =>
+    setRect(anchor, { top: 300, left: x - 10, width: 20, height: 20 });
+
+  const setup = (initial: Props = {}, parent: HTMLElement = document.body) => {
+    jest.advanceTimersByTime(1000);
+    setViewport(800, 600);
+    const anchor = parent.appendChild(document.createElement('span'));
+    const pop = element();
+    pop.style.setProperty('--tooltip-arrow-inset', '12px');
+    placeAnchor(anchor, 400);
+    setRect(pop, { top: 0, left: 0, width: 80, height: 40 });
+    const keptOpenRef = { current: false };
+    const hook = renderHook(
+      ({
+        placement = 'top',
+        arrowPlacement = 'center',
+        enabled = true,
+        flipBack = false,
+        isOpen = true,
+        keptOpen = true,
+      }: Props) => {
+        keptOpenRef.current = keptOpen;
+        return useFlipArrowPlacement({
+          anchor,
+          popoverRef: { current: pop },
+          placement,
+          arrowPlacement,
+          enabled,
+          flipBack,
+          isOpen,
+          styled: true,
+          keptOpenRef,
+          isControlled: false,
+        });
+      },
+      { initialProps: initial }
+    );
+    const fire = () =>
+      act(() => {
+        jest.advanceTimersByTime(1000); // past the throttle window
+        MockIntersectionObserver.watching(anchor)!.trigger();
+      });
+    return { ...hook, anchor, pop, fire };
+  };
+
+  it('watches the anchor against the viewport at each fit boundary', () => {
+    const { anchor } = setup();
+    const ios = MockIntersectionObserver.watchingAll(anchor);
+    expect(ios.map(io => io.options?.root)).toEqual([
+      document,
+      document,
+      document,
+    ]);
+    // reach 40 / 12 / 68, minus half the anchor (10), plus the threshold
+    expect(ios.map(io => io.options?.rootMargin)).toEqual([
+      '0px -40px',
+      '0px -12px',
+      '0px -68px',
+    ]);
+  });
+
+  it("shifts to 'start' near the left edge and 'end' near the right", () => {
+    const { result, anchor, fire } = setup();
+    placeAnchor(anchor, 30);
+    fire();
+    expect(result.current).toBe('start');
+    placeAnchor(anchor, 770);
+    fire();
+    expect(result.current).toBe('end');
+  });
+
+  it("left / right: shifts to 'start' near the top, 'end' near the bottom", () => {
+    const { result, anchor, fire } = setup({ placement: 'left' });
+    // a 20px anchor centered at y; the bubble is 40px tall
+    const placeAt = (y: number) =>
+      setRect(anchor, { top: y - 10, left: 400, width: 20, height: 20 });
+    placeAt(25);
+    fire();
+    expect(result.current).toBe('start');
+    placeAt(575);
+    fire();
+    expect(result.current).toBe('end');
+  });
+
+  it('never shifts a tooltip shown purely by hover', () => {
+    const { result, anchor, fire } = setup({ keptOpen: false });
+    placeAnchor(anchor, 30);
+    fire();
+    expect(result.current).toBe('center');
+  });
+
+  it('stays shifted once room returns (sticky)', () => {
+    const { result, anchor, fire } = setup();
+    placeAnchor(anchor, 30);
+    fire();
+    placeAnchor(anchor, 400);
+    fire();
+    expect(result.current).toBe('start');
+  });
+
+  it('with flipBack, returns to the arrow placement once it fits', () => {
+    const { result, anchor, fire } = setup({ flipBack: true });
+    placeAnchor(anchor, 30);
+    fire();
+    expect(result.current).toBe('start');
+    placeAnchor(anchor, 400);
+    fire();
+    expect(result.current).toBe('center');
+  });
+
+  it('resets to the arrow placement after closing', () => {
+    const { result, anchor, fire, rerender } = setup();
+    placeAnchor(anchor, 30);
+    fire();
+    rerender({ isOpen: false }); // popover already hidden -> immediate
+    expect(result.current).toBe('center');
+  });
+
+  it('follows an arrowPlacement prop change immediately', () => {
+    const { result, rerender } = setup();
+    rerender({ arrowPlacement: 'end' });
+    expect(result.current).toBe('end');
+  });
+
+  it('returns the arrow placement as-is when disabled', () => {
+    const { result, anchor, rerender } = setup({ enabled: false });
+    expect(MockIntersectionObserver.watching(anchor)).toBeUndefined();
+    rerender({ enabled: false, arrowPlacement: 'start' });
+    expect(result.current).toBe('start');
+  });
+
+  it('also watches, and measures against, a scroll container', () => {
+    // A 300px-wide scrolling box at x = 100..400.
+    const box = element();
+    box.style.overflowY = 'auto';
+    setRect(box, { top: 200, left: 100, width: 300, height: 200 });
+    Object.defineProperty(box, 'clientWidth', { value: 300 });
+    Object.defineProperty(box, 'clientHeight', { value: 200 });
+    const { result, anchor, fire } = setup({}, box);
+    const roots = MockIntersectionObserver.watchingAll(anchor).map(
+      io => io.options?.root
+    );
+    expect(roots).toEqual([document, document, document, box, box, box]);
+    placeAnchor(anchor, 130); // room in the viewport, not in the box
+    fire();
+    expect(result.current).toBe('start');
   });
 });
 
@@ -551,13 +700,13 @@ describe('useTooltipAnimations', () => {
     return { el, ...result.current };
   };
 
-  it('without animations, sets the opacity instantly and skips the slide', () => {
-    const { el, fade, slide } = setup(200, false);
+  it('without animations, sets the opacity instantly and skips the slides', () => {
+    const { el, fade, slideAcross } = setup(200, false);
     expect(fade(1)).toBeUndefined();
     expect(el.style.opacity).toBe('1');
     fade(0);
     expect(el.style.opacity).toBe('0');
-    expect(slide()).toBeUndefined();
+    expect(slideAcross()).toBeUndefined();
     expect(dom.animate).not.toHaveBeenCalled();
   });
   const frames = (i: number) => animations[i].keyframes;
@@ -586,27 +735,27 @@ describe('useTooltipAnimations', () => {
   });
 
   it('a new fade stops the previous fade only', () => {
-    const { fade, slide } = setup();
+    const { fade, slideAcross } = setup();
     fade(1, 0);
-    slide();
+    slideAcross();
     fade(0);
     expect(animations[0].playState).toBe('idle'); // old fade cancelled
-    expect(animations[1].playState).toBe('running'); // slide unaffected
+    expect(animations[1].playState).toBe('running'); // slide across unaffected
     expect(animations[2].playState).toBe('running');
   });
 
-  it('a new slide stops the previous slide only', () => {
-    const { fade, slide } = setup();
-    slide();
+  it('a new slide across stops the previous one only', () => {
+    const { fade, slideAcross } = setup();
+    slideAcross();
     fade(1, 0);
-    slide();
+    slideAcross();
     expect(animations[0].playState).toBe('idle');
     expect(animations[1].playState).toBe('running');
   });
 
-  it('slides from --flip-from over twice the duration', () => {
-    const { slide } = setup(200);
-    slide();
+  it('slides across from --flip-from over twice the duration', () => {
+    const { slideAcross } = setup(200);
+    slideAcross();
     expect(frames(0)).toEqual([
       { transform: 'var(--flip-from, none)' },
       { transform: 'none' },
@@ -616,11 +765,83 @@ describe('useTooltipAnimations', () => {
 
   it('is instant under prefers-reduced-motion', () => {
     dom.reducedMotion = true;
-    const { fade, slide } = setup(200);
+    const { fade, slideAcross } = setup(200);
     fade(1, 0);
-    slide();
+    slideAcross();
     expect(duration(0)).toBe(0);
     expect(duration(1)).toBe(0);
+  });
+
+  describe('slideAlong', () => {
+    // An 80x40 popover with a bubble inside and a 12px arrow inset.
+    const setupAlong = (durationMs = 200, animate = true) => {
+      const s = setup(durationMs, animate);
+      s.el.appendChild(document.createElement('div')).className =
+        'tooltip-bubble';
+      s.el.style.setProperty('--tooltip-arrow-inset', '12px');
+      setRect(s.el, { top: 0, left: 0, width: 80, height: 40 });
+      return s;
+    };
+
+    it('moves translate and the arrow position oppositely, in step', () => {
+      const { slideAlong } = setupAlong(200);
+      slideAlong('top', 'center', 'start');
+      expect(frames(0)).toEqual([
+        { '--tooltip-arrow-pos': '40px' },
+        { '--tooltip-arrow-pos': '12px' },
+      ]);
+      expect(frames(1)).toEqual([
+        { translate: '-40px 0px' },
+        { translate: '-12px 0px' },
+      ]);
+      expect(duration(0)).toBe(200);
+      expect(duration(1)).toBe(200);
+    });
+
+    it('works along the height for left / right', () => {
+      const { slideAlong } = setupAlong();
+      slideAlong('left', 'center', 'end');
+      expect(frames(1)).toEqual([
+        { translate: '0px -20px' },
+        { translate: '0px -28px' },
+      ]);
+    });
+
+    it('a new slide along stops the previous one only', () => {
+      const { fade, slideAlong } = setupAlong();
+      fade(1, 0);
+      slideAlong('top', 'center', 'start');
+      slideAlong('top', 'start', 'center');
+      expect(animations[0].playState).toBe('running'); // the fade
+      expect(animations[1].playState).toBe('idle');
+      expect(animations[2].playState).toBe('idle');
+    });
+
+    it('continues a running slide along from its current position', () => {
+      const { el, slideAlong } = setupAlong();
+      slideAlong('top', 'center', 'start');
+      // jsdom drops `translate`: report a mid-slide value
+      const computed = getComputedStyle(el);
+      const spy = jest.spyOn(window, 'getComputedStyle').mockReturnValue({
+        getPropertyValue: (name: string) =>
+          name === 'translate' ? '-30px' : computed.getPropertyValue(name),
+      } as CSSStyleDeclaration);
+      slideAlong('top', 'start', 'end');
+      expect(frames(3)).toEqual([
+        { translate: '-30px 0px' },
+        { translate: '-68px 0px' },
+      ]);
+      expect(frames(2)[0]).toEqual({ '--tooltip-arrow-pos': '30px' });
+      spy.mockRestore();
+    });
+
+    it('skips without animations or a bubble', () => {
+      expect(setupAlong(200, false).slideAlong('top', 'center', 'end')).toBe(
+        undefined
+      );
+      expect(setup().slideAlong('top', 'center', 'end')).toBeUndefined();
+      expect(dom.animate).not.toHaveBeenCalled();
+    });
   });
 });
 

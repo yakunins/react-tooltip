@@ -26,11 +26,14 @@ export type TooltipProps = {
   timings?: TooltipTimings;
   /** Gap between anchor and bubble, any CSS length. Default `'0rem'`. */
   offset?: string;
-  /** Flip to the opposite side when out of room. Default `true`. */
+  /**
+   * Flip to the opposite side when out of room, and move the arrow
+   * (`arrowPlacement`) when out of room across it. Default `true`.
+   */
   flip?: boolean;
   /**
-   * Return a flipped bubble to `placement` once it has room again, instead of
-   * staying flipped until closed. Default `false`.
+   * Return a flipped bubble to `placement` and `arrowPlacement` once they
+   * have room again, instead of staying flipped until closed. Default `false`.
    */
   flipBack?: boolean;
   /** Fade duration (CSS time); the flip slide takes 2x. Default `'0.2s'`. */

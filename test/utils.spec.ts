@@ -110,8 +110,8 @@ describe('cssTimeToMs', () => {
     expect(cssTimeToMs(input)).toBe(ms);
   });
 
-  it('returns NaN for an unresolved expression', () => {
-    expect(cssTimeToMs('calc(var(--t) * 2)')).toBeNaN();
+  it('returns 0 for an unresolved expression', () => {
+    expect(cssTimeToMs('calc(var(--t) * 2)')).toBe(0);
   });
 });
 

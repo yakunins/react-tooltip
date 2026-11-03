@@ -2,8 +2,13 @@
 
 const css = {
   src: `src/TooltipBubble/tooltipBubble.css`,
-  hash: `1lmm8gf622r`,
+  hash: `2a8zn1tun46`,
   content: `
+@property --tooltip-arrow-pos{
+syntax:'<length-percentage>';
+inherits:false;
+initial-value:50%;
+}
 .tooltip-bubble{
 --py:var(--tooltip-padding-y);
 --px:var(--tooltip-padding-x);
@@ -48,14 +53,14 @@ var(--arrow-l)
 display:none;
 }
 .tooltip-bubble[data-arrow='start']{
---arrow-pos:var(--arrow-inset);
+--tooltip-arrow-pos:var(--arrow-inset);
 }
 .tooltip-bubble[data-arrow='end']{
---arrow-pos:calc(100% - var(--arrow-inset));
+--tooltip-arrow-pos:calc(100% - var(--arrow-inset));
 }
 .tooltip-bubble[data-placement='top']{
 --b:var(--arrow-size);
---cx:var(--arrow-pos,50%);
+--cx:var(--tooltip-arrow-pos,50%);
 --cy:calc(100% - var(--arrow-size));
 --arrow-b:
 calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
@@ -65,7 +70,7 @@ padding-bottom:calc(var(--b) + var(--py));
 }
 .tooltip-bubble[data-placement='bottom']{
 --t:var(--arrow-size);
---cx:var(--arrow-pos,50%);
+--cx:var(--tooltip-arrow-pos,50%);
 --cy:calc(0% + var(--arrow-size));
 --arrow-t:
 calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy),
@@ -76,7 +81,7 @@ padding-top:calc(var(--t) + var(--py));
 .tooltip-bubble[data-placement='left']{
 --r:var(--arrow-size);
 --cx:calc(100% - var(--arrow-size));
---cy:var(--arrow-pos,50%);
+--cy:var(--tooltip-arrow-pos,50%);
 --arrow-r:
 var(--cx) calc(var(--cy) - var(--arrow-size) * 0.707),
 calc(var(--cx) + var(--arrow-size) * 0.707) var(--cy),
@@ -86,7 +91,7 @@ padding-right:calc(var(--r) + var(--px));
 .tooltip-bubble[data-placement='right']{
 --l:var(--arrow-size);
 --cx:calc(0% + var(--arrow-size));
---cy:var(--arrow-pos,50%);
+--cy:var(--tooltip-arrow-pos,50%);
 --arrow-l:
 var(--cx) calc(var(--cy) + var(--arrow-size) * 0.707),
 calc(var(--cx) - var(--arrow-size) * 0.707) var(--cy),

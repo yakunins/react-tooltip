@@ -406,9 +406,8 @@ describe('Tooltip without CSS anchor positioning', () => {
 describe('Tooltip when the anchor is scrolled out of sight', () => {
   const intersect = (isIntersecting: boolean) =>
     act(() => {
-      MockIntersectionObserver.watching(anchor())!.trigger([
-        { isIntersecting },
-      ]);
+      for (const io of MockIntersectionObserver.watchingAll(anchor()))
+        io.trigger([{ isIntersecting }]);
     });
 
   it('fades out while the anchor is clipped and back in when it returns', () => {
@@ -443,9 +442,8 @@ describe('Tooltip when the anchor is scrolled out of sight', () => {
     const el = document.body.appendChild(document.createElement('button'));
     render(<Tooltip content="Tip" anchorRef={{ current: el }} open />);
     act(() => {
-      MockIntersectionObserver.watching(el)!.trigger([
-        { isIntersecting: false },
-      ]);
+      for (const io of MockIntersectionObserver.watchingAll(el))
+        io.trigger([{ isIntersecting: false }]);
     });
     expect(popover()!.hasAttribute('data-anchor-hidden')).toBe(true);
     el.remove();
@@ -551,6 +549,7 @@ describe('Tooltip fades (Web Animations)', () => {
   });
   const fades = () => animations.filter(a => 'opacity' in a.keyframes[0]);
   const slides = () => animations.filter(a => 'transform' in a.keyframes[0]);
+  const shifts = () => animations.filter(a => 'translate' in a.keyframes[0]);
   const lastFade = () => fades()[fades().length - 1];
   const opacity = (value: string) => {
     popover()!.style.opacity = value; // the current (mid-fade) opacity
@@ -575,6 +574,18 @@ describe('Tooltip fades (Web Animations)', () => {
       tip({ open: true, placement: 'bottom', animationDuration: '300ms' })
     );
     expect(slides()[0].options?.duration).toBe(600);
+  });
+
+  it('glides an arrow change while visible, over animationDuration', () => {
+    const { rerender } = render(
+      tip({ open: true, animationDuration: '300ms' })
+    );
+    expect(shifts()).toHaveLength(0);
+    rerender(
+      tip({ open: true, arrowPlacement: 'start', animationDuration: '300ms' })
+    );
+    expect(shifts()).toHaveLength(1);
+    expect(shifts()[0].options?.duration).toBe(300);
   });
 
   it('fades in on open', () => {

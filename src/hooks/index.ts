@@ -1,4 +1,5 @@
 // Hooks used by the components; internal helpers are imported by path.
+export { useFlipArrowPlacement } from './useFlipArrowPlacement';
 export { useControllableOpen, type SetOpen } from './useControllableOpen';
 export { useDescribedBy } from './useDescribedBy';
 export { useElementHasFocusable } from './useElementHasFocusable';
